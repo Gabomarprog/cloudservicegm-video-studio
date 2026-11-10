@@ -81,10 +81,10 @@ def make_caption(group, index, start, end, duration):
     layouts = ["center", "upper", "lower", "left", "center", "right"]
     modes = ["slam", "letters", "wipe", "side", "stretch", "flip"]
     accents = ["red", "mint", "yellow", "white"]
+    progress = start / max(1.0, duration)
     layout = layouts[index % len(layouts)] if progress < 0.25 else ["upper", "left", "upper", "right"][index % 4]
     mode = modes[index % len(modes)]
     accent = accents[index % len(accents)]
-    progress = start / max(1.0, duration)
     contrast = "contrast-light" if (0.25 <= progress < 0.39 or progress >= 0.83) else "contrast-dark"
 
     word_markup = []
