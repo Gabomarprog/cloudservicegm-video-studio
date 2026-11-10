@@ -14,16 +14,12 @@ on:
         required: true
         type: string
         default: |
-          ¿Tu página web tarda demasiado en cargar?
-          Puede que tu servidor ya no esté preparado para el crecimiento de tu proyecto.
-          Una web lenta no solo desespera. También puede hacer que tus clientes se vayan antes de conocerte.
-          Cuando tu proyecto crece, necesitas una infraestructura que responda a cada visita.
-          Un VPS bien configurado te da recursos dedicados, mayor control y una base sólida para crecer.
-          Optimizamos el servidor, protegemos sus accesos y configuramos los servicios que tu proyecto necesita.
-          Desde WordPress y bases de datos, hasta aplicaciones y entornos web personalizados.
-          En cloudservicegm preparamos tu infraestructura desde cero, con seguridad y rendimiento en cada detalle.
-          Tu web merece funcionar sin límites innecesarios.
-          Escríbenos y llevemos tu proyecto al siguiente nivel.
+          ¿Tu web tarda en cargar? Una página lenta hace que tus visitantes se vayan antes de conocerte.
+          Puede que tu servidor ya no esté a la altura de tu proyecto.
+          Un VPS bien configurado te ofrece recursos dedicados, control y estabilidad.
+          En cloudservicegm preparamos tu infraestructura desde cero: optimizamos el rendimiento, protegemos los accesos y configuramos SSL, WordPress, bases de datos y aplicaciones web.
+          Todo adaptado a lo que necesitas.
+          Síguenos para aprender a mejorar tu web y escríbenos si necesitas ayuda con tu VPS.
 
 permissions:
   contents: read
@@ -81,7 +77,8 @@ jobs:
             --engine "$QWEN_TTS_BIN" \
             --model "$QWEN_TTS_MODEL" \
             --threads 4 \
-            --seed 20261110
+            --seed 20261110 \
+            --rate 1.12
           test -s narration.wav
 
       - name: Comprobar duración mínima de 35 segundos
