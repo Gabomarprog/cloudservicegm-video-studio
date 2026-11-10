@@ -105,7 +105,7 @@ def make_caption(group, index, start, end, duration):
         f'id="beat-{index}" '
         
         f'style="--type-size:{font_size}px">'
-        f'<div class="type-ghost" aria-hidden="true">{html.escape(plain)}</div>'
+        
         f'<div class="type-wrap"><div class="headline">{markup}</div></div></div>'
     )
 
@@ -114,21 +114,21 @@ def make_caption(group, index, start, end, duration):
     if mode == "slam":
         enter = (
             f'tl.fromTo({root},{{autoAlpha:0,scale:2.6,y:150,rotationZ:-8,filter:"blur(0px)"}},'
-            f'{{autoAlpha:1,scale:1,y:0,rotationZ:0,filter:"blur(0px)",duration:.58,ease:"elastic.out(1,.55)"}},{start:.3f});'
+            f'{{autoAlpha:1,scale:1,y:0,rotationZ:0,filter:"blur(0px)",duration:.58,ease:"elastic.out(1,.55)",overwrite:"auto"}},{start:.3f});'
             f'tl.fromTo({letters},{{y:65,opacity:0,rotationX:-75,scale:.55}},'
             f'{{y:0,opacity:1,rotationX:0,scale:1,duration:.34,stagger:.018,ease:"back.out(1.6)"}},{start + .04:.3f});'
         )
     elif mode == "letters":
         enter = (
             f'tl.fromTo({root},{{autoAlpha:1,clipPath:"inset(0 0 100% 0)"}},'
-            f'{{clipPath:"inset(0 0 0% 0)",duration:.52,ease:"expo.out"}},{start:.3f});'
+            f'{{clipPath:"inset(0 0 0% 0)",duration:.52,ease:"expo.out",overwrite:"auto"}},{start:.3f});'
             f'tl.fromTo({letters},{{y:200,opacity:0,scale:.38,rotationX:-90,filter:"blur(0px)"}},'
             f'{{y:0,opacity:1,scale:1,rotationX:0,filter:"blur(0px)",duration:.48,stagger:.025,ease:"back.out(1.65)"}},{start + .02:.3f});'
         )
     elif mode == "wipe":
         enter = (
             f'tl.fromTo({root},{{autoAlpha:1,clipPath:"inset(0 100% 0 0)",x:-75}},'
-            f'{{clipPath:"inset(0 0% 0 0)",x:0,duration:.6,ease:"expo.out"}},{start:.3f});'
+            f'{{clipPath:"inset(0 0% 0 0)",x:0,duration:.6,ease:"expo.out",overwrite:"auto"}},{start:.3f});'
             f'tl.fromTo({letters},{{opacity:0,scaleX:.12,filter:"blur(0px)"}},'
             f'{{opacity:1,scaleX:1,filter:"blur(0px)",duration:.3,stagger:.02,ease:"power2.out"}},{start + .08:.3f});'
         )
@@ -136,21 +136,21 @@ def make_caption(group, index, start, end, duration):
         direction = -1 if index % 2 else 1
         enter = (
             f'tl.fromTo({root},{{autoAlpha:0,x:{direction * 1000},skewX:{direction * -24},scaleX:.65,filter:"blur(0px)"}},'
-            f'{{autoAlpha:1,x:0,skewX:0,scaleX:1,filter:"blur(0px)",duration:.64,ease:"expo.out"}},{start:.3f});'
+            f'{{autoAlpha:1,x:0,skewX:0,scaleX:1,filter:"blur(0px)",duration:.64,ease:"expo.out",overwrite:"auto"}},{start:.3f});'
             f'tl.fromTo({letters},{{y:45,opacity:0}},'
             f'{{y:0,opacity:1,duration:.3,stagger:.015,ease:"power2.out"}},{start + .1:.3f});'
         )
     elif mode == "stretch":
         enter = (
             f'tl.fromTo({root},{{autoAlpha:0,scaleX:.06,scaleY:1.55,filter:"blur(22px)"}},'
-            f'{{autoAlpha:1,scaleX:1,scaleY:1,filter:"blur(0px)",duration:.65,ease:"expo.out"}},{start:.3f});'
+            f'{{autoAlpha:1,scaleX:1,scaleY:1,filter:"blur(0px)",duration:.65,ease:"expo.out",overwrite:"auto"}},{start:.3f});'
             f'tl.fromTo({letters},{{x:42,y:70,opacity:0,rotationY:70,scaleX:.72}},'
             f'{{x:0,y:0,opacity:1,rotationY:0,scaleX:1,duration:.34,stagger:.018,ease:"power3.out"}},{start + .04:.3f});'
         )
     else:
         enter = (
             f'tl.fromTo({root},{{autoAlpha:0,scale:.16,rotationX:82,rotationZ:9,y:110,filter:"blur(0px)"}},'
-            f'{{autoAlpha:1,scale:1,rotationX:0,rotationZ:0,y:0,filter:"blur(0px)",duration:.68,ease:"back.out(1.5)"}},{start:.3f});'
+            f'{{autoAlpha:1,scale:1,rotationX:0,rotationZ:0,y:0,filter:"blur(0px)",duration:.68,ease:"back.out(1.5)",overwrite:"auto"}},{start:.3f});'
             f'tl.fromTo({letters},{{opacity:0,rotationY:90,z:-130}},'
             f'{{opacity:1,rotationY:0,z:0,duration:.4,stagger:.02,ease:"power3.out"}},{start + .06:.3f});'
         )
@@ -158,7 +158,7 @@ def make_caption(group, index, start, end, duration):
     exit_time = max(start + .24, end - .18)
     exit_anim = (
         f'tl.to({root},{{autoAlpha:0,scale:{1.14 if index % 2 == 0 else .82},'
-        f'y:{-85 if index % 2 == 0 else 65},duration:.2,ease:"power2.in"}},{exit_time:.3f});'
+        f'y:{-85 if index % 2 == 0 else 65},duration:.2,ease:"power2.in",overwrite:"auto"}},{exit_time:.3f});'
     )
     return clip, enter + exit_anim
 
