@@ -16,8 +16,13 @@ on:
         default: |
           ¿Tu página web tarda demasiado en cargar?
           Puede que tu servidor ya no esté preparado para el crecimiento de tu proyecto.
-          Un VPS bien configurado te permite controlar los recursos, mejorar la velocidad y reforzar la seguridad.
-          En cloudservicegm preparamos tu infraestructura desde cero, con configuración profesional y protección del servidor.
+          Una web lenta no solo desespera. También puede hacer que tus clientes se vayan antes de conocerte.
+          Cuando tu proyecto crece, necesitas una infraestructura que responda a cada visita.
+          Un VPS bien configurado te da recursos dedicados, mayor control y una base sólida para crecer.
+          Optimizamos el servidor, protegemos sus accesos y configuramos los servicios que tu proyecto necesita.
+          Desde WordPress y bases de datos, hasta aplicaciones y entornos web personalizados.
+          En cloudservicegm preparamos tu infraestructura desde cero, con seguridad y rendimiento en cada detalle.
+          Tu web merece funcionar sin límites innecesarios.
           Escríbenos y llevemos tu proyecto al siguiente nivel.
 
 permissions:
@@ -69,6 +74,12 @@ jobs:
         run: |
           npx hyperframes tts narration.txt --voice em_alex --lang es --speed 1.0 --output narration.wav
           test -s narration.wav
+
+      - name: Comprobar duración mínima de 35 segundos
+        run: |
+          DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 narration.wav)
+          echo "Duración generada: ${DURATION}s"
+          awk -v d="$DURATION" 'BEGIN { if (d < 35) { print "El audio dura menos de 35 segundos. Amplía el guion."; exit 1 } }'
 
       - name: Transcribir narración
         run: |
