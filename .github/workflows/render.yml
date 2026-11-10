@@ -8,19 +8,24 @@ on:
         description: "Título principal del video"
         required: true
         type: string
-        default: "3 señales de que tu VPS necesita mejorar"
+        default: "¿Y si tu web se cae? | cloudservicegm"
       script:
         description: "Guion completo en español para la narración"
         required: true
         type: string
         default: |
-          ¿Tu web tarda en cargar? Cuando una página se queda pensando, tus visitantes no esperan: se van y buscan otra opción.
-          Muchas veces el problema está en un servidor que ya no responde al ritmo de tu proyecto.
+          Hoy estás aquí. Mañana, quizá no. [pause:500ms]
+          
+          Pero ¿qué pasa si tu web se cae justo cuando un cliente intenta entrar?
+          Cada minuto fuera de línea puede significar visitas perdidas, ventas que no llegan y una confianza difícil de recuperar.
+          Muchas veces, el problema no está en tu página. Está en un servidor que ya no puede seguir el ritmo de tu proyecto.
+          
           Un VPS bien configurado te ofrece recursos dedicados, más control y una base estable para crecer.
-          En cloudservicegm preparamos tu infraestructura desde cero. Optimizamos el servidor, reforzamos la seguridad, configuramos SSL y dejamos listos WordPress, bases de datos y aplicaciones web.
-          También cuidamos los accesos y los servicios que mantienen tu proyecto disponible.
-          No se trata solo de tener un servidor: se trata de que tu web responda cuando tus clientes la necesitan.
-          Síguenos para aprender sobre VPS, rendimiento y seguridad. Y si necesitas ayuda con tu infraestructura, escríbenos.
+          En cloudservicegm preparamos tu infraestructura desde cero: instalamos el sistema, optimizamos el servidor, reforzamos la seguridad y configuramos SSL.
+          También dejamos listos WordPress, bases de datos y aplicaciones web, con accesos organizados y copias de respaldo.
+          
+          Porque no se trata solo de tener un servidor. Se trata de que tu web siga disponible cuando tus clientes la necesitan.
+          No esperes a que falle. Anticípate. Escríbenos a cloudservicegm.
 
 permissions:
   contents: read
@@ -53,15 +58,15 @@ jobs:
       - name: Instalar HyperFrames y GSAP
         run: npm install --no-save hyperframes@latest gsap @fontsource/anton@5.3.0
 
-      - name: Preparar Qwen3-TTS VoiceDesign en CPU
+      - name: Preparar Qwen3-TTS CustomVoice 1.7B en CPU
         run: |
           git clone --depth 1 https://github.com/gabriele-mastrapasqua/qwen3-tts.git tools/qwen3-tts
           git -C tools/qwen3-tts fetch --depth 1 origin ef339be58a778b062e1c14382347964552eae007
           git -C tools/qwen3-tts checkout --detach ef339be58a778b062e1c14382347964552eae007
           make -C tools/qwen3-tts -j2 blas
-          bash tools/qwen3-tts/download_model.sh --model voice-design --dir "$GITHUB_WORKSPACE/models/qwen3-tts-voice-design"
+          bash tools/qwen3-tts/download_model.sh --model large --dir "$GITHUB_WORKSPACE/models/qwen3-tts-customvoice"
           echo "QWEN_TTS_BIN=$GITHUB_WORKSPACE/tools/qwen3-tts/qwen_tts" >> "$GITHUB_ENV"
-          echo "QWEN_TTS_MODEL=$GITHUB_WORKSPACE/models/qwen3-tts-voice-design" >> "$GITHUB_ENV"
+          echo "QWEN_TTS_MODEL=$GITHUB_WORKSPACE/models/qwen3-tts-customvoice" >> "$GITHUB_ENV"
 
       - name: Guardar guion
         env:
@@ -70,7 +75,7 @@ jobs:
           printf '%s' "$VIDEO_SCRIPT" > narration.txt
           test -s narration.txt
 
-      - name: Generar voz masculina cálida en español
+      - name: Generar voz Ryan cálida en español latino
         run: |
           python3 generate_voice.py \
             --input narration.txt \
@@ -79,7 +84,7 @@ jobs:
             --model "$QWEN_TTS_MODEL" \
             --threads 4 \
             --seed 20261110 \
-            --rate 1.12
+            --speaker ryan \\\n    --rate 1.00
           test -s narration.wav
 
       - name: Comprobar duración mínima de 35 segundos
