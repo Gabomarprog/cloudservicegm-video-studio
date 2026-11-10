@@ -10,13 +10,12 @@ from pathlib import Path
 
 
 DELIVERY_INSTRUCTION = (
-    "Speak in neutral Latin American Spanish with a warm, intimate, mature male delivery. "
-    "Sound relaxed, sincere, engaging and memorable, like a trusted storyteller speaking "
-    "directly to one person. Keep a smooth, connected conversational rhythm, with natural "
-    "breathing pauses between complete thoughts and a slightly longer pause after the opening "
-    "hook. Use subtle emotional emphasis and gentle intonation changes without exaggerating. "
-    "Keep the voice steady and full, never thin, rushed, robotic, word-by-word, or like a loud "
-    "commercial announcer. Preserve clear Latin American pronunciation throughout."
+    "Speak in neutral Latin American Spanish with a warm, mature, clearly masculine voice. "
+    "Use a natural, moderately brisk conversational pace, like a confident presenter speaking "
+    "directly to one person. Keep the words connected and fluid, with brief natural pauses at "
+    "punctuation only. Do not stretch vowels, slow down at sentence endings, or leave long gaps "
+    "between phrases. Sound engaging, expressive and warm without becoming theatrical or "
+    "overly promotional. Keep clear Latin American pronunciation and a steady vocal tone."
 )
 
 
@@ -41,7 +40,7 @@ def main() -> int:
     parser.add_argument("--speaker", default="ryan")
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--seed", type=int, default=20261110)
-    parser.add_argument("--rate", type=float, default=1.0)
+    parser.add_argument("--rate", type=float, default=1.7)
     args = parser.parse_args()
 
     input_path, output_path = Path(args.input), Path(args.output)
@@ -52,8 +51,8 @@ def main() -> int:
         raise FileNotFoundError(f"No se encuentra el motor Qwen3-TTS: {engine}")
     if not (model_dir / "config.json").exists():
         raise FileNotFoundError(f"No se encuentra el modelo CustomVoice: {model_dir}")
-    if not 0.9 <= args.rate <= 1.1:
-        raise ValueError("--rate debe estar entre 0.9 y 1.1 para conservar naturalidad")
+    if not 0.9 <= args.rate <= 1.8:
+        raise ValueError("--rate debe estar entre 0.9 y 1.8")
 
     text = prepare_continuous_text(input_path.read_text(encoding="utf-8"))
     output_path.parent.mkdir(parents=True, exist_ok=True)
