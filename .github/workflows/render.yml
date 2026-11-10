@@ -46,6 +46,18 @@ jobs:
       - name: Instalar HyperFrames y GSAP en el runner
         run: npm install --no-save hyperframes@latest gsap
 
+              - name: Instalar motor de voz Kokoro
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Preparar dependencias de voz
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install kokoro-onnx soundfile
+          echo "HYPERFRAMES_PYTHON=$GITHUB_WORKSPACE/.venv/bin/python" >> "$GITHUB_ENV"
+
       - name: Guardar guion de la ejecución
         env:
           VIDEO_SCRIPT: ${{ inputs.script }}
