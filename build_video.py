@@ -77,7 +77,9 @@ def make_caption(group, index, start, end, duration):
     phrase = " ".join(word["text"] for word in group)
     plain = re.sub(r"\s+", " ", phrase).strip()
     longest_word = max((len(word["text"]) for word in group), default=6)
-    font_size = max(145, min(360, int(2350 / max(6, longest_word))))
+    fit_phrase = int(3500 / max(14, chars))
+    fit_word = int(2050 / max(6, longest_word))
+    font_size = max(130, min(330, fit_phrase, fit_word))
     layouts = ["center", "upper", "lower", "left", "center", "right"]
     modes = ["slam", "letters", "wipe", "side", "stretch", "flip"]
     accents = ["red", "mint", "yellow", "white"]
