@@ -59,7 +59,7 @@ def main() -> int:
     if not (model_dir / "config.json").exists():
         raise FileNotFoundError(f"No se encuentra el modelo VoiceDesign: {model_dir}")
     if not 1.0 <= args.rate <= 1.15:
-        raise ValueError("--rate debe estar entre 0.95 y 1.15 para conservar naturalidad")
+        raise ValueError("--rate debe estar entre 1.0 y 1.15 para conservar naturalidad")
 
     text = prepare_continuous_text(input_path.read_text(encoding="utf-8"))
     output_path.parent.mkdir(parents=True, exist_ok=True)
