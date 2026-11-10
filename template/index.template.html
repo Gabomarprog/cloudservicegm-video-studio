@@ -49,11 +49,29 @@ h1{font-size:88px;line-height:1.02;letter-spacing:-4px;margin:0;font-weight:900;
 .footer{position:absolute;left:76px;right:76px;bottom:75px;display:flex;justify-content:space-between;color:#71869f;font-size:18px;letter-spacing:3px}
 .caption{position:absolute;left:85px;right:85px;bottom:205px;min-height:110px;padding:22px 28px;border-radius:22px;background:rgba(3,10,22,.88);border:1px solid rgba(106,213,255,.3);font-size:36px;line-height:1.25;font-weight:800;text-align:center;color:#fff;box-shadow:0 12px 45px rgba(0,0,0,.3)}
 .caption strong{color:#6ce6bd}
+
+/* Motion-design layer */
+.scanline{position:absolute;inset:0;pointer-events:none;opacity:.12;background:repeating-linear-gradient(0deg,transparent 0 5px,rgba(130,210,255,.12) 6px)}
+.orb{position:absolute;border:1px solid rgba(91,214,255,.28);border-radius:50%;pointer-events:none}
+.orb.a{width:620px;height:620px;right:-360px;top:420px;box-shadow:0 0 90px rgba(39,178,255,.12),inset 0 0 80px rgba(39,178,255,.08)}
+.orb.b{width:360px;height:360px;left:-245px;top:1080px;border-color:rgba(57,226,177,.28)}
+.hud{position:absolute;right:76px;top:300px;width:220px;padding:18px 20px;border:1px solid rgba(101,217,255,.25);border-radius:18px;background:rgba(6,19,36,.72);color:#8faac4;font:15px/1.7 ui-monospace,monospace;transform:rotate(4deg)}
+.hud b{display:block;color:#65d9ff;font-size:22px;letter-spacing:2px}
+.float-tag{position:absolute;padding:15px 21px;border:1px solid rgba(94,225,190,.3);border-radius:14px;background:rgba(8,29,39,.88);color:#8ff1d0;font-size:18px;font-weight:800;letter-spacing:1px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.tag-one{left:90px;top:790px}.tag-two{right:92px;top:1435px;border-color:rgba(101,217,255,.32);color:#8ce4ff;background:rgba(8,24,42,.9)}
+.signal{position:absolute;left:76px;right:76px;top:1480px;height:2px;background:linear-gradient(90deg,transparent,#43d9bd,#55cfff,transparent);opacity:.55}
+.signal:after{content:"";position:absolute;left:0;top:-5px;width:12px;height:12px;border-radius:50%;background:#7af3d0;box-shadow:0 0 24px #5de0ae}
+
 </style>
 </head>
 <body>
 <div id="root" data-composition-id="root" data-start="0" data-width="1080" data-height="1920">
   <div class="grid"></div><div class="glow one"></div><div class="glow two"></div>
+  <div class="scanline"></div><div class="orb a"></div><div class="orb b"></div>
+  <div class="hud" id="hud">CLOUD NODE <b>ONLINE</b>CPU LOAD&nbsp;&nbsp; 24%<br>RAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 42%<br>NETWORK&nbsp;&nbsp; SECURE</div>
+  <div class="float-tag tag-one" id="tag-one">⚡ ALTO RENDIMIENTO</div>
+  <div class="float-tag tag-two" id="tag-two">✓ SEGURIDAD ACTIVA</div>
+  <div class="signal" id="signal"></div>
   <div class="brand">CLOUDSERVICEGM</div>
   <div class="pill clip" id="pill" data-start="0" data-duration="{{DURATION}}" data-track-index="2"><span class="dot"></span> INFRAESTRUCTURA DIGITAL</div>
 
@@ -109,6 +127,14 @@ h1{font-size:88px;line-height:1.02;letter-spacing:-4px;margin:0;font-weight:900;
     const D = {{DURATION}};
     const tl = gsap.timeline({paused:true});
     tl.fromTo("#pill",{opacity:0,y:-24},{opacity:1,y:0,duration:.55,ease:"power3.out"},0);
+    tl.fromTo("#hud",{opacity:0,x:55,rotate:9},{opacity:1,x:0,rotate:4,duration:.8,ease:"power3.out"},.55);
+    tl.fromTo("#tag-one",{opacity:0,x:-50,rotate:-8},{opacity:1,x:0,rotate:0,duration:.55,ease:"back.out(1.7)"},1.25);
+    tl.fromTo("#tag-two",{opacity:0,x:50,rotate:8},{opacity:1,x:0,rotate:0,duration:.55,ease:"back.out(1.7)"},{{T3}}+.6);
+    tl.fromTo("#signal",{opacity:0,scaleX:0,transformOrigin:"left"},{opacity:.65,scaleX:1,duration:1.1,ease:"power2.inOut"},{{T4}}-.3);
+    gsap.to(".orb.a",{rotation:360,duration:24,repeat:-1,ease:"none"});
+    gsap.to(".orb.b",{rotation:-360,duration:18,repeat:-1,ease:"none"});
+    gsap.to(".glow.one",{x:-65,y:35,duration:5,yoyo:true,repeat:-1,ease:"sine.inOut"});
+    gsap.to(".glow.two",{x:55,y:-35,duration:6,yoyo:true,repeat:-1,ease:"sine.inOut"});
     tl.fromTo("#hero .eyebrow",{opacity:0,x:-45},{opacity:1,x:0,duration:.5,ease:"power3.out"},.15);
     tl.fromTo("#hero h1",{opacity:0,y:65,filter:"blur(12px)"},{opacity:1,y:0,filter:"blur(0px)",duration:.85,ease:"power4.out"},.35);
     tl.fromTo("#hero .subline",{opacity:0,y:25},{opacity:1,y:0,duration:.6,ease:"power2.out"},1.05);
