@@ -1,3 +1,4 @@
+
 name: Render video
 
 on:
@@ -36,29 +37,28 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Instalar herramientas en la nube
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg espeak-ng
-          ffmpeg -version
-          espeak-ng --version
-
-      - name: Instalar HyperFrames y GSAP en el runner
-        run: npm install --no-save hyperframes@latest gsap
-
-              - name: Instalar motor de voz Kokoro
+      - name: Preparar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Preparar dependencias de voz
+      - name: Instalar herramientas
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng
+          ffmpeg -version
+
+      - name: Instalar HyperFrames y GSAP
+        run: npm install --no-save hyperframes@latest gsap
+
+      - name: Instalar motor de voz Kokoro
         run: |
           python -m venv .venv
           .venv/bin/python -m pip install --upgrade pip
           .venv/bin/python -m pip install kokoro-onnx soundfile
           echo "HYPERFRAMES_PYTHON=$GITHUB_WORKSPACE/.venv/bin/python" >> "$GITHUB_ENV"
 
-      - name: Guardar guion de la ejecución
+      - name: Guardar guion
         env:
           VIDEO_SCRIPT: ${{ inputs.script }}
         run: |
@@ -70,7 +70,7 @@ jobs:
           npx hyperframes tts narration.txt --voice em_alex --lang es --speed 1.0 --output narration.wav
           test -s narration.wav
 
-      - name: Transcribir narración para sincronizar subtítulos
+      - name: Transcribir narración
         run: |
           npx hyperframes transcribe narration.wav --model large-v3 --language es
           test -s transcript.json
@@ -97,7 +97,7 @@ jobs:
       - name: Validar composición
         run: npx hyperframes lint render-project
 
-      - name: Renderizar MP4 en la nube
+      - name: Renderizar MP4
         working-directory: render-project
         run: npx hyperframes render --output cloudservicegm-video.mp4 --fps 30 --quality standard --workers 2
 
