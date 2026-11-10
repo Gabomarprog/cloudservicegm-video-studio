@@ -1,0 +1,98 @@
+name: Render video
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Título principal del video"
+        required: true
+        type: string
+        default: "3 señales de que tu VPS necesita mejorar"
+      script:
+        description: "Guion completo en español para la narración"
+        required: true
+        type: string
+        default: |
+          ¿Tu página web tarda demasiado en cargar?
+          Puede que tu servidor ya no esté preparado para el crecimiento de tu proyecto.
+          Un VPS bien configurado te permite controlar los recursos, mejorar la velocidad y reforzar la seguridad.
+          En cloudservicegm preparamos tu infraestructura desde cero, con configuración profesional y protección del servidor.
+          Escríbenos y llevemos tu proyecto al siguiente nivel.
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Instalar herramientas en la nube
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng
+          ffmpeg -version
+          espeak-ng --version
+
+      - name: Instalar HyperFrames y GSAP en el runner
+        run: npm install --no-save hyperframes@latest gsap
+
+      - name: Guardar guion de la ejecución
+        env:
+          VIDEO_SCRIPT: ${{ inputs.script }}
+        run: |
+          printf '%s' "$VIDEO_SCRIPT" > narration.txt
+          test -s narration.txt
+
+      - name: Generar narración en español
+        run: |
+          npx hyperframes tts narration.txt --voice em_alex --lang es --speed 1.0 --output narration.wav
+          test -s narration.wav
+
+      - name: Transcribir narración para sincronizar subtítulos
+        run: |
+          npx hyperframes transcribe narration.wav --model large-v3 --language es
+          test -s transcript.json
+
+      - name: Crear proyecto HyperFrames
+        run: |
+          npx hyperframes init render-project --non-interactive --example blank --skip-skills
+          mkdir -p render-project/assets
+          cp node_modules/gsap/dist/gsap.min.js render-project/assets/gsap.min.js
+          cp narration.wav render-project/assets/narration.wav
+
+      - name: Construir composición animada
+        env:
+          VIDEO_TITLE: ${{ inputs.title }}
+        run: |
+          python3 build_video.py \
+            --transcript transcript.json \
+            --audio narration.wav \
+            --template template/index.template.html \
+            --output render-project/index.html \
+            --assets render-project/assets \
+            --title "$VIDEO_TITLE"
+
+      - name: Validar composición
+        run: npx hyperframes lint render-project
+
+      - name: Renderizar MP4 en la nube
+        working-directory: render-project
+        run: npx hyperframes render --output cloudservicegm-video.mp4 --fps 30 --quality standard --workers 2
+
+      - name: Publicar video descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudservicegm-video
+          path: render-project/cloudservicegm-video.mp4
+          if-no-files-found: error
+          retention-days: 7
