@@ -73,7 +73,7 @@ def group_words(words, max_words=3, max_span=1.55, pause=0.28):
     return groups
 
 
-def make_caption(group, index, start, end):
+def make_caption(group, index, start, end, duration):
     phrase = " ".join(word["text"] for word in group)
     plain = re.sub(r"\s+", " ", phrase).strip()
     chars = len(plain)
@@ -84,6 +84,8 @@ def make_caption(group, index, start, end):
     layout = layouts[index % len(layouts)]
     mode = modes[index % len(modes)]
     accent = accents[index % len(accents)]
+    progress = start / max(1.0, duration)
+    contrast = "contrast-light" if (0.25 <= progress < 0.39 or progress >= 0.83) else "contrast-dark"
 
     word_markup = []
     for wi, word in enumerate(group):
@@ -96,7 +98,7 @@ def make_caption(group, index, start, end):
     markup = " ".join(word_markup)
 
     clip = (
-        f'<div class="kinetic-clip clip layout-{layout} mode-{mode} accent-{accent}" '
+        f'<div class="kinetic-clip clip layout-{layout} mode-{mode} accent-{accent} {contrast}" '
         f'id="beat-{index}" data-start="{start:.3f}" '
         f'data-duration="{max(.2, end-start):.3f}" data-track-index="20" '
         f'style="--type-size:{font_size}px">'
@@ -223,7 +225,7 @@ def main():
         start = group[0]["start"]
         next_start = groups[index + 1][0]["start"] if index + 1 < len(groups) else duration
         end = min(duration, group[-1]["end"] + .10, max(start + .2, next_start - .02))
-        markup, animation = make_caption(group, index, start, end)
+        markup, animation = make_caption(group, index, start, end, duration)
         captions.append(markup)
         caption_anims.append(animation)
 
