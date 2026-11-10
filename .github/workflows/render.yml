@@ -96,7 +96,7 @@ jobs:
             --model "$QWEN_TTS_MODEL" \
             --threads 4 \
             --seed 20261110 \
-            --speaker ryan \
+            --speaker ryan
           test -s narration.wav
 
       - name: Comprobar duración mínima de 35 segundos
