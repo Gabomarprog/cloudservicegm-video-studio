@@ -9,26 +9,13 @@ import sys
 from pathlib import Path
 
 
-DELIVERY_INSTRUCTION = (
-    "Speak in neutral Latin American Spanish with a warm, mature, clearly masculine voice. "
-    "Use a natural, moderately brisk conversational pace, like a confident presenter speaking "
-    "directly to one person. Keep the words connected and fluid, with brief natural pauses at "
-    "punctuation only. Do not stretch vowels, slow down at sentence endings, or leave long gaps "
-    "between phrases. Sound engaging, expressive and warm without becoming theatrical or "
-    "overly promotional. Keep clear Latin American pronunciation and a steady vocal tone."
-)
-
 
 def prepare_continuous_text(raw: str) -> str:
-    """Preserve one continuous take while turning paragraph breaks into intentional pauses."""
-    paragraphs = [
-        re.sub(r"\s+", " ", part).strip()
-        for part in re.split(r"\n\s*\n", raw.strip())
-        if part.strip()
-    ]
-    if not paragraphs:
+    """Keep one continuous take; let punctuation shape all natural pauses."""
+    text = re.sub(r"\s+", " ", raw).strip()
+    if not text:
         raise RuntimeError("El guion está vacío o no contiene texto utilizable")
-    return " [pause:280ms] ".join(paragraphs)
+    return text
 
 
 def main() -> int:
@@ -40,7 +27,6 @@ def main() -> int:
     parser.add_argument("--speaker", default="ryan")
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--seed", type=int, default=20261110)
-    parser.add_argument("--rate", type=float, default=1.7)
     args = parser.parse_args()
 
     input_path, output_path = Path(args.input), Path(args.output)
@@ -51,15 +37,13 @@ def main() -> int:
         raise FileNotFoundError(f"No se encuentra el motor Qwen3-TTS: {engine}")
     if not (model_dir / "config.json").exists():
         raise FileNotFoundError(f"No se encuentra el modelo CustomVoice: {model_dir}")
-    if not 0.9 <= args.rate <= 1.8:
-        raise ValueError("--rate debe estar entre 0.9 y 1.8")
 
     text = prepare_continuous_text(input_path.read_text(encoding="utf-8"))
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     print(
         f"Generando una toma continua en español latino con Qwen3-TTS "
-        f"({args.speaker}, {len(text.split())} palabras, rate={args.rate:.2f})…",
+        f"({args.speaker}, {len(text.split())} palabras, velocidad nativa)…",
         flush=True,
     )
     command = [
@@ -67,12 +51,10 @@ def main() -> int:
         "-d", str(model_dir),
         "--speaker", args.speaker,
         "--language", "Spanish",
-        "--instruct", DELIVERY_INSTRUCTION,
         "--text", text,
         "--output", str(output_path),
         "--seed", str(args.seed),
         "--temperature", "0.5",
-        "--rate", f"{args.rate:.2f}",
         "--int8",
         "-j", str(max(1, min(args.threads, 4))),
     ]
@@ -105,7 +87,7 @@ def main() -> int:
     ], text=True).strip())
     print(
         f"Voz Ryan generada: {duration:.2f}s | español latino | toma continua | "
-        "pausas naturales por puntuación y marcas de guion",
+        "velocidad nativa | pausas determinadas por la puntuación",
         flush=True,
     )
     return 0
