@@ -287,7 +287,7 @@ def sound_effect_schedule(duration, groups):
     cue("whoosh-medium-soft", s[1] + 0.42, "phone enters close-up")
     cue("keyboard-typing-steady-medium", s[1] + 0.72, "URL is typed into the phone")
     cue("keyboard-return-medium", s[1] + 1.88, "URL submit")
-    cue("click-tap-medium", s[1] + 1.02, "open website")
+    cue("click-tap-medium", s[1] + 0.62, "focus the address bar before typing")
     cue("swipe-medium-soft", s[1] + 2.08, "page scrolls")
     cue("data-progress-short", s[1] + 0.82, "loading progress begins")
     cue("digital-process-subtle", s[1] + 1.12, "server waits for response")
