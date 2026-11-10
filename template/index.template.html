@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=1080,height=1920,initial-scale=1">
 <style>
+@font-face{font-family:"Anton";src:url("./assets/anton.woff2") format("woff2");font-style:normal;font-weight:400;font-display:block}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;background:#071019;color:#fff;font-family:"League Gothic",Arial,sans-serif}
+html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;background:#071019;color:#fff;font-family:"Anton",Arial,sans-serif}
 #root{position:relative;width:1080px;height:1920px;overflow:hidden;background:#071019;isolation:isolate}
 .scene{position:absolute;inset:0;overflow:hidden;opacity:0;will-change:transform,opacity,filter}
 .scene-red{background:radial-gradient(ellipse at 50% 42%,#ff5360 0%,#dc293c 58%,#a9142c 100%)}
@@ -67,10 +68,10 @@ html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;backgrou
 .brand{position:absolute;left:0;right:0;top:1645px;text-align:center;color:#062b2b;font:900 30px Arial,sans-serif;letter-spacing:9px}
 .kinetic-clip{position:absolute;z-index:50;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none;perspective:1300px;will-change:transform,opacity}
 .type-wrap{position:relative;width:94%;max-width:1000px;display:flex;align-items:center;justify-content:center}
-.headline{width:100%;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:.24em;row-gap:-.06em;font:400 var(--type-size,240px)/.82 "League Gothic",Arial,sans-serif;letter-spacing:-.035em;text-transform:uppercase;text-align:center}
+.headline{width:100%;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:.24em;row-gap:-.06em;font:400 var(--type-size,240px)/.82 "Anton",Arial,sans-serif;letter-spacing:-.035em;text-transform:uppercase;text-align:center}
 .word{display:inline-flex;white-space:nowrap}
 .char{display:inline-block;will-change:transform,opacity,filter}
-.type-ghost{position:absolute;left:-10%;right:-10%;top:41%;font:400 420px/.8 "League Gothic",Arial,sans-serif;letter-spacing:-.06em;text-align:center;text-transform:uppercase;white-space:nowrap;color:rgba(255,255,255,.11);filter:blur(1px);pointer-events:none}
+.type-ghost{position:absolute;left:-10%;right:-10%;top:41%;font:400 420px/.8 "Anton",Arial,sans-serif;letter-spacing:-.06em;text-align:center;text-transform:uppercase;white-space:nowrap;color:rgba(255,255,255,.11);filter:blur(1px);pointer-events:none}
 .layout-upper{align-items:flex-start}.layout-upper .type-wrap{margin-top:170px}
 .layout-lower{align-items:flex-end}.layout-lower .type-wrap{margin-bottom:275px}
 .layout-left{align-items:flex-start;justify-content:flex-start;padding:185px 0 0 48px}.layout-left .type-wrap{max-width:820px;margin-right:auto}
