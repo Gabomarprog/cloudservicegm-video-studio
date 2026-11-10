@@ -89,7 +89,7 @@ def make_caption(group, index, start, end, duration):
     accents = ["red", "mint", "yellow", "white"]
     progress = start / max(1.0, duration)
     if 0.12 <= progress < 0.25:
-        layout = "upper"
+        layout = "upper"  # keep the phone's screen visible below the headline
     elif progress < 0.25:
         layout = layouts[index % len(layouts)]
     else:
@@ -160,7 +160,10 @@ def make_caption(group, index, start, end, duration):
             f'{{opacity:1,rotationY:0,z:0,duration:.44,stagger:.014,ease:"power2.out"}},{start + .025:.3f});'
         )
 
+    # Entry and exit stay separated for smooth, readable transitions.
+    next_start = end
     exit_time = max(start + .70, end - .16)
+    exit_time = min(exit_time, next_start - .05) if next_start > start + .76 else exit_time
     exit_anim = (
         f'tl.to({root},{{autoAlpha:0,scale:1.015,'
         f'y:{-28 if index % 2 == 0 else 24},duration:.24,ease:"power2.inOut"}},{exit_time:.3f});'
