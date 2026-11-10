@@ -36,7 +36,7 @@ html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;backgrou
 .phone-status .status-icons{letter-spacing:5px;font-size:15px}
 .phone-toolbar{height:86px;background:#18242d;color:#dce6eb;display:flex;align-items:center;gap:15px;padding:0 23px;font:19px Arial,sans-serif}
 .phone-back{font-size:34px;line-height:1;color:#cbd8de}
-.phone-url{flex:1;padding:15px 18px;border-radius:18px;background:#0d161d;color:#d6e2e8;font:17px Arial,sans-serif;text-align:center}
+.phone-url{flex:1;padding:15px 18px;border-radius:18px;background:#0d161d;color:#d6e2e8;font:17px Arial,sans-serif;text-align:center}.phone-url .type-char{display:inline-block;opacity:0;will-change:transform,opacity}
 .phone-menu{font-size:26px}
 .phone-site-header{height:86px;display:flex;align-items:center;justify-content:space-between;padding:0 34px;background:white;border-bottom:1px solid #e1e8ec}
 .phone-logo{font:900 24px Arial,sans-serif;letter-spacing:-1px;color:#183e4a}
@@ -160,7 +160,7 @@ html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;backgrou
         <div class="phone-screen">
           <div class="phone-notch"></div>
           <div class="phone-status"><span>9:41</span><span class="status-icons">● ● ▮</span></div>
-          <div class="phone-toolbar"><span class="phone-back">‹</span><div class="phone-url">🔒  misitio.com</div><span class="phone-menu">⋮</span></div>
+          <div class="phone-toolbar"><span class="phone-back">‹</span><div class="phone-url">🔒&nbsp; <span id="phone-url-text"><span class="type-char">m</span><span class="type-char">i</span><span class="type-char">s</span><span class="type-char">i</span><span class="type-char">t</span><span class="type-char">i</span><span class="type-char">o</span><span class="type-char">.</span><span class="type-char">c</span><span class="type-char">o</span><span class="type-char">m</span></span></div><span class="phone-menu">⋮</span></div>
           <div class="phone-page" id="phone-page">
             <div class="phone-site-header"><div class="phone-logo"><i></i> NOVA STUDIO</div><div class="phone-menu-lines"></div></div>
             <div class="phone-hero">
@@ -304,6 +304,7 @@ html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;backgrou
     tl.fromTo(".signal-ring.r1",{scale:.45,rotation:-35,opacity:0},{scale:1,rotation:0,opacity:.9,duration:1.1,ease:"back.out(1.5)"},.2);
     tl.fromTo(".signal-ring.r2",{scale:1.35,rotation:50,opacity:0},{scale:1,rotation:0,opacity:.8,duration:1.1,ease:"power3.out"},.38);
     tl.fromTo("#phone-stage",{y:520,scale:.78,rotationZ:1.5,opacity:0},{y:0,scale:1,rotationZ:0,opacity:1,duration:.92,ease:"power3.out"},starts[1]+.18);
+    tl.fromTo("#phone-url-text .type-char",{opacity:0,y:7},{opacity:1,y:0,duration:.09,stagger:.10,ease:"power1.out"},starts[1]+.72);
     tl.fromTo("#phone-load-progress",{scaleX:0},{scaleX:.76,duration:1.65,ease:"power1.out"},starts[1]+1.05);
     tl.to("#phone-spinner",{rotation:540,duration:2.45,ease:"power1.inOut"},starts[1]+1.1);
     tl.fromTo("#phone-loading",{y:30,opacity:0},{y:0,opacity:1,duration:.52,ease:"power2.out"},starts[1]+.82);
