@@ -142,10 +142,10 @@ def make_caption(group, index, start, end, duration):
         )
     elif mode == "stretch":
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,scaleX:.06,scaleY:1.55,letterSpacing:".4em",filter:"blur(22px)"}},'
-            f'{{autoAlpha:1,scaleX:1,scaleY:1,letterSpacing:"-.035em",filter:"blur(0px)",duration:.65,ease:"expo.out"}},{start:.3f});'
-            f'tl.fromTo({letters},{{y:70,opacity:0,rotationY:70}},'
-            f'{{y:0,opacity:1,rotationY:0,duration:.34,stagger:.018,ease:"power3.out"}},{start + .04:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,scaleX:.06,scaleY:1.55,filter:"blur(22px)"}},'
+            f'{{autoAlpha:1,scaleX:1,scaleY:1,filter:"blur(0px)",duration:.65,ease:"expo.out"}},{start:.3f});'
+            f'tl.fromTo({letters},{{x:42,y:70,opacity:0,rotationY:70,scaleX:.72}},'
+            f'{{x:0,y:0,opacity:1,rotationY:0,scaleX:1,duration:.34,stagger:.018,ease:"power3.out"}},{start + .04:.3f});'
         )
     else:
         enter = (
