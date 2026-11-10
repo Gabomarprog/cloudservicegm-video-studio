@@ -35,13 +35,30 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#071014
 .check{width:130px;height:130px;border-radius:50%;background:#f7fffc;color:#149d84;font:900 92px/130px Arial,sans-serif;text-align:center;margin:0 auto 38px;box-shadow:0 0 60px #d8fff4aa}
 .ctabtn{display:inline-block;background:#062e2c;color:#fff;border-radius:60px;padding:24px 42px;font:900 29px Arial,sans-serif;letter-spacing:1px;margin-top:38px;box-shadow:0 12px 40px #006b5b55}
 .wordstrip{position:absolute;left:0;right:0;bottom:390px;text-align:center;font:800 24px Arial,sans-serif;letter-spacing:6px;color:#a8bdc8}
-.caption{position:absolute;left:38px;right:38px;top:690px;min-height:250px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 18px;padding:25px 12px;background:transparent;border:0;border-radius:0;font:400 112px/.86 "League Gothic",sans-serif;letter-spacing:-2px;text-align:center;text-transform:uppercase;color:#fff;text-shadow:0 5px 25px #000,0 0 34px #45d8ba;filter:drop-shadow(0 8px 18px #0009);perspective:900px}
-.caption .kinetic-word{display:inline-block;will-change:transform,opacity,filter;text-shadow:0 6px 24px #000,0 0 35px #36d9b5}
-.caption strong{color:#46dfbd}
+.kicker,.big,.micro,.wordstrip{display:none!important}
+.caption{position:absolute;z-index:20;left:38px;right:38px;top:455px;min-height:300px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px 22px;padding:22px 10px;background:transparent;border:0;border-radius:0;font:400 154px/.82 "League Gothic",sans-serif;letter-spacing:-3px;text-align:center;text-transform:uppercase;color:#fff;text-shadow:0 7px 30px #000,0 0 42px #45d8ba;filter:drop-shadow(0 8px 18px #0009);perspective:1100px}
+.caption .kinetic-word{display:inline-block;will-change:transform,opacity,filter;text-shadow:0 7px 30px #000,0 0 36px #36d9b5}
+.caption .kinetic-word:nth-child(even){color:#ff5364}
+.ambient-ring{position:absolute;z-index:1;border:2px solid rgba(87,225,203,.22);border-radius:50%;pointer-events:none}
+.ring-a{width:900px;height:900px;left:90px;top:500px;box-shadow:0 0 90px rgba(59,208,187,.12),inset 0 0 90px rgba(59,208,187,.08)}
+.ring-b{width:650px;height:650px;left:215px;top:625px;border-color:rgba(255,82,103,.18)}
+.side-label{position:absolute;z-index:3;left:28px;top:50%;writing-mode:vertical-rl;transform:rotate(180deg);font:700 15px Arial,sans-serif;letter-spacing:5px;color:#9db5c0;opacity:.65}
+.scene.white~.ambient-ring{display:none}
+.scene.white .caption{color:#101820;text-shadow:0 5px 25px #fff,0 0 25px #45d8ba}
+.scene.white .caption .kinetic-word{text-shadow:0 4px 18px #fff,0 0 25px #45d8ba}
+.scene.green .caption{color:#062a2b;text-shadow:0 5px 25px #d4fff3}
+.scene.green .caption .kinetic-word:nth-child(even){color:#fff}
+.browser{transform-origin:50% 50%;will-change:transform}
+.phone{transform-origin:50% 50%;will-change:transform}
+.browser:after{content:"";position:absolute;inset:68px 0 auto;height:3px;background:linear-gradient(90deg,transparent,#4ee4c0,#64cfff,transparent);opacity:.85;animation:scan 2.6s ease-in-out infinite alternate}
+@keyframes scan{from{transform:translateX(-45%)}to{transform:translateX(45%)}}
+
 </style>
 </head>
 <body>
 <div id="root" data-composition-id="root" data-start="0" data-width="1080" data-height="1920">
+  <div class="ambient-ring ring-a"></div><div class="ambient-ring ring-b"></div>
+  <div class="side-label">CLOUDSERVICEGM / INFRASTRUCTURE</div>
   <section class="scene dark" id="s1">
     <div class="center">
       <div class="kicker">{{TITLE}}</div>
@@ -104,6 +121,10 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#071014
     const scenes=["#s1","#s2","#s3","#s4","#s5"];
     scenes.forEach((q)=>tl.set(q,{opacity:0,scale:1.035}));
     tl.set("#s1",{opacity:1,scale:1},0);
+    tl.fromTo(".ring-a",{rotation:-35,scale:.72,opacity:0},{rotation:0,scale:1,opacity:.8,duration:1.4,ease:"power3.out"},.15);
+    tl.fromTo(".ring-b",{rotation:35,scale:1.25,opacity:0},{rotation:0,scale:1,opacity:.65,duration:1.2,ease:"power3.out"},.3);
+    tl.to(".ring-a",{rotation:360,duration:Math.max(4,D*.45),ease:"none"},.2);
+    tl.to(".ring-b",{rotation:-360,duration:Math.max(5,D*.55),ease:"none"},.2);
     tl.fromTo("#s1 .kicker",{opacity:0,y:-40,filter:"blur(12px)"},{opacity:1,y:0,filter:"blur(0px)",duration:.55,ease:"power3.out"},.1);
     tl.fromTo("#s1 .big",{opacity:0,scale:1.3,y:100,filter:"blur(18px)"},{opacity:1,scale:1,y:0,filter:"blur(0px)",duration:.8,ease:"power4.out"},.35);
     tl.fromTo("#s1 .micro",{opacity:0,y:35},{opacity:1,y:0,duration:.45},1.15);
@@ -116,15 +137,22 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#071014
     transition("#s2","#s3",b);
     tl.fromTo("#s3 .big",{y:100,opacity:0,filter:"blur(15px)"},{y:0,opacity:1,filter:"blur(0px)",duration:.65,ease:"power4.out"},b+.35);
     tl.fromTo("#browser",{y:180,rotationX:12,scale:.82,opacity:0},{y:0,rotationX:0,scale:1,opacity:1,duration:.75,ease:"power3.out"},b+.65);
-    tl.fromTo("#browser .stat",{y:40,opacity:0},{y:0,opacity:1,duration:.35,stagger:.12,ease:"power2.out"},b+1.05);
+    tl.fromTo("#browser .stat",{y:40,opacity:0,scale:.8},{y:0,opacity:1,scale:1,duration:.4,stagger:.16,ease:"back.out(1.5)"},b+1.05);
+    tl.fromTo("#browser .loadbar i",{scaleX:0,transformOrigin:"left"},{scaleX:1,duration:1.15,ease:"power2.out"},b+1.25);
+    tl.to("#browser",{y:-24,rotationZ:-1.2,duration:1.7,yoyo:true,repeat:2,ease:"sine.inOut"},b+2.0);
+    tl.to("#browser .stat b",{color:"#51dfbc",duration:.35,stagger:.18,yoyo:true,repeat:3},b+2.2);
     transition("#s3","#s4",c);
     tl.fromTo("#s4 .big",{scale:1.25,opacity:0},{scale:1,opacity:1,duration:.6,ease:"power3.out"},c+.3);
     tl.fromTo("#phone",{x:520,rotation:8,opacity:0},{x:0,rotation:0,opacity:1,duration:.7,ease:"power3.out"},c+.6);
-    tl.fromTo("#phone .phonecard",{x:50,opacity:0},{x:0,opacity:1,duration:.32,stagger:.13,ease:"power2.out"},c+1);
+    tl.fromTo("#phone .phonecard",{x:90,rotationY:18,opacity:0},{x:0,rotationY:0,opacity:1,duration:.42,stagger:.19,ease:"power3.out"},c+1);
+    tl.to("#phone",{y:-28,rotationZ:-1.5,duration:1.6,yoyo:true,repeat:2,ease:"sine.inOut"},c+2.2);
+    tl.to("#phone .phonecard b",{textShadow:"0 0 18px #51dfbc",duration:.35,stagger:.18,yoyo:true,repeat:2},c+2.3);
     transition("#s4","#s5",e);
     tl.fromTo("#s5 .check",{scale:0,rotation:-90,opacity:0},{scale:1,rotation:0,opacity:1,duration:.55,ease:"back.out(1.8)"},e+.3);
     tl.fromTo("#s5 .big",{y:90,scale:.8,opacity:0},{y:0,scale:1,opacity:1,duration:.65,ease:"power4.out"},e+.7);
     tl.fromTo("#s5 .ctabtn",{y:45,scale:.8,opacity:0},{y:0,scale:1,opacity:1,duration:.5,ease:"back.out(1.5)"},e+1.35);
+    tl.to("#s5 .check",{scale:1.12,duration:.42,yoyo:true,repeat:3,ease:"sine.inOut"},e+1.9);
+    tl.to("#s5 .ctabtn",{scale:1.045,duration:.45,yoyo:true,repeat:2,ease:"sine.inOut"},e+2.1);
     {{CAPTION_ANIMS}}
     tl.set({}, {}, D);
     window.__timelines=window.__timelines||{};
