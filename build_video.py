@@ -182,7 +182,6 @@ SFX_IDS = [
     "keyboard-typing-steady-medium",
     "keyboard-return-medium",
     "click-tap-medium",
-    "click-mouse-soft",
     "notification-error-soft",
     "notification-success-soft",
     "data-chart-reveal",
@@ -291,6 +290,7 @@ def sound_effect_schedule(duration, groups):
     cue("swipe-medium-soft", s[1] + 2.08, "page scrolls")
     cue("data-progress-short", s[1] + 1.05, "loading progress begins")
     cue("digital-process-subtle", s[1] + 1.12, "server waits for response")
+    cue("digital-glitch-subtle", s[1] + 3.48, "connection starts to stutter")
     cue("digital-signal-drop", s[1] + 3.56, "connection drops")
     cue("notification-error-soft", s[1] + 3.72, "timeout warning appears")
 
@@ -300,7 +300,7 @@ def sound_effect_schedule(duration, groups):
     cue("tone-step-2", s[2] + 1.28, "RAM metric appears")
     cue("tone-step-3", s[2] + 1.41, "server status appears")
     cue("data-chart-reveal", s[2] + 1.55, "performance chart appears")
-    cue("data-bar-grow", s[2] + 1.78, "chart bars grow")
+    cue("data-bar-grow", s[2] + 2.03, "chart bars reach their values")
     cue("notification-success-soft", s[2] + 2.62, "healthy server status")
 
     # 04 — Server hardware: power-up plus light, mechanical status sounds.
@@ -399,9 +399,7 @@ def build_sound_effects(duration, words, groups, assets):
             f"[{index}:a]aresample=44100,"
             f"atrim=start={trim_start:.4f},asetpts=PTS-STARTPTS,"
             f"volume={gain_db:.2f}dB,"
-            f"adelay={delay_ms}:all=1,"
-            f"apad=pad_dur={duration:.3f},"
-            f"atrim=duration={duration:.3f}[s{index}]"
+            f"adelay={delay_ms}:all=1[s{index}]"
         )
         labels.append(f"[s{index}]")
 
@@ -414,7 +412,8 @@ def build_sound_effects(duration, words, groups, assets):
     filters.append(
         "".join(labels)
         + f"amix=inputs={len(events)}:duration=longest:normalize=0,"
-        + f"alimiter=limit=0.88,atrim=duration={duration:.3f}[out]"
+        + f"alimiter=limit=0.88,apad=pad_dur={duration:.3f},"
+        + f"atrim=duration={duration:.3f}[out]"
     )
     sfx_path = Path(assets) / "scene-sfx.wav"
     ffmpeg.extend([
