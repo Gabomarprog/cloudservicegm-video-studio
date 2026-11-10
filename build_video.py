@@ -358,8 +358,24 @@ def main():
         captions.append(markup)
         caption_anims.append(animation)
 
-    # Three low-level scene transitions only. No sound is attached to individual words.
-    add_transition_sfx(args.audio, duration)
+    assets = Path(args.assets)
+    assets.mkdir(parents=True, exist_ok=True)
+
+    # Generate separate original music and scene SFX stems, then mix them under the voice.
+    generate_sound_design(args.audio, duration, words, assets)
+    mixed_audio = assets / "narration.wav"
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error",
+        "-i", str(args.audio),
+        "-i", str(assets / "music-bed.wav"),
+        "-i", str(assets / "scene-sfx.wav"),
+        "-filter_complex",
+        "[1:a]volume=1.0[music];"
+        "[2:a]volume=1.0[sfx];"
+        "[0:a][music][sfx]amix=inputs=3:duration=first:dropout_transition=1:normalize=0,"
+        "alimiter=limit=0.95[out]",
+        "-map", "[out]", "-c:a", "pcm_s16le", str(mixed_audio)
+    ], check=True)
 
     fractions = [0.0, 0.12, 0.25, 0.39, 0.53, 0.68, 0.83, 1.0]
     replacements = {
@@ -381,9 +397,6 @@ def main():
     if "{{S" in template or "{{CAPTION" in template or "{{DURATION}}" in template:
         raise RuntimeError("Quedaron marcadores sin sustituir en la plantilla")
 
-    assets = Path(args.assets)
-    assets.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(args.audio, assets / "narration.wav")
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(template, encoding="utf-8")
