@@ -76,6 +76,7 @@ def group_words(words, max_words=3, max_span=1.55, pause=0.28):
 def make_caption(group, index, start, end, duration):
     phrase = " ".join(word["text"] for word in group)
     plain = re.sub(r"\s+", " ", phrase).strip()
+    chars = len(plain)
     longest_word = max((len(word["text"]) for word in group), default=6)
     fit_phrase = int(3500 / max(14, chars))
     fit_word = int(2050 / max(6, longest_word))
