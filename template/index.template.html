@@ -26,6 +26,55 @@ html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;backgrou
 .alert-icon{width:68px;height:68px;border-radius:20px;background:#ed3448;color:#fff;display:grid;place-items:center;font:900 40px Arial}
 .alert-copy{font:700 22px/1.3 Arial,sans-serif}
 .alert-copy small{display:block;color:#66717d;font:15px Arial;margin-top:6px}
+
+#scene-1 .kicker{display:none}
+.phone-stage{position:absolute;z-index:8;left:105px;right:105px;top:525px;height:1360px;perspective:1400px;transform-origin:50% 50%}
+.phone-device{position:relative;width:760px;height:1330px;margin:0 auto;padding:14px;border:14px solid #35424c;border-radius:82px;background:linear-gradient(140deg,#26333e,#090f15 40%,#1d2933);box-shadow:0 36px 95px #0009;overflow:hidden}
+.phone-screen{position:relative;width:100%;height:100%;border-radius:55px;overflow:hidden;background:#f6f8fa;color:#17242d}
+.phone-notch{position:absolute;z-index:9;top:8px;left:50%;width:190px;height:34px;transform:translateX(-50%);border-radius:0 0 22px 22px;background:#070b10}
+.phone-status{height:48px;background:#101a22;color:white;display:flex;align-items:center;justify-content:space-between;padding:0 35px;font:700 17px Arial,sans-serif}
+.phone-status .status-icons{letter-spacing:5px;font-size:15px}
+.phone-toolbar{height:86px;background:#18242d;color:#dce6eb;display:flex;align-items:center;gap:15px;padding:0 23px;font:19px Arial,sans-serif}
+.phone-back{font-size:34px;line-height:1;color:#cbd8de}
+.phone-url{flex:1;padding:15px 18px;border-radius:18px;background:#0d161d;color:#d6e2e8;font:17px Arial,sans-serif;text-align:center}
+.phone-menu{font-size:26px}
+.phone-site-header{height:86px;display:flex;align-items:center;justify-content:space-between;padding:0 34px;background:white;border-bottom:1px solid #e1e8ec}
+.phone-logo{font:900 24px Arial,sans-serif;letter-spacing:-1px;color:#183e4a}
+.phone-logo i{display:inline-block;width:17px;height:17px;margin-right:9px;border-radius:5px;background:#28b69e;vertical-align:middle}
+.phone-menu-lines{width:34px;height:25px;border-top:4px solid #213b45;border-bottom:4px solid #213b45;position:relative}
+.phone-menu-lines:after{content:"";position:absolute;left:0;right:0;top:8px;border-top:4px solid #213b45}
+.phone-page{background:#f5f8f9}
+.phone-hero{padding:34px 35px 25px;background:linear-gradient(145deg,#e8f5f4,#c9e5e0);min-height:390px}
+.phone-hero small{display:block;color:#298878;font:800 15px Arial,sans-serif;letter-spacing:3px}
+.phone-hero strong{display:block;margin-top:13px;color:#102e36;font:900 42px/1.03 Arial,sans-serif;letter-spacing:-1.8px}
+.phone-hero p{margin:13px 0 19px;color:#48616a;font:18px/1.4 Arial,sans-serif}
+.phone-hero-art{height:148px;border-radius:22px;position:relative;overflow:hidden;background:linear-gradient(115deg,#183d4c,#2b8c83 58%,#9ad6c7)}
+.phone-hero-art:before{content:"";position:absolute;width:210px;height:210px;right:35px;top:23px;border-radius:50%;background:#c6eee1}
+.phone-hero-art:after{content:"";position:absolute;width:155px;height:100px;right:61px;bottom:0;border-radius:65% 65% 0 0;background:#f1fbf6}
+.art-card{position:absolute;z-index:2;left:33px;top:28px;width:170px;height:92px;border-radius:13px;background:#f6fffb;box-shadow:0 10px 24px #06262d33}
+.art-card:before{content:"";display:block;width:82px;height:9px;margin:18px 15px;background:#35aa99;border-radius:5px;box-shadow:0 21px 0 #cfdfdc,0 42px 0 #e0eae7}
+.phone-content{padding:28px 35px 210px}
+.phone-content h3{margin:0 0 18px;font:900 25px Arial,sans-serif;color:#18343d}
+.phone-service-row{display:flex;gap:14px}
+.phone-service{flex:1;height:145px;padding:17px 12px;background:white;border:1px solid #e0e8eb;border-radius:17px;box-shadow:0 7px 18px #16343d0b}
+.phone-service i{display:block;width:38px;height:38px;border-radius:12px;background:#d7f2ed;margin-bottom:17px}
+.phone-service b{display:block;height:9px;width:78%;border-radius:5px;background:#8ca5ab}
+.phone-service small{display:block;height:7px;width:55%;margin-top:10px;border-radius:5px;background:#d7e1e3}
+.phone-loading{position:absolute;z-index:5;left:28px;right:28px;bottom:28px;min-height:178px;padding:22px 24px 18px;border-radius:24px;background:white;border:1px solid #dce6e9;box-shadow:0 12px 35px #102c3b24}
+.phone-loading-head{display:flex;align-items:center;justify-content:space-between;color:#233b42;font:800 19px Arial,sans-serif}
+.phone-loading-sub{margin-top:9px;color:#72848a;font:15px Arial,sans-serif}
+.phone-loading-bottom{display:flex;align-items:center;gap:15px;margin-top:17px}
+.phone-spinner{width:31px;height:31px;border:4px solid #d8e6e5;border-top-color:#1aab97;border-radius:50%}
+.phone-progress{flex:1;height:12px;border-radius:10px;background:#e7eeef;overflow:hidden}
+.phone-progress i{display:block;width:100%;height:100%;background:linear-gradient(90deg,#24b69e,#67d9bb);transform:scaleX(0);transform-origin:left}
+.phone-progress-label{margin-top:8px;text-align:right;color:#298e82;font:700 14px Arial,sans-serif}
+.phone-error{position:absolute;z-index:7;inset:48px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:65px 58px;background:rgba(247,250,251,.97);text-align:center;opacity:0;visibility:hidden}
+.phone-error-icon{width:94px;height:94px;border-radius:50%;display:grid;place-items:center;background:#fff0f0;border:3px solid #f05a66;color:#e23f50;font:900 54px Arial,sans-serif}
+.phone-error h3{margin:31px 0 13px;color:#1a3038;font:900 38px/1.05 Arial,sans-serif}
+.phone-error p{margin:0;color:#61777e;font:21px/1.4 Arial,sans-serif}
+.phone-error-code{margin-top:27px;padding:14px 20px;border-radius:12px;background:#e9eff1;color:#65777d;font:15px Arial,sans-serif;letter-spacing:1px}
+.phone-retry{margin-top:32px;padding:16px 34px;border-radius:12px;background:#168f83;color:white;font:800 19px Arial,sans-serif}
+
 .browser{position:absolute;left:65px;right:65px;top:830px;height:690px;border-radius:32px;background:#101b27;border:3px solid #c4cdd4;box-shadow:0 45px 110px #0b192b44;overflow:hidden;transform-origin:50% 50%}
 .browserbar{height:82px;background:#202d3b;display:flex;align-items:center;padding:0 26px;gap:14px}
 .browser-dot{width:16px;height:16px;border-radius:50%;background:#ff6676}.browser-dot:nth-child(2){background:#ffd166}.browser-dot:nth-child(3){background:#55d6a5}
@@ -105,9 +154,46 @@ html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;backgrou
 
   <section class="scene scene-black" id="scene-1">
     <div class="massive-bg" style="font-size:500px;top:500px;color:#f04a5c">!</div>
-    <div class="alert-card" id="alert-card"><div class="alert-icon">!</div><div class="alert-copy">RESPUESTA DEL SERVIDOR<small>Una experiencia lenta aleja visitas y oportunidades</small></div></div>
     <div class="signal-ring r1"></div><div class="signal-ring r2"></div>
-    <div class="kicker">NO DEJES QUE TU WEB PIERDA VISITAS</div>
+    <div class="phone-stage" id="phone-stage">
+      <div class="phone-device" id="phone-device">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="phone-status"><span>9:41</span><span class="status-icons">● ● ▮</span></div>
+          <div class="phone-toolbar"><span class="phone-back">‹</span><div class="phone-url">🔒  misitio.com</div><span class="phone-menu">⋮</span></div>
+          <div class="phone-page" id="phone-page">
+            <div class="phone-site-header"><div class="phone-logo"><i></i> NOVA STUDIO</div><div class="phone-menu-lines"></div></div>
+            <div class="phone-hero">
+              <small>DISEÑO • TECNOLOGÍA • NEGOCIOS</small>
+              <strong>Tu negocio merece estar siempre disponible.</strong>
+              <p>Soluciones digitales para conectar con tus clientes y crecer.</p>
+              <div class="phone-hero-art"><div class="art-card"></div></div>
+            </div>
+            <div class="phone-content">
+              <h3>Explora nuestros servicios</h3>
+              <div class="phone-service-row">
+                <div class="phone-service"><i></i><b></b><small></small></div>
+                <div class="phone-service"><i></i><b></b><small></small></div>
+                <div class="phone-service"><i></i><b></b><small></small></div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-loading" id="phone-loading">
+            <div class="phone-loading-head"><span>La página está tardando...</span><span>⋯</span></div>
+            <div class="phone-loading-sub">Esperando respuesta del servidor</div>
+            <div class="phone-loading-bottom"><div class="phone-spinner" id="phone-spinner"></div><div class="phone-progress"><i id="phone-load-progress"></i></div></div>
+            <div class="phone-progress-label">Cargando contenido · 76%</div>
+          </div>
+          <div class="phone-error" id="phone-error">
+            <div class="phone-error-icon">!</div>
+            <h3>No se puede acceder a este sitio</h3>
+            <p>El servidor tardó demasiado en responder. Inténtalo de nuevo más tarde.</p>
+            <div class="phone-error-code">ERR_CONNECTION_TIMED_OUT</div>
+            <div class="phone-retry">Volver a intentar</div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="side-note">02 — EL IMPACTO</div>
   </section>
 
@@ -217,8 +303,14 @@ html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;backgrou
     tl.fromTo(".red-ribbon",{x:-1150,rotation:-13},{x:0,rotation:-13,duration:.82,ease:"expo.out"},.2);
     tl.fromTo(".signal-ring.r1",{scale:.45,rotation:-35,opacity:0},{scale:1,rotation:0,opacity:.9,duration:1.1,ease:"back.out(1.5)"},.2);
     tl.fromTo(".signal-ring.r2",{scale:1.35,rotation:50,opacity:0},{scale:1,rotation:0,opacity:.8,duration:1.1,ease:"power3.out"},.38);
-    tl.fromTo("#alert-card",{x:800,rotation:8,opacity:0},{x:0,rotation:-2,opacity:1,duration:.75,ease:"back.out(1.25)"},starts[1]+.42);
-    tl.to("#alert-card",{x:-35,rotation:1,duration:.35,yoyo:true,repeat:1,ease:"sine.inOut"},starts[1]+1.6);
+    tl.fromTo("#phone-stage",{y:520,scale:.78,rotationZ:1.5,opacity:0},{y:0,scale:1,rotationZ:0,opacity:1,duration:.92,ease:"power3.out"},starts[1]+.18);
+    tl.fromTo("#phone-load-progress",{scaleX:0},{scaleX:.76,duration:1.65,ease:"power1.out"},starts[1]+1.05);
+    tl.to("#phone-spinner",{rotation:540,duration:2.45,ease:"power1.inOut"},starts[1]+1.1);
+    tl.fromTo("#phone-loading",{y:30,opacity:0},{y:0,opacity:1,duration:.52,ease:"power2.out"},starts[1]+.82);
+    tl.to("#phone-loading",{y:18,opacity:0,duration:.3,ease:"power2.inOut"},starts[1]+3.48);
+    tl.fromTo("#phone-error",{autoAlpha:0,y:38,scale:.97},{autoAlpha:1,y:0,scale:1,duration:.56,ease:"power2.out"},starts[1]+3.58);
+    tl.fromTo("#phone-error-icon",{scale:.78,opacity:0},{scale:1,opacity:1,duration:.42,ease:"power2.out"},starts[1]+3.72);
+    tl.to("#phone-device",{scale:1.025,duration:1.2,ease:"power1.inOut"},starts[1]+4.1);
     tl.fromTo("#browser",{y:500,rotationX:22,rotationZ:4,scale:.75,opacity:0},{y:0,rotationX:0,rotationZ:0,scale:1,opacity:1,duration:.9,ease:"expo.out"},starts[2]+.25);
     tl.fromTo("#load-progress",{scaleX:0},{scaleX:1,duration:1.15,ease:"power2.out"},starts[2]+.8);
     tl.fromTo("#browser .metric",{y:90,scale:.65,opacity:0},{y:0,scale:1,opacity:1,duration:.52,stagger:.13,ease:"back.out(1.6)"},starts[2]+1.15);
