@@ -289,13 +289,13 @@ def sound_effect_schedule(duration, groups):
     cue("keyboard-return-medium", s[1] + 1.88, "URL submit")
     cue("click-tap-medium", s[1] + 0.62, "focus the address bar before typing")
     cue("swipe-medium-soft", s[1] + 2.08, "page scrolls")
-    cue("data-progress-short", s[1] + 0.82, "loading progress begins")
+    cue("data-progress-short", s[1] + 1.05, "loading progress begins")
     cue("digital-process-subtle", s[1] + 1.12, "server waits for response")
     cue("digital-signal-drop", s[1] + 3.56, "connection drops")
     cue("notification-error-soft", s[1] + 3.72, "timeout warning appears")
 
     # 03 — Dashboard: interface controls, metrics and chart draw-in.
-    cue("whoosh-medium-soft", s[2] + 0.62, "dashboard arrives")
+    cue("whoosh-medium-soft", s[2] + 0.48, "dashboard arrives")
     cue("tone-step-1", s[2] + 1.15, "CPU metric appears")
     cue("tone-step-2", s[2] + 1.28, "RAM metric appears")
     cue("tone-step-3", s[2] + 1.41, "server status appears")
@@ -305,7 +305,7 @@ def sound_effect_schedule(duration, groups):
 
     # 04 — Server hardware: power-up plus light, mechanical status sounds.
     cue("digital-power-up", s[3] + 0.20, "server racks power up")
-    cue("whoosh-medium-soft", s[3] + 0.70, "camera moves across the racks")
+    cue("whoosh-medium-soft", s[3] + 0.39, "camera moves across the racks")
     for offset in (1.36, 1.56, 1.76, 1.96):
         cue("mechanical-switch-light", s[3] + offset, "server activity LED")
 
@@ -320,15 +320,15 @@ def sound_effect_schedule(duration, groups):
 
     # 06 — Security: shield, controls, confirmations.
     cue("whoosh-medium-soft", s[5] + 0.66, "security shield appears")
-    cue("shimmer-short-soft", s[5] + 0.90, "shield highlight")
+    cue("shimmer-short-soft", s[5] + 1.24, "shield highlight")
     for offset in (1.12, 1.26, 1.40, 1.54):
         cue("click-tap-medium", s[5] + offset, "security control activates")
     cue("notification-success-soft", s[5] + 1.92, "security checklist complete")
 
     # 07 — Brand reveal: one warm signature and a discreet CTA interaction.
     cue("sting-warm-short", s[6] + 0.35, "cloudservicegm logo reveal")
-    cue("pop-medium-in", s[6] + 1.15, "closing CTA arrives")
-    cue("shimmer-short-soft", s[6] + 1.55, "brand highlight")
+    cue("pop-medium-in", s[6] + 1.80, "closing CTA lands")
+    cue("shimmer-short-soft", s[6] + 1.92, "brand highlight")
     cue("click-tap-medium", s[6] + 2.05, "CTA button")
 
     # Emphasise only selected phrase transitions, never every word.
