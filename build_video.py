@@ -171,170 +171,213 @@ def make_caption(group, index, start, end, duration):
     return clip, enter + exit_anim
 
 
-def generate_sound_design(audio_path, duration, words, assets):
-    """Create original, gentle electronic music and scene-specific sound effects."""
-    audio_path = Path(audio_path)
-    with wave.open(str(audio_path), "rb") as src:
-        sample_rate = src.getframerate()
-        channels = src.getnchannels()
-        sample_width = src.getsampwidth()
-    if sample_width != 2 or channels not in (1, 2):
-        raise RuntimeError("El audio de narración debe ser PCM de 16 bits mono o estéreo")
+SFX_LIBRARY = {
+    "whoosh": "https://gettakes.app/sounds/whoosh.wav",
+    "swish": "https://gettakes.app/sounds/swish.wav",
+    "click": "https://gettakes.app/sounds/click.wav",
+    "tap": "https://gettakes.app/sounds/tap.wav",
+    "pop": "https://gettakes.app/sounds/pop.wav",
+    "typing": "https://gettakes.app/sounds/typing.wav",
+    "notification": "https://gettakes.app/sounds/notification.wav",
+    "ding": "https://gettakes.app/sounds/ding.wav",
+    "quick-riser": "https://gettakes.app/sounds/quick-riser.wav",
+    "sci-fi": "https://gettakes.app/sounds/sci-fi.wav",
+    "glitch": "https://gettakes.app/sounds/glitch.wav",
+    "water-drop": "https://gettakes.app/sounds/water-drop.wav",
+    "correct-answer": "https://gettakes.app/sounds/correct-answer.wav",
+    "sparkle": "https://gettakes.app/sounds/sparkle.wav",
+    "logo-sting": "https://gettakes.app/sounds/logo-sting.wav",
+    "downlifter": "https://gettakes.app/sounds/downlifter.wav",
+}
 
-    frames = int(round(duration * sample_rate))
-    assets = Path(assets)
-    assets.mkdir(parents=True, exist_ok=True)
 
-    # Merge speech intervals. Music gently ducks under speech and opens up in pauses.
-    intervals = []
-    for word in words:
-        start_time = max(0.0, float(word["start"]) - 0.12)
-        end_time = min(duration, float(word["end"]) + 0.20)
-        if end_time > start_time:
-            if intervals and start_time <= intervals[-1][1] + 0.08:
-                intervals[-1] = (intervals[-1][0], max(intervals[-1][1], end_time))
-            else:
-                intervals.append((start_time, end_time))
+def download_sfx_library(assets):
+    """Download a small CC0/royalty-free UI and transition SFX library."""
+    import urllib.request
+    from urllib.error import URLError, HTTPError
 
-    chords = [
-        (164.81, 196.00, 246.94, 293.66),  # Em7
-        (130.81, 164.81, 196.00, 246.94),  # Cmaj7
-        (196.00, 246.94, 293.66, 369.99),  # Gmaj7
-        (146.83, 185.00, 220.00, 293.66),  # Dsus2
-    ]
-    music_path = assets / "music-bed.wav"
-    music_buffer = bytearray(frames * channels * 2)
-    interval_index = 0
-    beat_seconds = 0.60
-    chord_seconds = 4.80
+    folder = Path(assets) / "sfx"
+    folder.mkdir(parents=True, exist_ok=True)
+    downloaded = {}
+    for name, url in SFX_LIBRARY.items():
+        target = folder / f"{name}.wav"
+        if target.exists() and target.stat().st_size > 1024:
+            downloaded[name] = target
+            continue
 
-    def pad_for(notes, t):
-        return (
-            math.sin(2 * math.pi * notes[0] * t) * 0.020
-            + math.sin(2 * math.pi * notes[1] * t + 0.35) * 0.017
-            + math.sin(2 * math.pi * notes[2] * t + 0.70) * 0.014
-            + math.sin(2 * math.pi * notes[3] * t + 1.05) * 0.009
-            + math.sin(2 * math.pi * notes[0] * 0.5 * t) * 0.012
+        request = urllib.request.Request(
+            url,
+            headers={"User-Agent": "cloudservicegm-video-studio/1.0"}
         )
+        last_error = None
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(request, timeout=30) as response:
+                    data = response.read()
+                if len(data) < 1024 or not data.startswith(b"RIFF"):
+                    raise RuntimeError(f"Respuesta WAV inválida para {name}")
+                target.write_bytes(data)
+                downloaded[name] = target
+                break
+            except (URLError, HTTPError, TimeoutError, RuntimeError) as exc:
+                last_error = exc
+                if attempt == 2:
+                    print(f"AVISO: no se pudo descargar SFX {name}: {exc}")
+        if name not in downloaded and last_error:
+            continue
 
-    with wave.open(str(music_path), "wb") as music:
-        music.setnchannels(channels)
-        music.setsampwidth(2)
-        music.setframerate(sample_rate)
+    required = {"whoosh", "swish", "click", "tap", "pop", "typing", "notification", "glitch"}
+    missing = sorted(required - set(downloaded))
+    if missing:
+        raise RuntimeError(
+            "No se pudo descargar la biblioteca de efectos de sonido necesarios: "
+            + ", ".join(missing)
+        )
+    return downloaded
 
-        for frame in range(frames):
-            t = frame / sample_rate
-            while interval_index < len(intervals) and t > intervals[interval_index][1]:
-                interval_index += 1
-            talking = (
-                interval_index < len(intervals)
-                and intervals[interval_index][0] <= t <= intervals[interval_index][1]
-            )
 
-            chord_number = int(t / chord_seconds) % len(chords)
-            chord = chords[chord_number]
-            chord_phase = t % chord_seconds
-            pad = pad_for(chord, t)
-            if chord_phase < 0.45 and t >= chord_seconds:
-                previous = chords[(chord_number - 1) % len(chords)]
-                mix = chord_phase / 0.45
-                mix = mix * mix * (3.0 - 2.0 * mix)
-                pad = pad_for(previous, t) * (1.0 - mix) + pad * mix
+def build_sound_effects(duration, words, groups, assets):
+    """Compose frequent but restrained scene/action SFX. No continuous music bed."""
+    downloaded = download_sfx_library(assets)
+    fractions = (0.0, 0.12, 0.25, 0.39, 0.53, 0.68, 0.83)
+    scene = [duration * value for value in fractions]
+    events = []
 
-            beat_number = int(t / beat_seconds)
-            beat_age = t - beat_number * beat_seconds
-            note = chord[beat_number % 4] * 2.0
-            pluck = math.sin(2 * math.pi * note * beat_age) * math.exp(-beat_age * 15.0) * 0.012
+    def add(name, at, gain=0.18, label=""):
+        at = max(0.0, float(at))
+        if at < duration and name in downloaded:
+            events.append({
+                "name": name,
+                "time": at,
+                "gain": gain,
+                "label": label
+            })
 
-            pulse_age = t % 2.40
-            bass = (
-                math.sin(2 * math.pi * (58.0 + 12.0 * pulse_age) * pulse_age)
-                * math.exp(-pulse_age * 11.0) * 0.018
-            )
+    # 01 · Intro: a soft lift, then two accents tied to the large title/ribbon.
+    add("quick-riser", 0.00, 0.16, "intro lift")
+    add("whoosh", 0.34, 0.19, "first title arrives")
+    add("swish", 2.00, 0.17, "yellow ribbon slides in")
+    add("pop", 3.55, 0.19, "main hook lands")
 
-            fade = min(1.0, t / 1.2) * min(1.0, max(0.0, (duration - t) / 1.4))
-            duck = 0.58 if talking else 0.88
-            value = (pad + pluck + bass) * duck * fade
-            pan = 0.035 * math.sin(2 * math.pi * t / 13.0)
-            left = max(-0.95, min(0.95, value * (1.0 - pan)))
-            right = max(-0.95, min(0.95, value * (1.0 + pan)))
-            if channels == 1:
-                struct.pack_into("<h", music_buffer, frame * 2, int(((left + right) * 0.5) * 32767))
-            else:
-                struct.pack_into("<hh", music_buffer, frame * 4, int(left * 32767), int(right * 32767))
+    # 02 · Phone: entrance, URL typing, touch, loading, timeout and error reveal.
+    add("whoosh", scene[1] + 0.12, 0.22, "phone enters close-up")
+    add("typing", scene[1] + 0.58, 0.20, "URL types into phone")
+    add("tap", scene[1] + 1.28, 0.20, "page is opened")
+    add("swish", scene[1] + 2.35, 0.14, "phone page scrolls")
+    add("glitch", scene[1] + 3.52, 0.17, "website connection fails")
+    add("notification", scene[1] + 3.78, 0.18, "timeout warning appears")
 
-        music.writeframes(music_buffer)
+    # 03 · Dashboard: screen comes forward, interface controls and metrics activate.
+    add("whoosh", scene[2] + 0.20, 0.17, "dashboard arrives")
+    add("click", scene[2] + 1.18, 0.18, "CPU metric appears")
+    add("click", scene[2] + 1.34, 0.16, "RAM metric appears")
+    add("click", scene[2] + 1.50, 0.16, "server status appears")
+    add("water-drop", scene[2] + 1.72, 0.14, "chart completes")
+    add("ding", scene[2] + 2.45, 0.13, "healthy server confirmation")
 
-    # Effects are a restrained scene layer, not one sound per spoken word.
-    sfx_values = [0.0] * frames
+    # 04 · Server racks: a restrained power-up, followed by several LED/UI ticks.
+    add("sci-fi", scene[3] + 0.24, 0.17, "server racks power on")
+    add("quick-riser", scene[3] + 0.92, 0.13, "rack animation builds")
+    for offset in (1.42, 1.63, 1.84, 2.05):
+        add("click", scene[3] + offset, 0.13, "server status light")
 
-    def add_sweep(start_time, length, low_hz, high_hz, gain):
-        begin = max(0, int(start_time * sample_rate))
-        count = min(int(length * sample_rate), frames - begin)
-        if count <= 0:
-            return
-        for offset in range(count):
-            local = offset / sample_rate
-            progress = offset / max(1, count)
-            envelope = math.sin(math.pi * progress) ** 1.45
-            phase = 2 * math.pi * (
-                low_hz * local + (high_hz - low_hz) * local * local / (2 * length)
-            )
-            tone = math.sin(phase) * 0.72 + math.sin(phase * 1.51 + 0.4) * 0.18
-            sfx_values[begin + offset] += tone * envelope * gain
+    # 05 · Network: each node receives a distinct small sound; lines sweep between them.
+    add("whoosh", scene[4] + 0.16, 0.16, "network scene enters")
+    add("pop", scene[4] + 0.36, 0.17, "web node")
+    add("notification", scene[4] + 0.55, 0.16, "VPS node")
+    add("water-drop", scene[4] + 0.74, 0.16, "database node")
+    add("pop", scene[4] + 0.93, 0.15, "SSL node")
+    add("swish", scene[4] + 1.14, 0.14, "data links draw")
 
-    def add_chime(start_time, notes, gain=0.035, length=0.72):
-        begin = max(0, int(start_time * sample_rate))
-        count = min(int(length * sample_rate), frames - begin)
-        if count <= 0:
-            return
-        for offset in range(count):
-            local = offset / sample_rate
-            envelope = math.exp(-local * 4.8) * min(1.0, local / 0.025)
-            tone = 0.0
-            for note_index, frequency in enumerate(notes):
-                tone += math.sin(2 * math.pi * frequency * local) * (0.58 / (1 + note_index * 0.55))
-                tone += math.sin(2 * math.pi * frequency * 2.01 * local) * (0.10 / (1 + note_index))
-            sfx_values[begin + offset] += tone * envelope * gain
+    # 06 · Security: shield reveal and a short sequence of confirmation clicks.
+    add("whoosh", scene[5] + 0.20, 0.15, "security shield reveals")
+    add("ding", scene[5] + 0.52, 0.17, "protection activates")
+    for offset in (1.16, 1.30, 1.44, 1.58):
+        add("click", scene[5] + offset, 0.14, "security control enabled")
+    add("correct-answer", scene[5] + 1.92, 0.15, "security checklist complete")
 
-    def add_soft_tap(start_time, gain=0.022):
-        begin = max(0, int(start_time * sample_rate))
-        count = min(int(0.18 * sample_rate), frames - begin)
-        for offset in range(max(0, count)):
-            local = offset / sample_rate
-            envelope = math.exp(-local * 24.0)
-            tone = math.sin(2 * math.pi * 880.0 * local) * 0.7
-            tone += math.sin(2 * math.pi * 1320.0 * local) * 0.22
-            sfx_values[begin + offset] += tone * envelope * gain
+    # 07 · Brand close: logo arrival and warm final shimmer.
+    add("logo-sting", scene[6] + 0.24, 0.17, "brand mark appears")
+    add("sparkle", scene[6] + 1.18, 0.16, "final call to action")
+    add("tap", scene[6] + 1.72, 0.14, "CTA button")
 
-    scene_starts = [duration * value for value in (0.0, 0.12, 0.25, 0.39, 0.53, 0.68, 0.83)]
-    add_sweep(0.10, 0.68, 260.0, 720.0, 0.030)
-    add_sweep(scene_starts[1] + 0.12, 0.56, 320.0, 820.0, 0.034)
-    add_soft_tap(scene_starts[1] + 1.02)
-    add_sweep(scene_starts[1] + 3.55, 0.48, 520.0, 185.0, 0.038)
-    add_chime(scene_starts[2] + 0.50, (659.25, 830.61), gain=0.024, length=0.55)
-    add_sweep(scene_starts[3] + 0.40, 0.92, 72.0, 118.0, 0.040)
-    add_chime(scene_starts[4] + 0.46, (587.33, 739.99, 880.00), gain=0.022, length=0.76)
-    add_chime(scene_starts[5] + 0.48, (493.88, 659.25, 783.99), gain=0.024, length=0.82)
-    add_chime(scene_starts[6] + 0.34, (523.25, 659.25, 783.99), gain=0.028, length=0.95)
+    # A soft swish on selected phrase changes, never on every word.
+    major_times = [event["time"] for event in events]
+    phrase_events = 0
+    for index, group in enumerate(groups):
+        if index % 3 != 1:
+            continue
+        at = group[0]["start"] + 0.035
+        if any(abs(at - major) < 0.34 for major in major_times):
+            continue
+        add("swish" if index % 2 else "pop", at, 0.105, "phrase emphasis")
+        phrase_events += 1
 
-    sfx_buffer = bytearray(frames * channels * 2)
-    for frame, sample in enumerate(sfx_values):
-        sample = max(-0.90, min(0.90, sample))
-        if channels == 1:
-            struct.pack_into("<h", sfx_buffer, frame * 2, int(sample * 32767))
-        else:
-            struct.pack_into("<hh", sfx_buffer, frame * 4, int(sample * 32767), int(sample * 32767))
+    events.sort(key=lambda item: item["time"])
+    if not events:
+        raise RuntimeError("No se generaron eventos de sonido")
 
-    sfx_path = assets / "scene-sfx.wav"
-    with wave.open(str(sfx_path), "wb") as sfx:
-        sfx.setnchannels(channels)
-        sfx.setsampwidth(2)
-        sfx.setframerate(sample_rate)
-        sfx.writeframes(sfx_buffer)
+    # Each short WAV is positioned on its exact scene/event frame by FFmpeg.
+    args = ["ffmpeg", "-y", "-loglevel", "error"]
+    for event in events:
+        args.extend(["-i", str(downloaded[event["name"]])])
 
-    print("Diseño sonoro creado: música ambiental original + 9 efectos de escena (sin sonidos por palabra).")
+    filters = []
+    labels = []
+    for index, event in enumerate(events):
+        delay_ms = int(round(event["time"] * 1000))
+        filters.append(
+            f"[{index}:a]aresample=44100,volume={event['gain']:.3f},"
+            f"adelay={delay_ms}:all=1,apad=pad_dur={duration:.3f},"
+            f"atrim=duration={duration:.3f}[s{index}]"
+        )
+        labels.append(f"[s{index}]")
 
+    filters.append(
+        "".join(labels)
+        + f"amix=inputs={len(events)}:duration=longest:normalize=0,"
+        + f"alimiter=limit=0.88,atrim=duration={duration:.3f}[out]"
+    )
+    sfx_path = Path(assets) / "scene-sfx.wav"
+    args.extend([
+        "-filter_complex", ";".join(filters),
+        "-map", "[out]", "-ar", "44100", "-ac", "2",
+        "-c:a", "pcm_s16le", str(sfx_path)
+    ])
+    subprocess.run(args, check=True)
+
+    manifest = {
+        "background_music": False,
+        "voice": "separate foreground track",
+        "event_count": len(events),
+        "phrase_accent_count": phrase_events,
+        "events": events,
+        "source": "Takes free sound effects; stated free for any use, no credit required"
+    }
+    (Path(assets) / "sound-design.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
+    print(
+        f"Diseño sonoro creado: {len(events)} efectos sincronizados, "
+        f"{phrase_events} acentos de frase y SIN música de fondo."
+    )
+    return sfx_path
+
+
+def mix_voice_and_effects(voice_path, sfx_path, output_path):
+    """Keep narration in front while layering the timed effects underneath."""
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error",
+        "-i", str(voice_path),
+        "-i", str(sfx_path),
+        "-filter_complex",
+        "[1:a]volume=1.0[sfx];"
+        "[0:a][sfx]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,"
+        "alimiter=limit=0.94[out]",
+        "-map", "[out]", "-ar", "44100", "-ac", "2",
+        "-c:a", "pcm_s16le", str(output_path)
+    ], check=True)
 
 def main():
     parser = argparse.ArgumentParser()
