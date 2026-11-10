@@ -14,12 +14,13 @@ on:
         required: true
         type: string
         default: |
-          ¿Tu web tarda en cargar? Una página lenta hace que tus visitantes se vayan antes de conocerte.
-          Puede que tu servidor ya no esté a la altura de tu proyecto.
-          Un VPS bien configurado te ofrece recursos dedicados, control y estabilidad.
-          En cloudservicegm preparamos tu infraestructura desde cero: optimizamos el rendimiento, protegemos los accesos y configuramos SSL, WordPress, bases de datos y aplicaciones web.
-          Todo adaptado a lo que necesitas.
-          Síguenos para aprender a mejorar tu web y escríbenos si necesitas ayuda con tu VPS.
+          ¿Tu web tarda en cargar? Cuando una página se queda pensando, tus visitantes no esperan: se van y buscan otra opción.
+          Muchas veces el problema está en un servidor que ya no responde al ritmo de tu proyecto.
+          Un VPS bien configurado te ofrece recursos dedicados, más control y una base estable para crecer.
+          En cloudservicegm preparamos tu infraestructura desde cero. Optimizamos el servidor, reforzamos la seguridad, configuramos SSL y dejamos listos WordPress, bases de datos y aplicaciones web.
+          También cuidamos los accesos y los servicios que mantienen tu proyecto disponible.
+          No se trata solo de tener un servidor: se trata de que tu web responda cuando tus clientes la necesitan.
+          Síguenos para aprender sobre VPS, rendimiento y seguridad. Y si necesitas ayuda con tu infraestructura, escríbenos.
 
 permissions:
   contents: read
