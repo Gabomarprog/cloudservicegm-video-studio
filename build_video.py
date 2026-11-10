@@ -57,7 +57,7 @@ def main():
     words = load_words(a.transcript)
 
     captions, anims = [], []
-    groups = group_words(words, max_words=3)
+    groups = group_words(words, max_words=2)
     if words:
         for i, group in enumerate(groups):
             start = group[0]["start"]
@@ -70,9 +70,9 @@ def main():
                 f'data-duration="{end-start:.3f}" data-track-index="10">{phrase}</div>'
             )
             anims.append(
-                f'tl.fromTo("#cap-{i} .kinetic-word",{{opacity:0,y:150,scale:.38,rotationX:-55,filter:"blur(24px)"}},'
-                f'{{opacity:1,y:0,scale:1,rotationX:0,filter:"blur(0px)",duration:.42,stagger:.065,ease:"back.out(1.8)"}},{start:.3f});'
-                f'tl.to("#cap-{i} .kinetic-word",{{opacity:0,y:-95,scale:1.22,filter:"blur(15px)",duration:.20,stagger:.025,ease:"power2.in"}},'
+                f'tl.fromTo("#cap-{i} .kinetic-word",{{opacity:0,y:150,scale:.38,rotationX:-65,rotationZ:-7,filter:"blur(24px)"}},'
+                f'{{opacity:1,y:0,scale:1,rotationX:0,rotationZ:0,filter:"blur(0px)",duration:.48,stagger:.09,ease:"elastic.out(1,.62)"}},{start:.3f});'
+                f'tl.to("#cap-{i} .kinetic-word",{{opacity:0,y:-120,scale:1.28,rotationZ:5,filter:"blur(18px)",duration:.20,stagger:.025,ease:"power2.in"}},'
                 f'{max(start, end-.22):.3f});'
             )
         pass  # Keep narration clean; no repetitive per-word sound effects.
