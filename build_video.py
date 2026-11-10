@@ -56,8 +56,8 @@ def load_words(path):
     return sorted(result, key=lambda item: item["start"])
 
 
-def group_words(words, max_words=3, max_span=1.8, pause=0.34):
-    """Group transcript tokens into readable motion-design beats."""
+def group_words(words, max_words=4, max_span=2.15, pause=0.42):
+    """Group tokens into readable phrase beats, leaving a little breathing room."""
     groups, current = [], []
     for word in words:
         if current:
@@ -66,7 +66,7 @@ def group_words(words, max_words=3, max_span=1.8, pause=0.34):
             punctuation = bool(re.search(r"[.!?;:,]$", previous["text"]))
             span = word["end"] - current[0]["start"]
             if (len(current) >= max_words or gap >= pause or
-                    (punctuation and len(current) >= 2) or span >= max_span):
+                    (punctuation and len(current) >= 3) or span >= max_span):
                 groups.append(current)
                 current = []
         current.append(word)
@@ -88,7 +88,12 @@ def make_caption(group, index, start, end, duration):
     modes = ["slam", "letters", "wipe", "side", "stretch", "flip"]
     accents = ["red", "mint", "yellow", "white"]
     progress = start / max(1.0, duration)
-    layout = layouts[index % len(layouts)] if progress < 0.25 else ["upper", "left", "upper", "right"][index % 4]
+    if 0.12 <= progress < 0.25:
+        layout = "upper"
+    elif progress < 0.25:
+        layout = layouts[index % len(layouts)]
+    else:
+        layout = ["upper", "left", "upper", "right"][index % 4]
     mode = modes[index % len(modes)]
     accent = accents[index % len(accents)]
     contrast = "contrast-light" if (0.25 <= progress < 0.39 or progress >= 0.83) else "contrast-dark"
@@ -113,54 +118,52 @@ def make_caption(group, index, start, end, duration):
     glyphs = f'"#beat-{index} .char"'
     if mode == "slam":
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,scale:2.2,y:115,rotationZ:-6}},'
-            f'{{autoAlpha:1,scale:1,y:0,rotationZ:0,duration:.36,ease:"back.out(1.65)"}},{start:.3f});'
-            f'tl.fromTo({glyphs},{{y:48,opacity:0,rotationX:-60,scale:.65}},'
-            f'{{y:0,opacity:1,rotationX:0,scale:1,duration:.28,stagger:.009,ease:"power3.out"}},{start + .025:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,scale:1.55,y:58,rotationZ:-2.5}},'
+            f'{{autoAlpha:1,scale:1,y:0,rotationZ:0,duration:.54,ease:"power3.out"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{y:32,opacity:0,rotationX:-15,scale:.94}},'
+            f'{{y:0,opacity:1,rotationX:0,scale:1,duration:.46,stagger:.018,ease:"power2.out"}},{start + .02:.3f});'
         )
     elif mode == "letters":
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,y:65,scale:.92}},'
-            f'{{autoAlpha:1,y:0,scale:1,duration:.34,ease:"expo.out"}},{start:.3f});'
-            f'tl.fromTo({glyphs},{{y:155,opacity:0,scale:.45,rotationX:-80}},'
-            f'{{y:0,opacity:1,scale:1,rotationX:0,duration:.34,stagger:.012,ease:"back.out(1.5)"}},{start + .015:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,y:38,scale:.97}},'
+            f'{{autoAlpha:1,y:0,scale:1,duration:.52,ease:"power3.out"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{y:68,opacity:0,scale:.9,rotationX:-18}},'
+            f'{{y:0,opacity:1,scale:1,rotationX:0,duration:.46,stagger:.016,ease:"power2.out"}},{start + .02:.3f});'
         )
     elif mode == "wipe":
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,x:-180,scaleX:.72}},'
-            f'{{autoAlpha:1,x:0,scaleX:1,duration:.38,ease:"expo.out"}},{start:.3f});'
-            f'tl.fromTo({glyphs},{{x:-34,opacity:0,scaleX:.55}},'
-            f'{{x:0,opacity:1,scaleX:1,duration:.28,stagger:.01,ease:"power2.out"}},{start + .025:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,x:-95,scaleX:.9}},'
+            f'{{autoAlpha:1,x:0,scaleX:1,duration:.52,ease:"power3.out"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{x:-18,opacity:0,scaleX:.9}},'
+            f'{{x:0,opacity:1,scaleX:1,duration:.42,stagger:.014,ease:"power2.out"}},{start + .02:.3f});'
         )
     elif mode == "side":
         direction = -1 if index % 2 else 1
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,x:{direction * 760},rotationZ:{direction * -5},scale:.82}},'
-            f'{{autoAlpha:1,x:0,rotationZ:0,scale:1,duration:.38,ease:"expo.out"}},{start:.3f});'
-            f'tl.fromTo({glyphs},{{y:42,opacity:0,rotationY:55}},'
-            f'{{y:0,opacity:1,rotationY:0,duration:.28,stagger:.01,ease:"power3.out"}},{start + .035:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,x:{direction * 460},rotationZ:{direction * -1.8},scale:.95}},'
+            f'{{autoAlpha:1,x:0,rotationZ:0,scale:1,duration:.56,ease:"power3.out"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{y:28,opacity:0,rotationY:12}},'
+            f'{{y:0,opacity:1,rotationY:0,duration:.42,stagger:.014,ease:"power2.out"}},{start + .025:.3f});'
         )
     elif mode == "stretch":
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,scaleX:.32,scaleY:1.28}},'
-            f'{{autoAlpha:1,scaleX:1,scaleY:1,duration:.38,ease:"expo.out"}},{start:.3f});'
-            f'tl.fromTo({glyphs},{{x:32,y:55,opacity:0,rotationY:50,scaleX:.7}},'
-            f'{{x:0,y:0,opacity:1,rotationY:0,scaleX:1,duration:.28,stagger:.009,ease:"power3.out"}},{start + .025:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,scaleX:.78,scaleY:1.08}},'
+            f'{{autoAlpha:1,scaleX:1,scaleY:1,duration:.54,ease:"power3.out"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{x:18,y:28,opacity:0,rotationY:12,scaleX:.9}},'
+            f'{{x:0,y:0,opacity:1,rotationY:0,scaleX:1,duration:.42,stagger:.014,ease:"power2.out"}},{start + .02:.3f});'
         )
     else:
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,scale:.5,rotationX:55,rotationZ:5,y:80}},'
-            f'{{autoAlpha:1,scale:1,rotationX:0,rotationZ:0,y:0,duration:.4,ease:"back.out(1.4)"}},{start:.3f});'
-            f'tl.fromTo({glyphs},{{opacity:0,rotationY:75,z:-80}},'
-            f'{{opacity:1,rotationY:0,z:0,duration:.3,stagger:.01,ease:"power3.out"}},{start + .035:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,scale:.88,rotationX:18,rotationZ:1.5,y:42}},'
+            f'{{autoAlpha:1,scale:1,rotationX:0,rotationZ:0,y:0,duration:.56,ease:"power3.out"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{opacity:0,rotationY:18,z:-24}},'
+            f'{{opacity:1,rotationY:0,z:0,duration:.44,stagger:.014,ease:"power2.out"}},{start + .025:.3f});'
         )
 
-    # Entrance finishes by ~0.44s; exit always starts after that to keep the
-    # linter and seek-by-frame renderer deterministic.
-    exit_time = max(start + .49, end - .14)
+    exit_time = max(start + .70, end - .16)
     exit_anim = (
-        f'tl.to({root},{{autoAlpha:0,scale:{1.1 if index % 2 == 0 else .88},'
-        f'y:{-65 if index % 2 == 0 else 50},duration:.16,ease:"power2.in"}},{exit_time:.3f});'
+        f'tl.to({root},{{autoAlpha:0,scale:1.015,'
+        f'y:{-28 if index % 2 == 0 else 24},duration:.24,ease:"power2.inOut"}},{exit_time:.3f});'
     )
     return clip, enter + exit_anim
 
