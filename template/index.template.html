@@ -5,154 +5,239 @@
 <meta name="viewport" content="width=1080,height=1920,initial-scale=1">
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#071014;font-family:"League Gothic",sans-serif;color:#f8fbff}
-#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:#071014}
-.scene{position:absolute;inset:0;opacity:0;overflow:hidden}
-.scene.dark{background:radial-gradient(circle at 50% 43%,#16303a 0,#071014 58%)}
-.scene.red{background:radial-gradient(circle at 50% 48%,#ff545b 0,#b91f36 72%)}
-.scene.white{background:radial-gradient(circle at 50% 40%,#fff 0,#e8edf0 100%);color:#101820}
-.scene.green{background:radial-gradient(circle at 50% 40%,#47d2b1 0,#159c86 100%);color:#062a2b}
-.kicker{font:800 25px/1.2 Arial,sans-serif;letter-spacing:5px;text-align:center;text-transform:uppercase}
-.big{font-family:"League Gothic",sans-serif;font-size:142px;line-height:.88;letter-spacing:-2px;text-align:center;text-transform:uppercase;font-weight:400}
-.big .redword{color:#ff4c58}.big .mint{color:#46dfbd}.big .darkword{color:#071c20}
-.center{position:absolute;left:65px;right:65px;top:440px}
-.glowtext{text-shadow:0 0 30px currentColor}
-.micro{font:700 22px/1.4 Arial,sans-serif;letter-spacing:2px;text-align:center}
-.browser{position:absolute;left:105px;right:105px;top:780px;height:490px;border-radius:34px;background:#101b27;border:2px solid rgba(255,255,255,.18);box-shadow:0 35px 90px #0007;overflow:hidden}
-.browserbar{height:68px;background:#202d3b;display:flex;align-items:center;padding:0 25px;gap:12px}
-.dot{width:13px;height:13px;border-radius:50%;background:#ff6470}.dot:nth-child(2){background:#ffd166}.dot:nth-child(3){background:#55d6a5}
-.url{margin-left:18px;border-radius:12px;background:#101923;color:#9fb4c4;padding:12px 20px;font:17px Arial,sans-serif;flex:1}
-.browserbody{padding:30px 32px;font-family:Arial,sans-serif}
-.webtitle{font-size:32px;font-weight:900;color:white}.websub{font-size:19px;color:#a9bac9;margin-top:10px}
-.loadbar{height:13px;background:#273b4a;border-radius:20px;margin-top:35px;overflow:hidden}.loadbar i{display:block;width:92%;height:100%;background:linear-gradient(90deg,#ff4e60,#ffb05b);border-radius:20px}
-.statrow{display:flex;gap:15px;margin-top:30px}.stat{flex:1;padding:22px;border-radius:18px;background:#1b2b39;color:#dce8f1}.stat b{display:block;font-size:35px;color:#ff6673}.stat small{font-size:16px;color:#9fb3c3}
-.phone{position:absolute;width:400px;height:710px;left:340px;top:590px;border:8px solid #17232b;border-radius:55px;background:#07121a;box-shadow:0 35px 100px #0009;overflow:hidden}
-.notch{height:30px;width:130px;background:#17232b;border-radius:0 0 22px 22px;margin:0 auto}
-.phonehead{font:700 21px Arial,sans-serif;padding:25px;color:white;border-bottom:1px solid #29404b}
-.phonecontent{padding:24px;font:18px/1.5 Arial,sans-serif;color:#c7d7df}
-.phonecard{padding:20px;border:1px solid #36515c;border-radius:18px;margin:16px 0;background:#10232c}
-.phonecard b{display:block;color:#51dfbc;font-size:23px;margin-bottom:8px}
-.check{width:130px;height:130px;border-radius:50%;background:#f7fffc;color:#149d84;font:900 92px/130px Arial,sans-serif;text-align:center;margin:0 auto 38px;box-shadow:0 0 60px #d8fff4aa}
-.ctabtn{display:inline-block;background:#062e2c;color:#fff;border-radius:60px;padding:24px 42px;font:900 29px Arial,sans-serif;letter-spacing:1px;margin-top:38px;box-shadow:0 12px 40px #006b5b55}
-.wordstrip{position:absolute;left:0;right:0;bottom:390px;text-align:center;font:800 24px Arial,sans-serif;letter-spacing:6px;color:#a8bdc8}
-.kicker,.big,.micro,.wordstrip{display:none!important}
-.caption{position:absolute;z-index:20;left:38px;right:38px;top:455px;min-height:300px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px 22px;padding:22px 10px;background:transparent;border:0;border-radius:0;font:400 154px/.82 "League Gothic",sans-serif;letter-spacing:-3px;text-align:center;text-transform:uppercase;color:#fff;text-shadow:0 7px 30px #000,0 0 42px #45d8ba;filter:drop-shadow(0 8px 18px #0009);perspective:1100px}
-.caption .kinetic-word{display:inline-block;will-change:transform,opacity,filter;text-shadow:0 7px 30px #000,0 0 36px #36d9b5}
-.caption .kinetic-word:nth-child(even){color:#ff5364}
-.ambient-ring{position:absolute;z-index:1;border:2px solid rgba(87,225,203,.22);border-radius:50%;pointer-events:none}
-.ring-a{width:900px;height:900px;left:90px;top:500px;box-shadow:0 0 90px rgba(59,208,187,.12),inset 0 0 90px rgba(59,208,187,.08)}
-.ring-b{width:650px;height:650px;left:215px;top:625px;border-color:rgba(255,82,103,.18)}
-.side-label{position:absolute;z-index:3;left:28px;top:50%;writing-mode:vertical-rl;transform:rotate(180deg);font:700 15px Arial,sans-serif;letter-spacing:5px;color:#9db5c0;opacity:.65}
-.scene.white~.ambient-ring{display:none}
-.scene.white .caption{color:#101820;text-shadow:0 5px 25px #fff,0 0 25px #45d8ba}
-.scene.white .caption .kinetic-word{text-shadow:0 4px 18px #fff,0 0 25px #45d8ba}
-.scene.green .caption{color:#062a2b;text-shadow:0 5px 25px #d4fff3}
-.scene.green .caption .kinetic-word:nth-child(even){color:#fff}
-.browser{transform-origin:50% 50%;will-change:transform}
-.phone{transform-origin:50% 50%;will-change:transform}
-.browser:after{content:"";position:absolute;inset:68px 0 auto;height:3px;background:linear-gradient(90deg,transparent,#4ee4c0,#64cfff,transparent);opacity:.85;animation:scan 2.6s ease-in-out 2 alternate}
-@keyframes scan{from{transform:translateX(-45%)}to{transform:translateX(45%)}}
-
+html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;background:#071019;color:#fff;font-family:"League Gothic",Arial,sans-serif}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:#071019;isolation:isolate}
+.scene{position:absolute;inset:0;overflow:hidden;opacity:0;will-change:transform,opacity,filter}
+.scene-red{background:radial-gradient(ellipse at 50% 42%,#ff5360 0%,#dc293c 58%,#a9142c 100%)}
+.scene-black{background:radial-gradient(ellipse at 50% 45%,#162b35 0%,#071019 65%,#03070b 100%)}
+.scene-white{background:linear-gradient(145deg,#fdfefe 0%,#e8edf0 100%);color:#0b1820}
+.scene-blue{background:radial-gradient(ellipse at 48% 43%,#193f68 0%,#071322 70%,#030914 100%)}
+.scene-mint{background:radial-gradient(ellipse at 50% 46%,#55d9ba 0%,#1eae98 58%,#087e79 100%);color:#062b2c}
+.kicker{position:absolute;top:115px;left:70px;right:70px;text-align:center;font:800 22px/1.2 Arial,sans-serif;letter-spacing:7px;text-transform:uppercase;opacity:.82}
+.chapter{position:absolute;left:55px;right:55px;bottom:115px;text-align:center;font:700 17px/1.2 Arial,sans-serif;letter-spacing:5px;opacity:.5}
+.massive-bg{position:absolute;left:-45px;right:-45px;top:410px;text-align:center;font-size:520px;line-height:.75;opacity:.12;letter-spacing:-20px;white-space:nowrap}
+.red-ribbon{position:absolute;width:1180px;height:130px;left:-50px;top:890px;transform:rotate(-13deg);background:#ffcf56;box-shadow:0 18px 80px #5b071e66;opacity:.95}
+.red-ribbon span{display:block;text-align:center;font:900 60px/130px Arial,sans-serif;letter-spacing:10px;color:#2c1115}
+.signal-ring{position:absolute;border:3px solid rgba(255,255,255,.22);border-radius:50%;box-shadow:0 0 80px rgba(255,255,255,.12),inset 0 0 80px rgba(255,255,255,.08)}
+.signal-ring.r1{width:840px;height:840px;left:120px;top:510px}
+.signal-ring.r2{width:600px;height:600px;left:240px;top:630px;border-style:dashed;border-color:rgba(255,255,255,.13)}
+.alert-card{position:absolute;left:110px;right:110px;top:1160px;padding:30px 32px;border-radius:25px;background:#fff;color:#17202b;display:flex;align-items:center;gap:22px;box-shadow:0 25px 80px #0004;transform:rotate(-2deg)}
+.alert-icon{width:68px;height:68px;border-radius:20px;background:#ed3448;color:#fff;display:grid;place-items:center;font:900 40px Arial}
+.alert-copy{font:700 22px/1.3 Arial,sans-serif}
+.alert-copy small{display:block;color:#66717d;font:15px Arial;margin-top:6px}
+.browser{position:absolute;left:65px;right:65px;top:830px;height:690px;border-radius:32px;background:#101b27;border:3px solid #c4cdd4;box-shadow:0 45px 110px #0b192b44;overflow:hidden;transform-origin:50% 50%}
+.browserbar{height:82px;background:#202d3b;display:flex;align-items:center;padding:0 26px;gap:14px}
+.browser-dot{width:16px;height:16px;border-radius:50%;background:#ff6676}.browser-dot:nth-child(2){background:#ffd166}.browser-dot:nth-child(3){background:#55d6a5}
+.url{flex:1;margin-left:18px;border-radius:13px;background:#0e1722;color:#afc0cd;padding:16px 20px;font:17px Arial,sans-serif}
+.browserbody{padding:36px 34px;font-family:Arial,sans-serif}
+.web-title{font-size:32px;font-weight:900;color:white;letter-spacing:1px}
+.web-sub{font-size:18px;color:#aab9c6;margin-top:10px}
+.load-track{height:15px;background:#2b4050;border-radius:20px;margin-top:34px;overflow:hidden}
+.load-track i{display:block;width:90%;height:100%;background:linear-gradient(90deg,#f34c5c,#ffc85c);border-radius:20px;transform:scaleX(0);transform-origin:left}
+.metric-row{display:flex;gap:16px;margin-top:32px}
+.metric{flex:1;background:#1b2c3b;border:1px solid #344b5e;border-radius:18px;padding:24px 18px;color:#fff}
+.metric small{display:block;color:#a5b9c7;font:15px Arial}
+.metric b{display:block;font:900 40px Arial;color:#57e1bc;margin:13px 0}
+.metric em{font:14px Arial;color:#90a5b7}
+.sparkline{margin-top:35px;height:150px;display:flex;align-items:end;gap:13px;border-bottom:2px solid #405568;padding:0 5px}
+.sparkline i{display:block;flex:1;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#58e0c0,#168c9c);height:20%;transform-origin:bottom}
+.rack-group{position:absolute;left:70px;right:70px;top:700px;height:850px;display:flex;justify-content:center;gap:25px;perspective:1200px}
+.rack{width:270px;height:800px;background:linear-gradient(90deg,#070d14,#1c2c39 12%,#0a121c 28%,#1a2936 85%,#050a10);border:5px solid #516170;border-radius:18px;padding:26px 18px;box-shadow:0 35px 90px #0008;transform:rotateY(-12deg);display:flex;flex-direction:column;gap:19px}
+.rack-unit{height:105px;border-radius:9px;background:linear-gradient(180deg,#233544,#0a131d);border:2px solid #405568;position:relative;box-shadow:inset 0 0 20px #0009}
+.rack-unit:before{content:"";position:absolute;left:15px;right:15px;top:26px;height:8px;border-radius:5px;background:#415767;box-shadow:0 23px 0 #293e4d}
+.rack-leds{position:absolute;right:16px;top:16px;display:flex;gap:8px}
+.rack-leds i{width:9px;height:9px;border-radius:50%;background:#47e4b5;box-shadow:0 0 16px #47e4b5}
+.rack-unit:nth-child(2n) .rack-leds i{background:#55cfff;box-shadow:0 0 16px #55cfff}
+.rack-base{position:absolute;left:90px;right:90px;bottom:70px;height:28px;border-radius:50%;background:#35d5bd;filter:blur(28px);opacity:.35}
+.network{position:absolute;left:0;right:0;top:710px;height:720px}
+.network svg{width:100%;height:100%;overflow:visible}
+.network-line{stroke:#54d9d0;stroke-width:5;fill:none;stroke-dasharray:20 18;stroke-dashoffset:600;filter:drop-shadow(0 0 12px #5ce4ce)}
+.network-node{position:absolute;width:205px;height:205px;border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle,#244c68,#0c1c2e 72%);border:3px solid #56d8d0;color:#fff;font:900 29px/1.1 Arial,sans-serif;box-shadow:0 0 45px #3ccbbc66}
+.network-node small{display:block;font:15px Arial;color:#9ed4d6;margin-top:10px}
+.network-node.n1{left:70px;top:70px}.network-node.n2{left:410px;top:290px}.network-node.n3{right:70px;top:70px}
+.network-node.n4{left:410px;top:-190px;width:165px;height:165px;border-color:#f9c55a}
+.security-shield{position:absolute;left:335px;top:760px;width:410px;height:490px;filter:drop-shadow(0 25px 55px #0005)}
+.security-shield svg{width:100%;height:100%;overflow:visible}
+.security-panel{position:absolute;left:80px;right:80px;bottom:160px;display:flex;gap:14px;justify-content:center}
+.security-chip{padding:18px 19px;border-radius:17px;background:#0e2830;color:#dffef4;border:1px solid #52cfb7;font:700 18px Arial,sans-serif;box-shadow:0 10px 35px #004e4544}
+.security-chip b{color:#58e1bd;margin-right:7px}
+.lock-orbit{position:absolute;width:640px;height:640px;border:3px dashed rgba(255,255,255,.23);border-radius:50%;left:220px;top:680px}
+.cta-mark{position:absolute;left:390px;top:430px;width:300px;height:300px;border-radius:50%;background:#f4fff9;color:#159b88;display:grid;place-items:center;font:900 155px Arial,sans-serif;box-shadow:0 0 80px #dffff5aa}
+.cta-bar{position:absolute;left:105px;right:105px;top:1230px;background:#062e2c;color:#fff;border-radius:100px;padding:33px 20px;text-align:center;font:900 31px Arial,sans-serif;letter-spacing:3px;box-shadow:0 18px 60px #00735c55}
+.brand{position:absolute;left:0;right:0;top:1645px;text-align:center;color:#062b2b;font:900 30px Arial,sans-serif;letter-spacing:9px}
+.kinetic-clip{position:absolute;z-index:50;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none;perspective:1300px;will-change:transform,opacity}
+.type-wrap{position:relative;width:94%;max-width:1000px;display:flex;align-items:center;justify-content:center}
+.headline{width:100%;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:.24em;row-gap:-.06em;font:400 var(--type-size,240px)/.82 "League Gothic",Arial,sans-serif;letter-spacing:-.035em;text-transform:uppercase;text-align:center}
+.word{display:inline-flex;white-space:nowrap}
+.char{display:inline-block;will-change:transform,opacity,filter}
+.type-ghost{position:absolute;left:-10%;right:-10%;top:41%;font:400 420px/.8 "League Gothic",Arial,sans-serif;letter-spacing:-.06em;text-align:center;text-transform:uppercase;white-space:nowrap;color:rgba(255,255,255,.11);filter:blur(1px);pointer-events:none}
+.layout-upper{align-items:flex-start}.layout-upper .type-wrap{margin-top:240px}
+.layout-lower{align-items:flex-end}.layout-lower .type-wrap{margin-bottom:275px}
+.layout-left{justify-content:flex-start;padding-left:48px}.layout-left .type-wrap{max-width:820px}
+.layout-left .headline{justify-content:flex-start;text-align:left}
+.layout-right{justify-content:flex-end;padding-right:48px}.layout-right .type-wrap{max-width:820px}
+.layout-right .headline{justify-content:flex-end;text-align:right}
+.contrast-light .headline{color:#101820;text-shadow:0 5px 22px #fff9,0 0 32px #3cbda9}
+.contrast-light .type-ghost{color:rgba(5,28,35,.10)}
+.contrast-dark .headline{color:#fff;text-shadow:0 6px 28px #000b,0 0 36px #45dfc2}
+.accent-red .accent-word{color:#ff4458}
+.accent-mint .accent-word{color:#42dfbd}
+.accent-yellow .accent-word{color:#ffd45e}
+.accent-white .accent-word{color:#fff}
+.contrast-light.accent-white .accent-word{color:#078b7c}
+.mode-slam .headline{filter:drop-shadow(0 12px 22px #0006)}
+.mode-wipe .headline{font-style:italic}
+.mode-stretch .headline{letter-spacing:-.06em}
+.mode-flip .headline{transform-style:preserve-3d}
+#transition-flash{position:absolute;z-index:90;inset:0;background:#f5f3ed;transform:translateX(-120%);pointer-events:none}
+#transition-flash.red{background:#f13a4f}
+#transition-flash.mint{background:#4ad7b9}
+.side-note{position:absolute;z-index:5;left:26px;top:50%;writing-mode:vertical-rl;transform:rotate(180deg);font:700 14px Arial,sans-serif;letter-spacing:5px;opacity:.48}
 </style>
 </head>
 <body>
 <div id="root" data-composition-id="root" data-start="0" data-width="1080" data-height="1920">
-  <div class="ambient-ring ring-a"></div><div class="ambient-ring ring-b"></div>
-  <div class="side-label">CLOUDSERVICEGM / INFRASTRUCTURE</div>
-  <section class="scene dark" id="s1">
-    <div class="center">
-      <div class="kicker">{{TITLE}}</div>
-      <div class="big" style="margin-top:55px">¿TU WEB<br><span class="redword glowtext">VA LENTA?</span></div>
-      <div class="micro" style="margin-top:55px;color:#a9c0ca">CADA SEGUNDO CUENTA</div>
-    </div>
-    <div class="wordstrip">CLOUDSERVICEGM • VPS • INFRAESTRUCTURA</div>
+  <section class="scene scene-red clip" id="scene-0" data-start="{{S0_START}}" data-duration="{{S0_DURATION}}" data-track-index="1">
+    <div class="massive-bg">WEB</div><div class="red-ribbon"><span>INFRAESTRUCTURA DIGITAL</span></div>
+    <div class="signal-ring r1"></div><div class="signal-ring r2"></div>
+    <div class="kicker">CLOUDSERVICEGM / RENDIMIENTO WEB</div>
+    <div class="side-note">01 — EL PROBLEMA</div>
   </section>
-  <section class="scene red" id="s2">
-    <div class="center">
-      <div class="kicker" style="color:#ffe4e6">CUANDO TU SERVIDOR NO RESPONDE</div>
-      <div class="big" style="margin-top:45px">TUS<br>CLIENTES<br><span style="color:#ffe66d">SE VAN.</span></div>
-      <div class="micro" style="margin-top:55px;color:#fff">NO PIERDAS OPORTUNIDADES POR UNA WEB LENTA</div>
-    </div>
+
+  <section class="scene scene-black clip" id="scene-1" data-start="{{S1_START}}" data-duration="{{S1_DURATION}}" data-track-index="2">
+    <div class="massive-bg" style="font-size:500px;top:500px;color:#f04a5c">!</div>
+    <div class="alert-card" id="alert-card"><div class="alert-icon">!</div><div class="alert-copy">RESPUESTA DEL SERVIDOR<small>Una experiencia lenta aleja visitas y oportunidades</small></div></div>
+    <div class="signal-ring r1"></div><div class="signal-ring r2"></div>
+    <div class="kicker">NO DEJES QUE TU WEB PIERDA VISITAS</div>
+    <div class="side-note">02 — EL IMPACTO</div>
   </section>
-  <section class="scene white" id="s3">
-    <div class="center" style="top:285px">
-      <div class="kicker">TU PROYECTO NECESITA</div>
-      <div class="big" style="margin-top:28px">UN VPS<br><span class="redword">BIEN</span><br>CONFIGURADO</div>
-    </div>
+
+  <section class="scene scene-white clip" id="scene-2" data-start="{{S2_START}}" data-duration="{{S2_DURATION}}" data-track-index="3">
+    <div class="kicker" style="color:#172c38">CONTROL TOTAL DE TU INFRAESTRUCTURA</div>
     <div class="browser" id="browser">
-      <div class="browserbar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><div class="url">https://tu-proyecto.com / dashboard</div></div>
+      <div class="browserbar"><i class="browser-dot"></i><i class="browser-dot"></i><i class="browser-dot"></i><div class="url">https://tu-proyecto.com / server-dashboard</div></div>
       <div class="browserbody">
-        <div class="webtitle">SERVER PERFORMANCE</div><div class="websub">Estado de tu infraestructura en tiempo real</div>
-        <div class="loadbar"><i></i></div>
-        <div class="statrow"><div class="stat"><small>CPU</small><b>24%</b><small>Uso estable</small></div><div class="stat"><small>RAM</small><b style="color:#55dfb6">42%</b><small>Optimizada</small></div><div class="stat"><small>UPTIME</small><b style="color:#55dfb6">99.9%</b><small>Disponible</small></div></div>
+        <div class="web-title">SERVER PERFORMANCE</div><div class="web-sub">Panel de estado de tu infraestructura</div>
+        <div class="load-track"><i id="load-progress"></i></div>
+        <div class="metric-row">
+          <div class="metric"><small>CPU</small><b>24%</b><em>Uso controlado</em></div>
+          <div class="metric"><small>RAM</small><b>42%</b><em>Memoria estable</em></div>
+          <div class="metric"><small>ESTADO</small><b>OK</b><em>Servicios activos</em></div>
+        </div>
+        <div class="sparkline" id="sparkline">
+          <i style="height:38%"></i><i style="height:55%"></i><i style="height:43%"></i><i style="height:78%"></i><i style="height:62%"></i><i style="height:90%"></i><i style="height:69%"></i><i style="height:98%"></i><i style="height:73%"></i><i style="height:86%"></i>
+        </div>
       </div>
     </div>
+    <div class="side-note" style="color:#132b39">03 — LA SOLUCIÓN</div>
   </section>
-  <section class="scene dark" id="s4">
-    <div class="center" style="top:250px">
-      <div class="kicker">SEGURIDAD Y CONTROL</div>
-      <div class="big" style="font-size:116px;margin-top:28px">TODO<br><span class="mint glowtext">BAJO</span><br>CONTROL.</div>
+
+  <section class="scene scene-black clip" id="scene-3" data-start="{{S3_START}}" data-duration="{{S3_DURATION}}" data-track-index="4">
+    <div class="kicker">RECURSOS DEDICADOS. CONTROL REAL.</div>
+    <div class="rack-group" id="rack-group">
+      <div class="rack"><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div></div>
+      <div class="rack"><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div></div>
+      <div class="rack"><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div><div class="rack-unit"><span class="rack-leds"><i></i><i></i></span></div></div>
     </div>
-    <div class="phone" id="phone">
-      <div class="notch"></div><div class="phonehead">cloudservicegm / server</div>
-      <div class="phonecontent">
-        <div class="phonecard"><b>✓ Firewall activo</b>Reglas de acceso protegidas</div>
-        <div class="phonecard"><b>✓ Fail2Ban activo</b>Protección contra intentos sospechosos</div>
-        <div class="phonecard"><b>✓ SSL instalado</b>Conexión cifrada y segura</div>
-        <div class="phonecard"><b>✓ Backups</b>Copias de seguridad configuradas</div>
-      </div>
-    </div>
+    <div class="rack-base"></div><div class="side-note">04 — INFRAESTRUCTURA</div>
   </section>
-  <section class="scene green" id="s5">
-    <div class="center" style="top:330px">
-      <div class="check">✓</div>
-      <div class="big" style="font-size:126px">LISTO<br><span class="darkword">PARA</span><br>CRECER.</div>
-      <div class="micro" style="margin-top:45px">CONFIGURAMOS TU VPS DESDE CERO</div>
-      <div class="ctabtn">HABLEMOS DE TU PROYECTO</div>
-      <div class="micro" style="margin-top:45px">cloudservicegm</div>
+
+  <section class="scene scene-blue clip" id="scene-4" data-start="{{S4_START}}" data-duration="{{S4_DURATION}}" data-track-index="5">
+    <div class="kicker">TODO CONECTADO. TODO COORDINADO.</div>
+    <div class="network" id="network">
+      <svg viewBox="0 0 1080 720" aria-hidden="true">
+        <path class="network-line" id="netline1" d="M170 175 L510 395 L900 175"/>
+        <path class="network-line" id="netline2" d="M510 100 L510 395 L510 600"/>
+        <path class="network-line" id="netline3" d="M170 175 L510 100 L900 175"/>
+      </svg>
+      <div class="network-node n1">WEB<small>Aplicación</small></div>
+      <div class="network-node n2">VPS<small>Servidor principal</small></div>
+      <div class="network-node n3">DATA<small>Base de datos</small></div>
+      <div class="network-node n4">SSL</div>
     </div>
+    <div class="side-note">05 — CONEXIONES</div>
   </section>
+
+  <section class="scene scene-black clip" id="scene-5" data-start="{{S5_START}}" data-duration="{{S5_DURATION}}" data-track-index="6">
+    <div class="kicker">SEGURIDAD DESDE LA CONFIGURACIÓN</div>
+    <div class="lock-orbit" id="lock-orbit"></div>
+    <div class="security-shield" id="security-shield">
+      <svg viewBox="0 0 410 490" role="img" aria-label="Escudo de seguridad">
+        <path d="M205 18 L365 78 V210 C365 325 293 414 205 466 C117 414 45 325 45 210 V78 Z" fill="#102d37" stroke="#54dfbf" stroke-width="14"/>
+        <path d="M205 62 L324 107 V210 C324 294 277 359 205 407 C133 359 86 294 86 210 V107 Z" fill="none" stroke="#2b958d" stroke-width="5" stroke-dasharray="12 10"/>
+        <path d="M125 242 L184 302 L294 178" fill="none" stroke="#f6fff9" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="security-panel" id="security-panel">
+      <div class="security-chip"><b>✓</b>Firewall</div>
+      <div class="security-chip"><b>✓</b>Fail2Ban</div>
+      <div class="security-chip"><b>✓</b>SSL</div>
+      <div class="security-chip"><b>✓</b>Backups</div>
+    </div>
+    <div class="side-note">06 — PROTECCIÓN</div>
+  </section>
+
+  <section class="scene scene-mint clip" id="scene-6" data-start="{{S6_START}}" data-duration="{{S6_DURATION}}" data-track-index="7">
+    <div class="cta-mark" id="cta-mark">✓</div>
+    <div class="kicker" style="color:#073e3c">CLOUDSERVICEGM</div>
+    <div class="cta-bar" id="cta-bar">HABLEMOS DE TU PROYECTO</div>
+    <div class="brand">VPS • CLOUD • WEB</div>
+    <div class="side-note" style="color:#083d3a">07 — EMPECEMOS</div>
+  </section>
+
+  <div id="transition-flash"></div>
+  <div id="transition-flash" class="red" style="display:none"></div>
   {{CAPTIONS}}
   <audio id="narration" data-start="0" data-track-index="0" src="./assets/narration.wav"></audio>
   <script src="./assets/gsap.min.js"></script>
   <script>
-    const D={{DURATION}}, a=D*.19, b=D*.39, c=D*.61, e=D*.81;
+    const D={{DURATION}};
+    const starts=[{{S0_START}},{{S1_START}},{{S2_START}},{{S3_START}},{{S4_START}},{{S5_START}},{{S6_START}}];
+    const scenes=starts.map((_,i)=>"#scene-"+i);
     const tl=gsap.timeline({paused:true});
-    const scenes=["#s1","#s2","#s3","#s4","#s5"];
-    scenes.forEach((q)=>tl.set(q,{opacity:0,scale:1.035}));
-    tl.set("#s1",{opacity:1,scale:1},0);
-    tl.fromTo(".ring-a",{rotation:-35,scale:.72,opacity:0},{rotation:0,scale:1,opacity:.8,duration:1.4,ease:"power3.out"},.15);
-    tl.fromTo(".ring-b",{rotation:35,scale:1.25,opacity:0},{rotation:0,scale:1,opacity:.65,duration:1.2,ease:"power3.out"},.3);
-    tl.to(".ring-a",{rotation:360,duration:Math.max(4,D*.45),ease:"none"},.2);
-    tl.to(".ring-b",{rotation:-360,duration:Math.max(5,D*.55),ease:"none"},.2);
-    tl.fromTo("#s1 .kicker",{opacity:0,y:-40,filter:"blur(12px)"},{opacity:1,y:0,filter:"blur(0px)",duration:.55,ease:"power3.out"},.1);
-    tl.fromTo("#s1 .big",{opacity:0,scale:1.3,y:100,filter:"blur(18px)"},{opacity:1,scale:1,y:0,filter:"blur(0px)",duration:.8,ease:"power4.out"},.35);
-    tl.fromTo("#s1 .micro",{opacity:0,y:35},{opacity:1,y:0,duration:.45},1.15);
-    function transition(from,to,t){
-      tl.to(from,{opacity:0,scale:.88,filter:"blur(16px)",duration:.42,ease:"power2.in"},t);
-      tl.fromTo(to,{opacity:0,scale:1.12,filter:"blur(12px)"},{opacity:1,scale:1,filter:"blur(0px)",duration:.55,ease:"power3.out"},t+.25);
+    scenes.forEach((selector)=>tl.set(selector,{autoAlpha:0,scale:1.035,filter:"blur(0px)"}));
+    tl.set("#scene-0",{autoAlpha:1,scale:1},0);
+
+    function sceneChange(index, style, at){
+      const previous=scenes[index-1], current=scenes[index];
+      tl.to(previous,{autoAlpha:0,scale:index%2===0?.88:1.12,rotationZ:index%2===0?2:-2,filter:"blur(18px)",duration:.34,ease:"power3.in"},at);
+      tl.fromTo(current,{autoAlpha:0,scale:index%2===0?1.18:.82,x:index%2===0?70:-70,filter:"blur(22px)"},{autoAlpha:1,scale:1,x:0,filter:"blur(0px)",duration:.56,ease:"expo.out"},at+.13);
+      const flash="#transition-flash";
+      tl.set(flash,{xPercent:-120,background:style},at-.04);
+      tl.to(flash,{xPercent:0,duration:.13,ease:"power2.in"},at-.04);
+      tl.to(flash,{xPercent:120,duration:.28,ease:"power2.out"},at+.09);
     }
-    transition("#s1","#s2",a);
-    tl.fromTo("#s2 .big",{scale:1.22,y:80,opacity:0},{scale:1,y:0,opacity:1,duration:.65,stagger:.08,ease:"back.out(1.2)"},a+.35);
-    transition("#s2","#s3",b);
-    tl.fromTo("#s3 .big",{y:100,opacity:0,filter:"blur(15px)"},{y:0,opacity:1,filter:"blur(0px)",duration:.65,ease:"power4.out"},b+.35);
-    tl.fromTo("#browser",{y:180,rotationX:12,scale:.82,opacity:0},{y:0,rotationX:0,scale:1,opacity:1,duration:.75,ease:"power3.out"},b+.65);
-    tl.fromTo("#browser .stat",{y:40,opacity:0,scale:.8},{y:0,opacity:1,scale:1,duration:.4,stagger:.16,ease:"back.out(1.5)"},b+1.05);
-    tl.fromTo("#browser .loadbar i",{scaleX:0,transformOrigin:"left"},{scaleX:1,duration:1.15,ease:"power2.out"},b+1.25);
-    tl.to("#browser",{y:-24,rotationZ:-1.2,duration:1.7,yoyo:true,repeat:2,ease:"sine.inOut"},b+2.0);
-    tl.to("#browser .stat b",{color:"#51dfbc",duration:.35,stagger:.18,yoyo:true,repeat:3},b+2.2);
-    transition("#s3","#s4",c);
-    tl.fromTo("#s4 .big",{scale:1.25,opacity:0},{scale:1,opacity:1,duration:.6,ease:"power3.out"},c+.3);
-    tl.fromTo("#phone",{x:520,rotation:8,opacity:0},{x:0,rotation:0,opacity:1,duration:.7,ease:"power3.out"},c+.6);
-    tl.fromTo("#phone .phonecard",{x:90,rotationY:18,opacity:0},{x:0,rotationY:0,opacity:1,duration:.42,stagger:.19,ease:"power3.out"},c+1);
-    tl.to("#phone",{y:-28,rotationZ:-1.5,duration:1.6,yoyo:true,repeat:2,ease:"sine.inOut"},c+2.2);
-    tl.to("#phone .phonecard b",{textShadow:"0 0 18px #51dfbc",duration:.35,stagger:.18,yoyo:true,repeat:2},c+2.3);
-    transition("#s4","#s5",e);
-    tl.fromTo("#s5 .check",{scale:0,rotation:-90,opacity:0},{scale:1,rotation:0,opacity:1,duration:.55,ease:"back.out(1.8)"},e+.3);
-    tl.fromTo("#s5 .big",{y:90,scale:.8,opacity:0},{y:0,scale:1,opacity:1,duration:.65,ease:"power4.out"},e+.7);
-    tl.fromTo("#s5 .ctabtn",{y:45,scale:.8,opacity:0},{y:0,scale:1,opacity:1,duration:.5,ease:"back.out(1.5)"},e+1.35);
-    tl.to("#s5 .check",{scale:1.12,duration:.42,yoyo:true,repeat:3,ease:"sine.inOut"},e+1.9);
-    tl.to("#s5 .ctabtn",{scale:1.045,duration:.45,yoyo:true,repeat:2,ease:"sine.inOut"},e+2.1);
+    sceneChange(1,"#f5f3ed",starts[1]);
+    sceneChange(2,"#ff4055",starts[2]);
+    sceneChange(3,"#101923",starts[3]);
+    sceneChange(4,"#54d8cf",starts[4]);
+    sceneChange(5,"#f5f3ed",starts[5]);
+    sceneChange(6,"#54d8ba",starts[6]);
+
+    tl.fromTo(".massive-bg",{scale:1.5,x:-120,opacity:0},{scale:1,x:0,opacity:.12,duration:1.3,ease:"expo.out"},.05);
+    tl.fromTo(".red-ribbon",{x:-1150,rotation:-13},{x:0,rotation:-13,duration:.82,ease:"expo.out"},.2);
+    tl.fromTo(".signal-ring.r1",{scale:.45,rotation:-35,opacity:0},{scale:1,rotation:0,opacity:.9,duration:1.1,ease:"back.out(1.5)"},.2);
+    tl.fromTo(".signal-ring.r2",{scale:1.35,rotation:50,opacity:0},{scale:1,rotation:0,opacity:.8,duration:1.1,ease:"power3.out"},.38);
+    tl.fromTo("#alert-card",{x:800,rotation:8,opacity:0},{x:0,rotation:-2,opacity:1,duration:.75,ease:"back.out(1.25)"},starts[1]+.42);
+    tl.to("#alert-card",{x:-35,rotation:1,duration:.35,yoyo:true,repeat:1,ease:"sine.inOut"},starts[1]+1.6);
+    tl.fromTo("#browser",{y:500,rotationX:22,rotationZ:4,scale:.75,opacity:0},{y:0,rotationX:0,rotationZ:0,scale:1,opacity:1,duration:.9,ease:"expo.out"},starts[2]+.25);
+    tl.fromTo("#load-progress",{scaleX:0},{scaleX:1,duration:1.15,ease:"power2.out"},starts[2]+.8);
+    tl.fromTo("#browser .metric",{y:90,scale:.65,opacity:0},{y:0,scale:1,opacity:1,duration:.52,stagger:.13,ease:"back.out(1.6)"},starts[2]+1.15);
+    tl.fromTo("#sparkline i",{scaleY:.04},{scaleY:1,duration:.48,stagger:.055,ease:"power3.out"},starts[2]+1.55);
+    tl.to("#browser",{y:-18,rotationZ:-1.1,duration:1.2,yoyo:true,repeat:2,ease:"sine.inOut"},starts[2]+2.5);
+    tl.fromTo("#rack-group .rack",{y:700,rotationY:-35,opacity:0},{y:0,rotationY:-12,opacity:1,duration:.75,stagger:.14,ease:"expo.out"},starts[3]+.2);
+    tl.fromTo("#rack-group .rack-unit",{scaleX:.25,opacity:.35},{scaleX:1,opacity:1,duration:.34,stagger:.055,ease:"power3.out"},starts[3]+.9);
+    tl.to("#rack-group .rack-leds i",{opacity:.2,duration:.22,stagger:.03,yoyo:true,repeat:4,ease:"sine.inOut"},starts[3]+1.35);
+    tl.fromTo("#network-node",{scale:0,opacity:0,rotation:-55},{scale:1,opacity:1,rotation:0,duration:.6,stagger:.17,ease:"back.out(1.65)"},starts[4]+.24);
+    tl.fromTo(".network-line",{strokeDashoffset:600,opacity:0},{strokeDashoffset:0,opacity:1,duration:.9,stagger:.15,ease:"power2.out"},starts[4]+.62);
+    tl.to(".network-node",{y:-20,duration:.75,stagger:.12,yoyo:true,repeat:2,ease:"sine.inOut"},starts[4]+1.8);
+    tl.fromTo("#lock-orbit",{scale:.5,rotation:-90,opacity:0},{scale:1,rotation:0,opacity:.8,duration:1,ease:"power3.out"},starts[5]+.2);
+    tl.fromTo("#security-shield",{scale:.25,rotationY:75,y:140,opacity:0},{scale:1,rotationY:0,y:0,opacity:1,duration:.85,ease:"back.out(1.35)"},starts[5]+.38);
+    tl.fromTo("#security-panel .security-chip",{y:150,rotationX:-70,opacity:0},{y:0,rotationX:0,opacity:1,duration:.46,stagger:.12,ease:"back.out(1.55)"},starts[5]+1.12);
+    tl.fromTo("#cta-mark",{scale:0,rotation:-120,opacity:0},{scale:1,rotation:0,opacity:1,duration:.7,ease:"elastic.out(1,.5)"},starts[6]+.35);
+    tl.fromTo("#cta-bar",{scaleX:.15,scaleY:1.6,opacity:0},{scaleX:1,scaleY:1,opacity:1,duration:.65,ease:"expo.out"},starts[6]+1.15);
+    tl.to("#cta-mark",{scale:1.08,duration:.42,yoyo:true,repeat:2,ease:"sine.inOut"},starts[6]+2);
+
     {{CAPTION_ANIMS}}
     tl.set({}, {}, D);
     window.__timelines=window.__timelines||{};
