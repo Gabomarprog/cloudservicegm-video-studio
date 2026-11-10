@@ -2,6 +2,11 @@
 name: Render video
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/render.yml"
   workflow_dispatch:
     inputs:
       title:
@@ -72,7 +77,24 @@ jobs:
         env:
           VIDEO_SCRIPT: ${{ inputs.script }}
         run: |
-          printf '%s' "$VIDEO_SCRIPT" > narration.txt
+          if [ -n "$VIDEO_SCRIPT" ]; then
+            printf '%s' "$VIDEO_SCRIPT" > narration.txt
+          else
+            cat > narration.txt <<'EOF'
+          Hoy estás aquí. Mañana, quizá no. [pause:500ms]
+
+          Pero ¿qué pasa si tu web se cae justo cuando un cliente intenta entrar?
+          Cada minuto fuera de línea puede significar visitas perdidas, ventas que no llegan y una confianza difícil de recuperar.
+          Muchas veces, el problema no está en tu página. Está en un servidor que ya no puede seguir el ritmo de tu proyecto.
+
+          Un VPS bien configurado te ofrece recursos dedicados, más control y una base estable para crecer.
+          En cloudservicegm preparamos tu infraestructura desde cero: instalamos el sistema, optimizamos el servidor, reforzamos la seguridad y configuramos SSL.
+          También dejamos listos WordPress, bases de datos y aplicaciones web, con accesos organizados y copias de respaldo.
+
+          Porque no se trata solo de tener un servidor. Se trata de que tu web siga disponible cuando tus clientes la necesitan.
+          No esperes a que falle. Anticípate. Escríbenos a cloudservicegm.
+          EOF
+          fi
           test -s narration.txt
 
       - name: Generar voz Ryan cálida en español latino
@@ -109,7 +131,7 @@ jobs:
 
       - name: Construir composición animada
         env:
-          VIDEO_TITLE: ${{ inputs.title }}
+          VIDEO_TITLE: ${{ inputs.title || '¿Y si tu web se cae? | cloudservicegm' }}
         run: |
           python3 build_video.py \
             --transcript transcript.json \
