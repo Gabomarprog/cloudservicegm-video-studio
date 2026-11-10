@@ -98,9 +98,9 @@ def make_caption(group, index, start, end, duration):
     markup = " ".join(word_markup)
 
     clip = (
-        f'<div class="kinetic-clip clip layout-{layout} mode-{mode} accent-{accent} {contrast}" '
-        f'id="beat-{index}" data-start="{start:.3f}" '
-        f'data-duration="{max(.2, end-start):.3f}" data-track-index="20" '
+        f'<div class="kinetic-clip layout-{layout} mode-{mode} accent-{accent} {contrast}" '
+        f'id="beat-{index}" '
+        
         f'style="--type-size:{font_size}px">'
         f'<div class="type-ghost" aria-hidden="true">{html.escape(plain)}</div>'
         f'<div class="type-wrap"><div class="headline">{markup}</div></div></div>'
