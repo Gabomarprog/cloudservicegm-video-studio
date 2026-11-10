@@ -13,24 +13,19 @@ on:
         description: "Título principal del video"
         required: true
         type: string
-        default: "¿Y si tu web se cae? | cloudservicegm"
+        default: "3 señales de que tu VPS necesita mejorar"
       script:
         description: "Guion completo en español para la narración"
         required: true
         type: string
         default: |
-          Hoy estás aquí. Mañana, quizá no. [pause:500ms]
-          
-          Pero ¿qué pasa si tu web se cae justo cuando un cliente intenta entrar?
-          Cada minuto fuera de línea puede significar visitas perdidas, ventas que no llegan y una confianza difícil de recuperar.
-          Muchas veces, el problema no está en tu página. Está en un servidor que ya no puede seguir el ritmo de tu proyecto.
-          
+          ¿Tu web tarda en cargar? Cuando una página se queda pensando, tus visitantes no esperan: se van y buscan otra opción.
+          Muchas veces el problema está en un servidor que ya no responde al ritmo de tu proyecto.
           Un VPS bien configurado te ofrece recursos dedicados, más control y una base estable para crecer.
-          En cloudservicegm preparamos tu infraestructura desde cero: instalamos el sistema, optimizamos el servidor, reforzamos la seguridad y configuramos SSL.
-          También dejamos listos WordPress, bases de datos y aplicaciones web, con accesos organizados y copias de respaldo.
-          
-          Porque no se trata solo de tener un servidor. Se trata de que tu web siga disponible cuando tus clientes la necesitan.
-          No esperes a que falle. Anticípate. Escríbenos a cloudservicegm.
+          En cloudservicegm preparamos tu infraestructura desde cero. Optimizamos el servidor, reforzamos la seguridad, configuramos SSL y dejamos listos WordPress, bases de datos y aplicaciones web.
+          También cuidamos los accesos y los servicios que mantienen tu proyecto disponible.
+          No se trata solo de tener un servidor: se trata de que tu web responda cuando tus clientes la necesitan.
+          Síguenos para aprender sobre VPS, rendimiento y seguridad. Y si necesitas ayuda con tu infraestructura, escríbenos.
 
 permissions:
   contents: read
@@ -81,18 +76,13 @@ jobs:
             printf '%s' "$VIDEO_SCRIPT" > narration.txt
           else
             cat > narration.txt <<'EOF'
-          Hoy estás aquí. Mañana, quizá no. [pause:500ms]
-
-          Pero ¿qué pasa si tu web se cae justo cuando un cliente intenta entrar?
-          Cada minuto fuera de línea puede significar visitas perdidas, ventas que no llegan y una confianza difícil de recuperar.
-          Muchas veces, el problema no está en tu página. Está en un servidor que ya no puede seguir el ritmo de tu proyecto.
-
+          ¿Tu web tarda en cargar? Cuando una página se queda pensando, tus visitantes no esperan: se van y buscan otra opción.
+          Muchas veces el problema está en un servidor que ya no responde al ritmo de tu proyecto.
           Un VPS bien configurado te ofrece recursos dedicados, más control y una base estable para crecer.
-          En cloudservicegm preparamos tu infraestructura desde cero: instalamos el sistema, optimizamos el servidor, reforzamos la seguridad y configuramos SSL.
-          También dejamos listos WordPress, bases de datos y aplicaciones web, con accesos organizados y copias de respaldo.
-
-          Porque no se trata solo de tener un servidor. Se trata de que tu web siga disponible cuando tus clientes la necesitan.
-          No esperes a que falle. Anticípate. Escríbenos a cloudservicegm.
+          En cloudservicegm preparamos tu infraestructura desde cero. Optimizamos el servidor, reforzamos la seguridad, configuramos SSL y dejamos listos WordPress, bases de datos y aplicaciones web.
+          También cuidamos los accesos y los servicios que mantienen tu proyecto disponible.
+          No se trata solo de tener un servidor: se trata de que tu web responda cuando tus clientes la necesitan.
+          Síguenos para aprender sobre VPS, rendimiento y seguridad. Y si necesitas ayuda con tu infraestructura, escríbenos.
           EOF
           fi
           test -s narration.txt
@@ -107,7 +97,7 @@ jobs:
             --threads 4 \
             --seed 20261110 \
             --speaker ryan \
-            --rate 1.00
+            --rate 1.70
           test -s narration.wav
 
       - name: Comprobar duración mínima de 35 segundos
@@ -131,7 +121,7 @@ jobs:
 
       - name: Construir composición animada
         env:
-          VIDEO_TITLE: ${{ inputs.title || '¿Y si tu web se cae? | cloudservicegm' }}
+          VIDEO_TITLE: ${{ inputs.title || '3 señales de que tu VPS necesita mejorar' }}
         run: |
           python3 build_video.py \
             --transcript transcript.json \
