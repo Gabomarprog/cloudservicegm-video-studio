@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080,height=1920,initial-scale=1">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#050814;color:#f7f9ff;font-family:Inter,Arial,sans-serif}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:
+ radial-gradient(ellipse at 18% 15%,rgba(21,94,163,.35),transparent 42%),
+ radial-gradient(ellipse at 90% 70%,rgba(16,185,129,.16),transparent 38%),
+ linear-gradient(145deg,#050814 0%,#0a1022 55%,#050814 100%)}
+.grid{position:absolute;inset:0;opacity:.18;background-image:linear-gradient(rgba(120,160,210,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(120,160,210,.15) 1px,transparent 1px);background-size:64px 64px;mask-image:linear-gradient(to bottom,black,transparent 85%)}
+.glow{position:absolute;border-radius:50%;filter:blur(5px);pointer-events:none}
+.glow.one{width:520px;height:520px;right:-210px;top:230px;background:radial-gradient(circle,rgba(0,190,255,.19),transparent 68%)}
+.glow.two{width:560px;height:560px;left:-280px;bottom:200px;background:radial-gradient(circle,rgba(16,185,129,.17),transparent 68%)}
+.brand{position:absolute;top:76px;left:76px;font-size:24px;letter-spacing:5px;font-weight:800;color:#75d7ff}
+.pill{position:absolute;top:175px;left:76px;display:inline-flex;align-items:center;gap:12px;border:1px solid rgba(117,215,255,.32);border-radius:40px;padding:15px 22px;color:#bcecff;font-size:21px;letter-spacing:2px;background:rgba(12,35,58,.65)}
+.dot{width:10px;height:10px;border-radius:50%;background:#36e2a0;box-shadow:0 0 18px #36e2a0}
+.hero{position:absolute;left:76px;right:76px;top:300px}
+.eyebrow{font-size:23px;color:#64e4b2;letter-spacing:5px;font-weight:800;margin-bottom:28px}
+h1{font-size:88px;line-height:1.02;letter-spacing:-4px;margin:0;font-weight:900;max-width:920px}
+.accent{color:#65d9ff}
+.subline{font-size:29px;line-height:1.35;color:#aebbd0;margin-top:35px;max-width:850px}
+.visual-card{position:absolute;left:76px;right:76px;top:900px;height:480px;border:1px solid rgba(125,180,230,.25);border-radius:34px;background:linear-gradient(145deg,rgba(19,35,60,.95),rgba(8,16,32,.96));box-shadow:0 30px 90px rgba(0,0,0,.35);padding:36px}
+.card-head{display:flex;justify-content:space-between;align-items:center;color:#c8d6e8;font-size:23px}
+.status{color:#55e0a5;font-size:18px}
+.metrics{display:flex;gap:18px;margin-top:38px}
+.metric{flex:1;border-radius:22px;background:rgba(255,255,255,.045);padding:24px 20px;border:1px solid rgba(255,255,255,.07)}
+.metric small{display:block;color:#94a8c1;font-size:18px;margin-bottom:18px}
+.metric strong{font-size:39px;letter-spacing:-1px}
+.metric em{display:block;color:#5de0ae;font-size:17px;font-style:normal;margin-top:12px}
+.chart{height:130px;margin-top:30px;display:flex;align-items:end;gap:15px;padding:0 10px}
+.bar{flex:1;border-radius:9px 9px 2px 2px;background:linear-gradient(to top,#1676a8,#52d9ef);box-shadow:0 0 20px rgba(48,190,232,.2)}
+.terminal{position:absolute;left:76px;right:76px;top:900px;height:480px;border:1px solid rgba(92,222,180,.28);border-radius:30px;background:#07111b;box-shadow:0 30px 90px rgba(0,0,0,.4);padding:30px 34px}
+.term-top{display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.09);padding-bottom:23px;color:#a8bacd;font-size:20px}
+.traffic{width:12px;height:12px;border-radius:50%;background:#ff667a}
+.traffic:nth-child(2){background:#ffcb61}.traffic:nth-child(3){background:#4ed99a}
+.term-lines{padding-top:24px;font:22px/1.8 ui-monospace,monospace;color:#b8cadc}
+.term-lines .green{color:#5de0ae}.term-lines .blue{color:#65d9ff}.term-lines .muted{color:#60758b}
+.diagram{position:absolute;left:76px;right:76px;top:920px;height:430px;display:flex;align-items:center;justify-content:space-between}
+.node{width:230px;height:180px;border:1px solid rgba(101,217,255,.35);border-radius:28px;background:rgba(14,34,58,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:17px;text-align:center;box-shadow:0 0 45px rgba(34,166,220,.09)}
+.node b{font-size:25px}.node span{font-size:18px;color:#91a9c3}
+.connector{height:3px;flex:1;background:linear-gradient(90deg,#44d9c0,#62c9ff);box-shadow:0 0 18px #38bfe4}
+.cta{position:absolute;left:76px;right:76px;top:860px;text-align:center}
+.cta h2{font-size:78px;line-height:1.04;margin:30px 0;color:white;letter-spacing:-3px}
+.cta p{font-size:29px;color:#b1c1d4;line-height:1.4}
+.cta-button{display:inline-block;margin-top:30px;padding:22px 38px;border-radius:18px;background:linear-gradient(90deg,#20c997,#3bb9f0);color:#04111d;font-size:26px;font-weight:900;letter-spacing:1px}
+.footer{position:absolute;left:76px;right:76px;bottom:75px;display:flex;justify-content:space-between;color:#71869f;font-size:18px;letter-spacing:3px}
+.caption{position:absolute;left:85px;right:85px;bottom:205px;min-height:110px;padding:22px 28px;border-radius:22px;background:rgba(3,10,22,.88);border:1px solid rgba(106,213,255,.3);font-size:36px;line-height:1.25;font-weight:800;text-align:center;color:#fff;box-shadow:0 12px 45px rgba(0,0,0,.3)}
+.caption strong{color:#6ce6bd}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="root" data-start="0" data-width="1080" data-height="1920">
+  <div class="grid"></div><div class="glow one"></div><div class="glow two"></div>
+  <div class="brand">CLOUDSERVICEGM</div>
+  <div class="pill clip" id="pill" data-start="0" data-duration="{{DURATION}}" data-track-index="2"><span class="dot"></span> INFRAESTRUCTURA DIGITAL</div>
+
+  <section class="hero clip" id="hero" data-start="0" data-duration="{{T1}}" data-track-index="3">
+    <div class="eyebrow">TECNOLOGÍA • RENDIMIENTO • SEGURIDAD</div>
+    <h1>{{TITLE}}</h1>
+    <div class="subline">La infraestructura correcta transforma la experiencia de tus usuarios y el crecimiento de tu negocio.</div>
+  </section>
+
+  <section class="visual-card clip" id="dashboard" data-start="{{T1}}" data-duration="{{DASH_DURATION}}" data-track-index="4">
+    <div class="card-head"><b>SERVER OVERVIEW</b><span class="status">● SISTEMA OPERATIVO</span></div>
+    <div class="metrics">
+      <div class="metric"><small>CPU</small><strong>24%</strong><em>↓ Optimizado</em></div>
+      <div class="metric"><small>MEMORIA</small><strong>42%</strong><em>● Estable</em></div>
+      <div class="metric"><small>UPTIME</small><strong>99.9%</strong><em>↑ Disponible</em></div>
+    </div>
+    <div class="chart">
+      <div class="bar" style="height:32%"></div><div class="bar" style="height:48%"></div><div class="bar" style="height:41%"></div><div class="bar" style="height:67%"></div><div class="bar" style="height:55%"></div><div class="bar" style="height:82%"></div><div class="bar" style="height:72%"></div><div class="bar" style="height:94%"></div><div class="bar" style="height:63%"></div><div class="bar" style="height:78%"></div>
+    </div>
+  </section>
+
+  <section class="terminal clip" id="terminal" data-start="{{T2}}" data-duration="{{TERM_DURATION}}" data-track-index="5">
+    <div class="term-top"><i class="traffic"></i><i class="traffic"></i><i class="traffic"></i><span style="margin-left:14px">root@cloudserver:~</span></div>
+    <div class="term-lines">
+      <div><span class="green">root@server</span>:~# ufw status</div>
+      <div class="muted">Status: active</div>
+      <div><span class="green">root@server</span>:~# systemctl status nginx</div>
+      <div><span class="blue">● nginx.service</span> - active (running)</div>
+      <div><span class="green">root@server</span>:~# fail2ban-client status</div>
+      <div class="blue">Jail list: sshd, nginx-http-auth</div>
+    </div>
+  </section>
+
+  <section class="diagram clip" id="diagram" data-start="{{T3}}" data-duration="{{DIAG_DURATION}}" data-track-index="6">
+    <div class="node"><b>WEB</b><span>Aplicación</span></div><div class="connector"></div>
+    <div class="node"><b>VPS</b><span>Servidor seguro</span></div><div class="connector"></div>
+    <div class="node"><b>DATA</b><span>Base de datos</span></div>
+  </section>
+
+  <section class="cta clip" id="cta" data-start="{{T4}}" data-duration="{{CTA_DURATION}}" data-track-index="7">
+    <div class="eyebrow">TU PROYECTO MERECE MÁS</div>
+    <h2>Haz que tu infraestructura trabaje a tu favor.</h2>
+    <p>Configuración VPS desde cero. Seguridad. Rendimiento. Control.</p>
+    <div class="cta-button">HABLEMOS DE TU PROYECTO</div>
+  </section>
+
+  {{CAPTIONS}}
+
+  <div class="footer"><span>VPS • CLOUD • WEB INFRASTRUCTURE</span><span>cloudservicegm.com</span></div>
+  <audio id="narration" data-start="0" data-track-index="0" src="./assets/narration.wav"></audio>
+  <script src="./assets/gsap.min.js"></script>
+  <script>
+    const D = {{DURATION}};
+    const tl = gsap.timeline({paused:true});
+    tl.fromTo("#pill",{opacity:0,y:-24},{opacity:1,y:0,duration:.55,ease:"power3.out"},0);
+    tl.fromTo("#hero .eyebrow",{opacity:0,x:-45},{opacity:1,x:0,duration:.5,ease:"power3.out"},.15);
+    tl.fromTo("#hero h1",{opacity:0,y:65,filter:"blur(12px)"},{opacity:1,y:0,filter:"blur(0px)",duration:.85,ease:"power4.out"},.35);
+    tl.fromTo("#hero .subline",{opacity:0,y:25},{opacity:1,y:0,duration:.6,ease:"power2.out"},1.05);
+    tl.fromTo("#dashboard",{opacity:0,y:70,scale:.96},{opacity:1,y:0,scale:1,duration:.7,ease:"power3.out"},{{T1}});
+    tl.fromTo("#dashboard .bar",{scaleY:0,transformOrigin:"bottom"},{scaleY:1,duration:.65,stagger:.055,ease:"power2.out"},{{T1}}+.35);
+    tl.fromTo("#terminal",{opacity:0,y:60,rotateX:5},{opacity:1,y:0,rotateX:0,duration:.7,ease:"power3.out"},{{T2}});
+    tl.fromTo("#terminal .term-lines div",{opacity:0,x:-25},{opacity:1,x:0,duration:.35,stagger:.17,ease:"power2.out"},{{T2}}+.3);
+    tl.fromTo("#diagram .node",{opacity:0,y:35,scale:.9},{opacity:1,y:0,scale:1,duration:.5,stagger:.18,ease:"back.out(1.5)"},{{T3}});
+    tl.fromTo("#diagram .connector",{scaleX:0,transformOrigin:"left"},{scaleX:1,duration:.5,stagger:.2,ease:"power2.out"},{{T3}}+.35);
+    tl.fromTo("#cta",{opacity:0,y:45},{opacity:1,y:0,duration:.8,ease:"power3.out"},{{T4}});
+    {{CAPTION_ANIMS}}
+    tl.set({}, {}, D);
+    window.__timelines = window.__timelines || {};
+    window.__timelines["root"] = tl;
+  </script>
+</div>
+</body>
+</html>
