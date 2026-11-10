@@ -23,8 +23,8 @@ DELIVERY_INSTRUCTION = (
 def prepare_continuous_text(raw: str) -> str:
     """Preserve one continuous take while turning paragraph breaks into intentional pauses."""
     paragraphs = [
-        re.sub(r"\\s+", " ", part).strip()
-        for part in re.split(r"\\n\\s*\\n", raw.strip())
+        re.sub(r"\s+", " ", part).strip()
+        for part in re.split(r"\n\s*\n", raw.strip())
         if part.strip()
     ]
     if not paragraphs:
