@@ -171,167 +171,245 @@ def make_caption(group, index, start, end, duration):
     return clip, enter + exit_anim
 
 
-SFX_LIBRARY = {
-    "whoosh": "https://gettakes.app/sounds/whoosh.wav",
-    "swish": "https://gettakes.app/sounds/swish.wav",
-    "click": "https://gettakes.app/sounds/click.wav",
-    "tap": "https://gettakes.app/sounds/tap.wav",
-    "pop": "https://gettakes.app/sounds/pop.wav",
-    "typing": "https://gettakes.app/sounds/typing.wav",
-    "notification": "https://gettakes.app/sounds/notification.wav",
-    "ding": "https://gettakes.app/sounds/ding.wav",
-    "quick-riser": "https://gettakes.app/sounds/quick-riser.wav",
-    "sci-fi": "https://gettakes.app/sounds/sci-fi.wav",
-    "glitch": "https://gettakes.app/sounds/glitch.wav",
-    "water-drop": "https://gettakes.app/sounds/water-drop.wav",
-    "correct-answer": "https://gettakes.app/sounds/correct-answer.wav",
-    "sparkle": "https://gettakes.app/sounds/sparkle.wav",
-    "logo-sting": "https://gettakes.app/sounds/logo-sting.wav",
-    "downlifter": "https://gettakes.app/sounds/downlifter.wav",
-}
+SFX_SOURCE_COMMIT = "92780e7ab0cdfb557497a988089c47f46e8c7412"
+SFX_BASE_URL = f"https://raw.githubusercontent.com/wyzowl/sfx-kit/{SFX_SOURCE_COMMIT}/"
+
+SFX_IDS = [
+    "whoosh-medium-soft",
+    "swish-medium",
+    "pop-medium-in",
+    "pop-small-in",
+    "keyboard-typing-steady-medium",
+    "keyboard-return-medium",
+    "click-tap-medium",
+    "click-mouse-soft",
+    "notification-error-soft",
+    "notification-success-soft",
+    "data-chart-reveal",
+    "data-bar-grow",
+    "data-progress-short",
+    "digital-process-subtle",
+    "digital-power-up",
+    "digital-glitch-subtle",
+    "digital-signal-drop",
+    "mechanical-switch-light",
+    "tone-step-1",
+    "tone-step-2",
+    "tone-step-3",
+    "tone-step-4",
+    "sting-warm-short",
+    "shimmer-short-soft",
+    "impact-light-soft",
+    "swipe-medium-soft",
+]
 
 
-def download_sfx_library(assets):
-    """Download a small CC0/royalty-free UI and transition SFX library."""
+def download_sfx_assets(assets):
+    """Download only the selected CC0 WAVs plus their source metadata."""
     import urllib.request
     from urllib.error import URLError, HTTPError
 
     folder = Path(assets) / "sfx"
     folder.mkdir(parents=True, exist_ok=True)
-    downloaded = {}
-    for name, url in SFX_LIBRARY.items():
-        target = folder / f"{name}.wav"
-        if target.exists() and target.stat().st_size > 1024:
-            downloaded[name] = target
-            continue
+    manifest_path = folder / "sounds.json"
 
-        request = urllib.request.Request(
-            url,
-            headers={"User-Agent": "cloudservicegm-video-studio/1.0"}
-        )
+    def download(url, target, min_size=100):
+        if target.exists() and target.stat().st_size >= min_size:
+            return
         last_error = None
         for attempt in range(3):
             try:
-                with urllib.request.urlopen(request, timeout=30) as response:
+                request = urllib.request.Request(
+                    url,
+                    headers={"User-Agent": "cloudservicegm-video-studio/1.0"}
+                )
+                with urllib.request.urlopen(request, timeout=40) as response:
                     data = response.read()
-                if len(data) < 1024 or not data.startswith(b"RIFF"):
-                    raise RuntimeError(f"Respuesta WAV inválida para {name}")
+                if len(data) < min_size:
+                    raise RuntimeError(f"Descarga incompleta: {url}")
                 target.write_bytes(data)
-                downloaded[name] = target
-                break
+                return
             except (URLError, HTTPError, TimeoutError, RuntimeError) as exc:
                 last_error = exc
-                if attempt == 2:
-                    print(f"AVISO: no se pudo descargar SFX {name}: {exc}")
-        if name not in downloaded and last_error:
-            continue
+        raise RuntimeError(f"No se pudo descargar {url}: {last_error}")
 
-    required = {"whoosh", "swish", "click", "tap", "pop", "typing", "notification", "glitch"}
-    missing = sorted(required - set(downloaded))
-    if missing:
-        raise RuntimeError(
-            "No se pudo descargar la biblioteca de efectos de sonido necesarios: "
-            + ", ".join(missing)
-        )
+    download(SFX_BASE_URL + "sounds.json", manifest_path, min_size=1000)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("license") != "CC0-1.0":
+        raise RuntimeError("La biblioteca de efectos no confirma licencia CC0-1.0")
+
+    sound_map = {item["id"]: item for item in manifest.get("sounds", [])}
+    downloaded = {}
+    for sound_id in SFX_IDS:
+        item = sound_map.get(sound_id)
+        if not item:
+            raise RuntimeError(f"Falta el efecto requerido en SFX Kit: {sound_id}")
+        relative = item["file"]
+        target = folder / f"{sound_id}.wav"
+        download(SFX_BASE_URL + relative, target, min_size=1024)
+        downloaded[sound_id] = {
+            "path": target,
+            "metadata": item
+        }
+
+    # Keep the source and licence information with the generated video assets.
+    (folder / "SOURCE.txt").write_text(
+        "SFX Kit by Wyzowl\n"
+        "Source: https://github.com/wyzowl/sfx-kit\n"
+        f"Pinned commit: {SFX_SOURCE_COMMIT}\n"
+        "Licence: CC0-1.0 — commercial use allowed; attribution not required.\n"
+        "Only the sound files used by this video were downloaded.\n",
+        encoding="utf-8"
+    )
     return downloaded
 
 
-def build_sound_effects(duration, words, groups, assets):
-    """Compose frequent but restrained scene/action SFX. No continuous music bed."""
-    downloaded = download_sfx_library(assets)
-    fractions = (0.0, 0.12, 0.25, 0.39, 0.53, 0.68, 0.83)
-    scene = [duration * value for value in fractions]
+def sound_effect_schedule(duration, groups):
+    """On-screen action moments: timings are scene-relative and intentionally varied."""
+    s = [duration * fraction for fraction in (0.0, 0.12, 0.25, 0.39, 0.53, 0.68, 0.83)]
     events = []
 
-    def add(name, at, gain=0.18, label=""):
-        at = max(0.0, float(at))
-        if at < duration and name in downloaded:
+    def cue(sound_id, moment, label, gain_db=0.0):
+        if moment < duration - 0.02:
             events.append({
-                "name": name,
-                "time": at,
-                "gain": gain,
-                "label": label
+                "id": sound_id,
+                "moment": round(float(moment), 3),
+                "label": label,
+                "gain_db": float(gain_db)
             })
 
-    # 01 · Intro: a soft lift, then two accents tied to the large title/ribbon.
-    add("quick-riser", 0.00, 0.16, "intro lift")
-    add("whoosh", 0.34, 0.19, "first title arrives")
-    add("swish", 2.00, 0.17, "yellow ribbon slides in")
-    add("pop", 3.55, 0.19, "main hook lands")
+    # 01 — Hook and ribbon: light movement and a rounded title arrival.
+    cue("whoosh-medium-soft", 0.56, "intro title movement")
+    cue("pop-medium-in", 3.52, "headline lands")
+    cue("swish-medium", 3.78, "yellow infrastructure ribbon")
 
-    # 02 · Phone: entrance, URL typing, touch, loading, timeout and error reveal.
-    add("whoosh", scene[1] + 0.12, 0.22, "phone enters close-up")
-    add("typing", scene[1] + 0.58, 0.20, "URL types into phone")
-    add("tap", scene[1] + 1.28, 0.20, "page is opened")
-    add("swish", scene[1] + 2.35, 0.14, "phone page scrolls")
-    add("glitch", scene[1] + 3.52, 0.17, "website connection fails")
-    add("notification", scene[1] + 3.78, 0.18, "timeout warning appears")
+    # 02 — Phone close-up: entry, actual URL typing, submit, scroll, loading and failure.
+    cue("whoosh-medium-soft", s[1] + 0.42, "phone enters close-up")
+    cue("keyboard-typing-steady-medium", s[1] + 0.72, "URL is typed into the phone")
+    cue("keyboard-return-medium", s[1] + 1.88, "URL submit")
+    cue("click-tap-medium", s[1] + 1.02, "open website")
+    cue("swipe-medium-soft", s[1] + 2.08, "page scrolls")
+    cue("data-progress-short", s[1] + 0.82, "loading progress begins")
+    cue("digital-process-subtle", s[1] + 1.12, "server waits for response")
+    cue("digital-signal-drop", s[1] + 3.56, "connection drops")
+    cue("notification-error-soft", s[1] + 3.72, "timeout warning appears")
 
-    # 03 · Dashboard: screen comes forward, interface controls and metrics activate.
-    add("whoosh", scene[2] + 0.20, 0.17, "dashboard arrives")
-    add("click", scene[2] + 1.18, 0.18, "CPU metric appears")
-    add("click", scene[2] + 1.34, 0.16, "RAM metric appears")
-    add("click", scene[2] + 1.50, 0.16, "server status appears")
-    add("water-drop", scene[2] + 1.72, 0.14, "chart completes")
-    add("ding", scene[2] + 2.45, 0.13, "healthy server confirmation")
+    # 03 — Dashboard: interface controls, metrics and chart draw-in.
+    cue("whoosh-medium-soft", s[2] + 0.62, "dashboard arrives")
+    cue("tone-step-1", s[2] + 1.15, "CPU metric appears")
+    cue("tone-step-2", s[2] + 1.28, "RAM metric appears")
+    cue("tone-step-3", s[2] + 1.41, "server status appears")
+    cue("data-chart-reveal", s[2] + 1.55, "performance chart appears")
+    cue("data-bar-grow", s[2] + 1.78, "chart bars grow")
+    cue("notification-success-soft", s[2] + 2.62, "healthy server status")
 
-    # 04 · Server racks: a restrained power-up, followed by several LED/UI ticks.
-    add("sci-fi", scene[3] + 0.24, 0.17, "server racks power on")
-    add("quick-riser", scene[3] + 0.92, 0.13, "rack animation builds")
-    for offset in (1.42, 1.63, 1.84, 2.05):
-        add("click", scene[3] + offset, 0.13, "server status light")
+    # 04 — Server hardware: power-up plus light, mechanical status sounds.
+    cue("digital-power-up", s[3] + 0.20, "server racks power up")
+    cue("whoosh-medium-soft", s[3] + 0.70, "camera moves across the racks")
+    for offset in (1.36, 1.56, 1.76, 1.96):
+        cue("mechanical-switch-light", s[3] + offset, "server activity LED")
 
-    # 05 · Network: each node receives a distinct small sound; lines sweep between them.
-    add("whoosh", scene[4] + 0.16, 0.16, "network scene enters")
-    add("pop", scene[4] + 0.36, 0.17, "web node")
-    add("notification", scene[4] + 0.55, 0.16, "VPS node")
-    add("water-drop", scene[4] + 0.74, 0.16, "database node")
-    add("pop", scene[4] + 0.93, 0.15, "SSL node")
-    add("swish", scene[4] + 1.14, 0.14, "data links draw")
+    # 05 — Network: four ascending node arrivals, then data flows.
+    cue("whoosh-medium-soft", s[4] + 0.18, "network scene enters")
+    cue("tone-step-1", s[4] + 0.24, "web node appears")
+    cue("tone-step-2", s[4] + 0.41, "VPS node appears")
+    cue("tone-step-3", s[4] + 0.58, "database node appears")
+    cue("tone-step-4", s[4] + 0.75, "SSL node appears")
+    cue("digital-process-subtle", s[4] + 0.70, "connections transmit data")
+    cue("swish-medium", s[4] + 1.10, "network lines complete")
 
-    # 06 · Security: shield reveal and a short sequence of confirmation clicks.
-    add("whoosh", scene[5] + 0.20, 0.15, "security shield reveals")
-    add("ding", scene[5] + 0.52, 0.17, "protection activates")
-    for offset in (1.16, 1.30, 1.44, 1.58):
-        add("click", scene[5] + offset, 0.14, "security control enabled")
-    add("correct-answer", scene[5] + 1.92, 0.15, "security checklist complete")
+    # 06 — Security: shield, controls, confirmations.
+    cue("whoosh-medium-soft", s[5] + 0.66, "security shield appears")
+    cue("shimmer-short-soft", s[5] + 0.90, "shield highlight")
+    for offset in (1.12, 1.26, 1.40, 1.54):
+        cue("click-tap-medium", s[5] + offset, "security control activates")
+    cue("notification-success-soft", s[5] + 1.92, "security checklist complete")
 
-    # 07 · Brand close: logo arrival and warm final shimmer.
-    add("logo-sting", scene[6] + 0.24, 0.17, "brand mark appears")
-    add("sparkle", scene[6] + 1.18, 0.16, "final call to action")
-    add("tap", scene[6] + 1.72, 0.14, "CTA button")
+    # 07 — Brand reveal: one warm signature and a discreet CTA interaction.
+    cue("sting-warm-short", s[6] + 0.35, "cloudservicegm logo reveal")
+    cue("pop-medium-in", s[6] + 1.15, "closing CTA arrives")
+    cue("shimmer-short-soft", s[6] + 1.55, "brand highlight")
+    cue("click-tap-medium", s[6] + 2.05, "CTA button")
 
-    # A soft swish on selected phrase changes, never on every word.
-    major_times = [event["time"] for event in events]
-    phrase_events = 0
+    # Emphasise only selected phrase transitions, never every word.
+    occupied = [event["moment"] for event in events]
+    accent_ids = ("pop-small-in", "swish-medium", "impact-light-soft")
+    accents_added = 0
     for index, group in enumerate(groups):
-        if index % 3 != 1:
+        if index % 5 != 2:
             continue
-        at = group[0]["start"] + 0.035
-        if any(abs(at - major) < 0.34 for major in major_times):
+        moment = float(group[0]["start"]) + 0.02
+        if moment >= duration:
             continue
-        add("swish" if index % 2 else "pop", at, 0.105, "phrase emphasis")
-        phrase_events += 1
+        if any(abs(moment - existing) < 0.42 for existing in occupied):
+            continue
+        sound_id = accent_ids[accents_added % len(accent_ids)]
+        cue(sound_id, moment, "selected kinetic phrase accent", gain_db=-1.5)
+        occupied.append(moment)
+        accents_added += 1
 
-    events.sort(key=lambda item: item["time"])
+    events.sort(key=lambda item: item["moment"])
+    return events
+
+
+def build_sound_effects(duration, words, groups, assets):
+    """Create a synced SFX-only mix. No continuous music bed."""
+    downloaded = download_sfx_assets(assets)
+    events = sound_effect_schedule(duration, groups)
     if not events:
-        raise RuntimeError("No se generaron eventos de sonido")
+        raise RuntimeError("No se generaron eventos sonoros")
 
-    # Each short WAV is positioned on its exact scene/event frame by FFmpeg.
-    args = ["ffmpeg", "-y", "-loglevel", "error"]
+    # Merge speech intervals for automatic level control under narration.
+    speech = []
+    for word in words:
+        start = max(0.0, float(word["start"]) - 0.10)
+        end = min(duration, float(word["end"]) + 0.16)
+        if end <= start:
+            continue
+        if speech and start <= speech[-1][1] + 0.06:
+            speech[-1] = (speech[-1][0], max(speech[-1][1], end))
+        else:
+            speech.append((start, end))
+
+    ffmpeg = ["ffmpeg", "-y", "-loglevel", "error"]
     for event in events:
-        args.extend(["-i", str(downloaded[event["name"]])])
+        ffmpeg.extend(["-i", str(downloaded[event["id"]]["path"])])
 
     filters = []
     labels = []
     for index, event in enumerate(events):
-        delay_ms = int(round(event["time"] * 1000))
+        item = downloaded[event["id"]]["metadata"]
+        sync_at = float(item.get("sync", {}).get("at", 0.0))
+        start_at = event["moment"] - sync_at
+        trim_start = max(0.0, -start_at)
+        delay_ms = max(0, int(round(start_at * 1000)))
+
+        timing = item.get("timing", {})
+        body_start = max(0.0, float(timing.get("onset", 0.0)) - trim_start) + delay_ms / 1000.0
+        body_end = max(body_start, float(timing.get("body_end", item.get("duration", 0.2)))-trim_start) + delay_ms / 1000.0
+        overlaps_voice = any(
+            body_start < speech_end and body_end > speech_start
+            for speech_start, speech_end in speech
+        )
+        gain_db = event["gain_db"]
+        if overlaps_voice:
+            gain_db += float(item.get("under_voiceover_db", -2.0))
+
         filters.append(
-            f"[{index}:a]aresample=44100,volume={event['gain']:.3f},"
-            f"adelay={delay_ms}:all=1,apad=pad_dur={duration:.3f},"
+            f"[{index}:a]aresample=44100,"
+            f"atrim=start={trim_start:.4f},asetpts=PTS-STARTPTS,"
+            f"volume={gain_db:.2f}dB,"
+            f"adelay={delay_ms}:all=1,"
+            f"apad=pad_dur={duration:.3f},"
             f"atrim=duration={duration:.3f}[s{index}]"
         )
         labels.append(f"[s{index}]")
+
+        event["file_start"] = round(start_at, 3)
+        event["sync_at"] = sync_at
+        event["gain_db_applied"] = round(gain_db, 2)
+        event["over_voice"] = overlaps_voice
+        event["description"] = item.get("description", "")
 
     filters.append(
         "".join(labels)
@@ -339,45 +417,50 @@ def build_sound_effects(duration, words, groups, assets):
         + f"alimiter=limit=0.88,atrim=duration={duration:.3f}[out]"
     )
     sfx_path = Path(assets) / "scene-sfx.wav"
-    args.extend([
+    ffmpeg.extend([
         "-filter_complex", ";".join(filters),
         "-map", "[out]", "-ar", "44100", "-ac", "2",
         "-c:a", "pcm_s16le", str(sfx_path)
     ])
-    subprocess.run(args, check=True)
+    subprocess.run(ffmpeg, check=True)
 
     manifest = {
         "background_music": False,
-        "voice": "separate foreground track",
+        "source": "Wyzowl SFX Kit",
+        "source_url": "https://github.com/wyzowl/sfx-kit",
+        "source_commit": SFX_SOURCE_COMMIT,
+        "license": "CC0-1.0",
+        "attribution_required": False,
         "event_count": len(events),
-        "phrase_accent_count": phrase_events,
-        "events": events,
-        "source": "Takes free sound effects; stated free for any use, no credit required"
+        "events": events
     }
     (Path(assets) / "sound-design.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2),
         encoding="utf-8"
     )
     print(
-        f"Diseño sonoro creado: {len(events)} efectos sincronizados, "
-        f"{phrase_events} acentos de frase y SIN música de fondo."
+        f"Diseño sonoro creado: {len(events)} efectos reales sincronizados, "
+        "sin música de fondo ni efectos por palabra."
     )
     return sfx_path
 
 
 def mix_voice_and_effects(voice_path, sfx_path, output_path):
-    """Keep narration in front while layering the timed effects underneath."""
+    """Keep the original voice upfront and layer the effects underneath."""
     subprocess.run([
         "ffmpeg", "-y", "-loglevel", "error",
         "-i", str(voice_path),
         "-i", str(sfx_path),
         "-filter_complex",
-        "[1:a]volume=1.0[sfx];"
-        "[0:a][sfx]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,"
+        "[0:a]aresample=44100,volume=1.0[voice];"
+        "[1:a]aresample=44100,volume=1.0[sfx];"
+        "[voice][sfx]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,"
+        "acompressor=threshold=0.10:ratio=1.35:attack=18:release=220:makeup=1,"
         "alimiter=limit=0.94[out]",
         "-map", "[out]", "-ar", "44100", "-ac", "2",
         "-c:a", "pcm_s16le", str(output_path)
     ], check=True)
+
 
 def main():
     parser = argparse.ArgumentParser()
