@@ -186,7 +186,6 @@ html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;backgrou
   </section>
 
   <div id="transition-flash"></div>
-  <div id="transition-flash" class="red" style="display:none"></div>
   {{CAPTIONS}}
   <audio id="narration" data-start="0" data-track-index="0" src="./assets/narration.wav"></audio>
   <script src="./assets/gsap.min.js"></script>
@@ -228,7 +227,7 @@ html,body{margin:0;padding:0;width:1080px;height:1920px;overflow:hidden;backgrou
     tl.fromTo("#rack-group .rack",{y:700,rotationY:-35,opacity:0},{y:0,rotationY:-12,opacity:1,duration:.75,stagger:.14,ease:"expo.out"},starts[3]+.2);
     tl.fromTo("#rack-group .rack-unit",{scaleX:.25,opacity:.35},{scaleX:1,opacity:1,duration:.34,stagger:.055,ease:"power3.out"},starts[3]+.9);
     tl.to("#rack-group .rack-leds i",{opacity:.2,duration:.22,stagger:.03,yoyo:true,repeat:4,ease:"sine.inOut"},starts[3]+1.35);
-    tl.fromTo("#network-node",{scale:0,opacity:0,rotation:-55},{scale:1,opacity:1,rotation:0,duration:.6,stagger:.17,ease:"back.out(1.65)"},starts[4]+.24);
+    tl.fromTo(".network-node",{scale:0,opacity:0,rotation:-55},{scale:1,opacity:1,rotation:0,duration:.6,stagger:.17,ease:"back.out(1.65)"},starts[4]+.24);
     tl.fromTo(".network-line",{strokeDashoffset:600,opacity:0},{strokeDashoffset:0,opacity:1,duration:.9,stagger:.15,ease:"power2.out"},starts[4]+.62);
     tl.to(".network-node",{y:-20,duration:.75,stagger:.12,yoyo:true,repeat:2,ease:"sine.inOut"},starts[4]+1.8);
     tl.fromTo("#lock-orbit",{scale:.5,rotation:-90,opacity:0},{scale:1,rotation:0,opacity:.8,duration:1,ease:"power3.out"},starts[5]+.2);
