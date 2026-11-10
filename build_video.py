@@ -76,12 +76,12 @@ def group_words(words, max_words=3, max_span=1.55, pause=0.28):
 def make_caption(group, index, start, end, duration):
     phrase = " ".join(word["text"] for word in group)
     plain = re.sub(r"\s+", " ", phrase).strip()
-    chars = len(plain)
-    font_size = max(170, min(350, int(4700 / max(13, chars))))
+    longest_word = max((len(word["text"]) for word in group), default=6)
+    font_size = max(145, min(360, int(2350 / max(6, longest_word))))
     layouts = ["center", "upper", "lower", "left", "center", "right"]
     modes = ["slam", "letters", "wipe", "side", "stretch", "flip"]
     accents = ["red", "mint", "yellow", "white"]
-    layout = layouts[index % len(layouts)]
+    layout = layouts[index % len(layouts)] if progress < 0.25 else ["upper", "left", "upper", "right"][index % 4]
     mode = modes[index % len(modes)]
     accent = accents[index % len(accents)]
     progress = start / max(1.0, duration)
