@@ -56,7 +56,8 @@ def load_words(path):
     return sorted(result, key=lambda item: item["start"])
 
 
-def group_words(words, max_words=3, max_span=1.55, pause=0.28):
+def group_words(words, max_words=3, max_span=1.8, pause=0.34):
+    """Group transcript tokens into readable motion-design beats."""
     groups, current = [], []
     for word in words:
         if current:
@@ -64,7 +65,8 @@ def group_words(words, max_words=3, max_span=1.55, pause=0.28):
             gap = word["start"] - previous["end"]
             punctuation = bool(re.search(r"[.!?;:,]$", previous["text"]))
             span = word["end"] - current[0]["start"]
-            if len(current) >= max_words or gap >= pause or punctuation or span >= max_span:
+            if (len(current) >= max_words or gap >= pause or
+                    (punctuation and len(current) >= 2) or span >= max_span):
                 groups.append(current)
                 current = []
         current.append(word)
@@ -78,10 +80,11 @@ def make_caption(group, index, start, end, duration):
     plain = re.sub(r"\s+", " ", phrase).strip()
     chars = len(plain)
     longest_word = max((len(word["text"]) for word in group), default=6)
-    fit_phrase = int(3500 / max(14, chars))
-    fit_word = int(2050 / max(6, longest_word))
-    font_size = max(130, min(330, fit_phrase, fit_word))
-    layouts = ["center", "upper", "lower", "left", "center", "right"]
+    fit_phrase = int(3450 / max(12, chars))
+    fit_word = int(1900 / max(6, longest_word))
+    font_size = max(138, min(330, fit_phrase, fit_word))
+
+    layouts = ["center", "upper", "lower", "left", "upper", "right"]
     modes = ["slam", "letters", "wipe", "side", "stretch", "flip"]
     accents = ["red", "mint", "yellow", "white"]
     progress = start / max(1.0, duration)
@@ -91,74 +94,73 @@ def make_caption(group, index, start, end, duration):
     contrast = "contrast-light" if (0.25 <= progress < 0.39 or progress >= 0.83) else "contrast-dark"
 
     word_markup = []
-    for wi, word in enumerate(group):
-        chars_html = "".join(
+    for word_index, word in enumerate(group):
+        glyphs = "".join(
             f'<span class="char">{html.escape(char)}</span>'
             for char in word["text"]
         )
-        word_class = "word accent-word" if wi == len(group) - 1 else "word"
-        word_markup.append(f'<span class="{word_class}">{chars_html}</span>')
+        word_class = "word accent-word" if word_index == len(group) - 1 else "word"
+        word_markup.append(f'<span class="{word_class}">{glyphs}</span>')
     markup = " ".join(word_markup)
 
     clip = (
         f'<div class="kinetic-clip layout-{layout} mode-{mode} accent-{accent} {contrast}" '
-        f'id="beat-{index}" '
-        
-        f'style="--type-size:{font_size}px">'
-        
+        f'id="beat-{index}" style="--type-size:{font_size}px">'
         f'<div class="type-wrap"><div class="headline">{markup}</div></div></div>'
     )
 
     root = f'"#beat-{index}"'
-    letters = f'"#beat-{index} .char"'
+    glyphs = f'"#beat-{index} .char"'
     if mode == "slam":
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,scale:2.6,y:150,rotationZ:-8,filter:"blur(0px)"}},'
-            f'{{autoAlpha:1,scale:1,y:0,rotationZ:0,filter:"blur(0px)",duration:.58,ease:"elastic.out(1,.55)",overwrite:"auto"}},{start:.3f});'
-            f'tl.fromTo({letters},{{y:65,opacity:0,rotationX:-75,scale:.55}},'
-            f'{{y:0,opacity:1,rotationX:0,scale:1,duration:.34,stagger:.018,ease:"back.out(1.6)"}},{start + .04:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,scale:2.2,y:115,rotationZ:-6}},'
+            f'{{autoAlpha:1,scale:1,y:0,rotationZ:0,duration:.36,ease:"back.out(1.65)"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{y:48,opacity:0,rotationX:-60,scale:.65}},'
+            f'{{y:0,opacity:1,rotationX:0,scale:1,duration:.28,stagger:.009,ease:"power3.out"}},{start + .025:.3f});'
         )
     elif mode == "letters":
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:1,clipPath:"inset(0 0 100% 0)"}},'
-            f'{{clipPath:"inset(0 0 0% 0)",duration:.52,ease:"expo.out",overwrite:"auto"}},{start:.3f});'
-            f'tl.fromTo({letters},{{y:200,opacity:0,scale:.38,rotationX:-90,filter:"blur(0px)"}},'
-            f'{{y:0,opacity:1,scale:1,rotationX:0,filter:"blur(0px)",duration:.48,stagger:.025,ease:"back.out(1.65)"}},{start + .02:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,y:65,scale:.92}},'
+            f'{{autoAlpha:1,y:0,scale:1,duration:.34,ease:"expo.out"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{y:155,opacity:0,scale:.45,rotationX:-80}},'
+            f'{{y:0,opacity:1,scale:1,rotationX:0,duration:.34,stagger:.012,ease:"back.out(1.5)"}},{start + .015:.3f});'
         )
     elif mode == "wipe":
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:1,clipPath:"inset(0 100% 0 0)",x:-75}},'
-            f'{{clipPath:"inset(0 0% 0 0)",x:0,duration:.6,ease:"expo.out",overwrite:"auto"}},{start:.3f});'
-            f'tl.fromTo({letters},{{opacity:0,scaleX:.12,filter:"blur(0px)"}},'
-            f'{{opacity:1,scaleX:1,filter:"blur(0px)",duration:.3,stagger:.02,ease:"power2.out"}},{start + .08:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,x:-180,scaleX:.72}},'
+            f'{{autoAlpha:1,x:0,scaleX:1,duration:.38,ease:"expo.out"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{x:-34,opacity:0,scaleX:.55}},'
+            f'{{x:0,opacity:1,scaleX:1,duration:.28,stagger:.01,ease:"power2.out"}},{start + .025:.3f});'
         )
     elif mode == "side":
         direction = -1 if index % 2 else 1
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,x:{direction * 1000},skewX:{direction * -24},scaleX:.65,filter:"blur(0px)"}},'
-            f'{{autoAlpha:1,x:0,skewX:0,scaleX:1,filter:"blur(0px)",duration:.64,ease:"expo.out",overwrite:"auto"}},{start:.3f});'
-            f'tl.fromTo({letters},{{y:45,opacity:0}},'
-            f'{{y:0,opacity:1,duration:.3,stagger:.015,ease:"power2.out"}},{start + .1:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,x:{direction * 760},rotationZ:{direction * -5},scale:.82}},'
+            f'{{autoAlpha:1,x:0,rotationZ:0,scale:1,duration:.38,ease:"expo.out"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{y:42,opacity:0,rotationY:55}},'
+            f'{{y:0,opacity:1,rotationY:0,duration:.28,stagger:.01,ease:"power3.out"}},{start + .035:.3f});'
         )
     elif mode == "stretch":
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,scaleX:.06,scaleY:1.55,filter:"blur(22px)"}},'
-            f'{{autoAlpha:1,scaleX:1,scaleY:1,filter:"blur(0px)",duration:.65,ease:"expo.out",overwrite:"auto"}},{start:.3f});'
-            f'tl.fromTo({letters},{{x:42,y:70,opacity:0,rotationY:70,scaleX:.72}},'
-            f'{{x:0,y:0,opacity:1,rotationY:0,scaleX:1,duration:.34,stagger:.018,ease:"power3.out"}},{start + .04:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,scaleX:.32,scaleY:1.28}},'
+            f'{{autoAlpha:1,scaleX:1,scaleY:1,duration:.38,ease:"expo.out"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{x:32,y:55,opacity:0,rotationY:50,scaleX:.7}},'
+            f'{{x:0,y:0,opacity:1,rotationY:0,scaleX:1,duration:.28,stagger:.009,ease:"power3.out"}},{start + .025:.3f});'
         )
     else:
         enter = (
-            f'tl.fromTo({root},{{autoAlpha:0,scale:.16,rotationX:82,rotationZ:9,y:110,filter:"blur(0px)"}},'
-            f'{{autoAlpha:1,scale:1,rotationX:0,rotationZ:0,y:0,filter:"blur(0px)",duration:.68,ease:"back.out(1.5)",overwrite:"auto"}},{start:.3f});'
-            f'tl.fromTo({letters},{{opacity:0,rotationY:90,z:-130}},'
-            f'{{opacity:1,rotationY:0,z:0,duration:.4,stagger:.02,ease:"power3.out"}},{start + .06:.3f});'
+            f'tl.fromTo({root},{{autoAlpha:0,scale:.5,rotationX:55,rotationZ:5,y:80}},'
+            f'{{autoAlpha:1,scale:1,rotationX:0,rotationZ:0,y:0,duration:.4,ease:"back.out(1.4)"}},{start:.3f});'
+            f'tl.fromTo({glyphs},{{opacity:0,rotationY:75,z:-80}},'
+            f'{{opacity:1,rotationY:0,z:0,duration:.3,stagger:.01,ease:"power3.out"}},{start + .035:.3f});'
         )
 
-    exit_time = max(start + .24, end - .18)
+    # Entrance finishes by ~0.44s; exit always starts after that to keep the
+    # linter and seek-by-frame renderer deterministic.
+    exit_time = max(start + .49, end - .14)
     exit_anim = (
-        f'tl.to({root},{{autoAlpha:0,scale:{1.14 if index % 2 == 0 else .82},'
-        f'y:{-85 if index % 2 == 0 else 65},duration:.2,ease:"power2.in",overwrite:"auto"}},{exit_time:.3f});'
+        f'tl.to({root},{{autoAlpha:0,scale:{1.1 if index % 2 == 0 else .88},'
+        f'y:{-65 if index % 2 == 0 else 50},duration:.16,ease:"power2.in"}},{exit_time:.3f});'
     )
     return clip, enter + exit_anim
 
