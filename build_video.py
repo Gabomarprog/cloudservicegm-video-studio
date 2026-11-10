@@ -171,51 +171,169 @@ def make_caption(group, index, start, end, duration):
     return clip, enter + exit_anim
 
 
-def add_transition_sfx(audio_path, duration):
-    """A few quiet scene-transition sweeps; intentionally no per-word ticks."""
-    audio = Path(audio_path)
-    normalized = audio.with_name("narration_sfx_base.wav")
-    subprocess.run([
-        "ffmpeg", "-y", "-loglevel", "error", "-i", str(audio),
-        "-acodec", "pcm_s16le", str(normalized)
-    ], check=True)
-    with wave.open(str(normalized), "rb") as src:
+def generate_sound_design(audio_path, duration, words, assets):
+    """Create original, gentle electronic music and scene-specific sound effects."""
+    audio_path = Path(audio_path)
+    with wave.open(str(audio_path), "rb") as src:
+        sample_rate = src.getframerate()
         channels = src.getnchannels()
-        rate = src.getframerate()
-        frames = src.getnframes()
-        width = src.getsampwidth()
-        raw = src.readframes(frames)
-    normalized.unlink(missing_ok=True)
-    if width != 2:
-        return
-    sfx = [0.0] * frames
-    rng = random.Random(91)
-    # Only three understated sweeps across the whole piece; the voice stays dominant.
-    for event in [0.12, duration * .39, duration * .70]:
-        begin = max(0, int(event * rate))
-        length = int(.34 * rate)
-        for j in range(length):
-            idx = begin + j
-            if idx >= frames:
-                break
-            t = j / rate
-            env = math.sin(math.pi * min(1.0, j / max(1, length))) ** 1.5
-            frequency = 150 - 85 * (j / max(1, length))
-            sweep = math.sin(2 * math.pi * frequency * t) * .035
-            air = (rng.random() * 2 - 1) * .012
-            sfx[idx] += (sweep + air) * env
-    packed = bytearray()
-    for frame_index in range(frames):
-        base = frame_index * channels * 2
-        for channel in range(channels):
-            original = struct.unpack_from("<h", raw, base + channel * 2)[0] / 32768.0
-            mixed = max(-1.0, min(1.0, original + sfx[frame_index]))
-            packed.extend(struct.pack("<h", int(mixed * 32767)))
-    with wave.open(str(audio), "wb") as out:
-        out.setnchannels(channels)
-        out.setsampwidth(2)
-        out.setframerate(rate)
-        out.writeframes(packed)
+        sample_width = src.getsampwidth()
+    if sample_width != 2 or channels not in (1, 2):
+        raise RuntimeError("El audio de narración debe ser PCM de 16 bits mono o estéreo")
+
+    frames = int(round(duration * sample_rate))
+    assets = Path(assets)
+    assets.mkdir(parents=True, exist_ok=True)
+
+    # Merge speech intervals. Music gently ducks under speech and opens up in pauses.
+    intervals = []
+    for word in words:
+        start_time = max(0.0, float(word["start"]) - 0.12)
+        end_time = min(duration, float(word["end"]) + 0.20)
+        if end_time > start_time:
+            if intervals and start_time <= intervals[-1][1] + 0.08:
+                intervals[-1] = (intervals[-1][0], max(intervals[-1][1], end_time))
+            else:
+                intervals.append((start_time, end_time))
+
+    chords = [
+        (164.81, 196.00, 246.94, 293.66),  # Em7
+        (130.81, 164.81, 196.00, 246.94),  # Cmaj7
+        (196.00, 246.94, 293.66, 369.99),  # Gmaj7
+        (146.83, 185.00, 220.00, 293.66),  # Dsus2
+    ]
+    music_path = assets / "music-bed.wav"
+    music_buffer = bytearray(frames * channels * 2)
+    interval_index = 0
+    beat_seconds = 0.60
+    chord_seconds = 4.80
+
+    def pad_for(notes, t):
+        return (
+            math.sin(2 * math.pi * notes[0] * t) * 0.020
+            + math.sin(2 * math.pi * notes[1] * t + 0.35) * 0.017
+            + math.sin(2 * math.pi * notes[2] * t + 0.70) * 0.014
+            + math.sin(2 * math.pi * notes[3] * t + 1.05) * 0.009
+            + math.sin(2 * math.pi * notes[0] * 0.5 * t) * 0.012
+        )
+
+    with wave.open(str(music_path), "wb") as music:
+        music.setnchannels(channels)
+        music.setsampwidth(2)
+        music.setframerate(sample_rate)
+
+        for frame in range(frames):
+            t = frame / sample_rate
+            while interval_index < len(intervals) and t > intervals[interval_index][1]:
+                interval_index += 1
+            talking = (
+                interval_index < len(intervals)
+                and intervals[interval_index][0] <= t <= intervals[interval_index][1]
+            )
+
+            chord_number = int(t / chord_seconds) % len(chords)
+            chord = chords[chord_number]
+            chord_phase = t % chord_seconds
+            pad = pad_for(chord, t)
+            if chord_phase < 0.45 and t >= chord_seconds:
+                previous = chords[(chord_number - 1) % len(chords)]
+                mix = chord_phase / 0.45
+                mix = mix * mix * (3.0 - 2.0 * mix)
+                pad = pad_for(previous, t) * (1.0 - mix) + pad * mix
+
+            beat_number = int(t / beat_seconds)
+            beat_age = t - beat_number * beat_seconds
+            note = chord[beat_number % 4] * 2.0
+            pluck = math.sin(2 * math.pi * note * beat_age) * math.exp(-beat_age * 15.0) * 0.012
+
+            pulse_age = t % 2.40
+            bass = (
+                math.sin(2 * math.pi * (58.0 + 12.0 * pulse_age) * pulse_age)
+                * math.exp(-pulse_age * 11.0) * 0.018
+            )
+
+            fade = min(1.0, t / 1.2) * min(1.0, max(0.0, (duration - t) / 1.4))
+            duck = 0.58 if talking else 0.88
+            value = (pad + pluck + bass) * duck * fade
+            pan = 0.035 * math.sin(2 * math.pi * t / 13.0)
+            left = max(-0.95, min(0.95, value * (1.0 - pan)))
+            right = max(-0.95, min(0.95, value * (1.0 + pan)))
+            if channels == 1:
+                struct.pack_into("<h", music_buffer, frame * 2, int(((left + right) * 0.5) * 32767))
+            else:
+                struct.pack_into("<hh", music_buffer, frame * 4, int(left * 32767), int(right * 32767))
+
+        music.writeframes(music_buffer)
+
+    # Effects are a restrained scene layer, not one sound per spoken word.
+    sfx_values = [0.0] * frames
+
+    def add_sweep(start_time, length, low_hz, high_hz, gain):
+        begin = max(0, int(start_time * sample_rate))
+        count = min(int(length * sample_rate), frames - begin)
+        if count <= 0:
+            return
+        for offset in range(count):
+            local = offset / sample_rate
+            progress = offset / max(1, count)
+            envelope = math.sin(math.pi * progress) ** 1.45
+            phase = 2 * math.pi * (
+                low_hz * local + (high_hz - low_hz) * local * local / (2 * length)
+            )
+            tone = math.sin(phase) * 0.72 + math.sin(phase * 1.51 + 0.4) * 0.18
+            sfx_values[begin + offset] += tone * envelope * gain
+
+    def add_chime(start_time, notes, gain=0.035, length=0.72):
+        begin = max(0, int(start_time * sample_rate))
+        count = min(int(length * sample_rate), frames - begin)
+        if count <= 0:
+            return
+        for offset in range(count):
+            local = offset / sample_rate
+            envelope = math.exp(-local * 4.8) * min(1.0, local / 0.025)
+            tone = 0.0
+            for note_index, frequency in enumerate(notes):
+                tone += math.sin(2 * math.pi * frequency * local) * (0.58 / (1 + note_index * 0.55))
+                tone += math.sin(2 * math.pi * frequency * 2.01 * local) * (0.10 / (1 + note_index))
+            sfx_values[begin + offset] += tone * envelope * gain
+
+    def add_soft_tap(start_time, gain=0.022):
+        begin = max(0, int(start_time * sample_rate))
+        count = min(int(0.18 * sample_rate), frames - begin)
+        for offset in range(max(0, count)):
+            local = offset / sample_rate
+            envelope = math.exp(-local * 24.0)
+            tone = math.sin(2 * math.pi * 880.0 * local) * 0.7
+            tone += math.sin(2 * math.pi * 1320.0 * local) * 0.22
+            sfx_values[begin + offset] += tone * envelope * gain
+
+    scene_starts = [duration * value for value in (0.0, 0.12, 0.25, 0.39, 0.53, 0.68, 0.83)]
+    add_sweep(0.10, 0.68, 260.0, 720.0, 0.030)
+    add_sweep(scene_starts[1] + 0.12, 0.56, 320.0, 820.0, 0.034)
+    add_soft_tap(scene_starts[1] + 1.02)
+    add_sweep(scene_starts[1] + 3.55, 0.48, 520.0, 185.0, 0.038)
+    add_chime(scene_starts[2] + 0.50, (659.25, 830.61), gain=0.024, length=0.55)
+    add_sweep(scene_starts[3] + 0.40, 0.92, 72.0, 118.0, 0.040)
+    add_chime(scene_starts[4] + 0.46, (587.33, 739.99, 880.00), gain=0.022, length=0.76)
+    add_chime(scene_starts[5] + 0.48, (493.88, 659.25, 783.99), gain=0.024, length=0.82)
+    add_chime(scene_starts[6] + 0.34, (523.25, 659.25, 783.99), gain=0.028, length=0.95)
+
+    sfx_buffer = bytearray(frames * channels * 2)
+    for frame, sample in enumerate(sfx_values):
+        sample = max(-0.90, min(0.90, sample))
+        if channels == 1:
+            struct.pack_into("<h", sfx_buffer, frame * 2, int(sample * 32767))
+        else:
+            struct.pack_into("<hh", sfx_buffer, frame * 4, int(sample * 32767), int(sample * 32767))
+
+    sfx_path = assets / "scene-sfx.wav"
+    with wave.open(str(sfx_path), "wb") as sfx:
+        sfx.setnchannels(channels)
+        sfx.setsampwidth(2)
+        sfx.setframerate(sample_rate)
+        sfx.writeframes(sfx_buffer)
+
+    print("Diseño sonoro creado: música ambiental original + 9 efectos de escena (sin sonidos por palabra).")
 
 
 def main():
