@@ -5,150 +5,129 @@
 <meta name="viewport" content="width=1080,height=1920,initial-scale=1">
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#050814;color:#f7f9ff;font-family:Inter,Arial,sans-serif}
-#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:
- radial-gradient(ellipse at 18% 15%,rgba(21,94,163,.35),transparent 42%),
- radial-gradient(ellipse at 90% 70%,rgba(16,185,129,.16),transparent 38%),
- linear-gradient(145deg,#050814 0%,#0a1022 55%,#050814 100%)}
-.grid{position:absolute;inset:0;opacity:.18;background-image:linear-gradient(rgba(120,160,210,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(120,160,210,.15) 1px,transparent 1px);background-size:64px 64px;mask-image:linear-gradient(to bottom,black,transparent 85%)}
-.glow{position:absolute;border-radius:50%;filter:blur(5px);pointer-events:none}
-.glow.one{width:520px;height:520px;right:-210px;top:230px;background:radial-gradient(circle,rgba(0,190,255,.19),transparent 68%)}
-.glow.two{width:560px;height:560px;left:-280px;bottom:200px;background:radial-gradient(circle,rgba(16,185,129,.17),transparent 68%)}
-.brand{position:absolute;top:76px;left:76px;font-size:24px;letter-spacing:5px;font-weight:800;color:#75d7ff}
-.pill{position:absolute;top:175px;left:76px;display:inline-flex;align-items:center;gap:12px;border:1px solid rgba(117,215,255,.32);border-radius:40px;padding:15px 22px;color:#bcecff;font-size:21px;letter-spacing:2px;background:rgba(12,35,58,.65)}
-.dot{width:10px;height:10px;border-radius:50%;background:#36e2a0;box-shadow:0 0 18px #36e2a0}
-.hero{position:absolute;left:76px;right:76px;top:300px}
-.eyebrow{font-size:23px;color:#64e4b2;letter-spacing:5px;font-weight:800;margin-bottom:28px}
-h1{font-size:88px;line-height:1.02;letter-spacing:-4px;margin:0;font-weight:900;max-width:920px}
-.accent{color:#65d9ff}
-.subline{font-size:29px;line-height:1.35;color:#aebbd0;margin-top:35px;max-width:850px}
-.visual-card{position:absolute;left:76px;right:76px;top:900px;height:480px;border:1px solid rgba(125,180,230,.25);border-radius:34px;background:linear-gradient(145deg,rgba(19,35,60,.95),rgba(8,16,32,.96));box-shadow:0 30px 90px rgba(0,0,0,.35);padding:36px}
-.card-head{display:flex;justify-content:space-between;align-items:center;color:#c8d6e8;font-size:23px}
-.status{color:#55e0a5;font-size:18px}
-.metrics{display:flex;gap:18px;margin-top:38px}
-.metric{flex:1;border-radius:22px;background:rgba(255,255,255,.045);padding:24px 20px;border:1px solid rgba(255,255,255,.07)}
-.metric small{display:block;color:#94a8c1;font-size:18px;margin-bottom:18px}
-.metric strong{font-size:39px;letter-spacing:-1px}
-.metric em{display:block;color:#5de0ae;font-size:17px;font-style:normal;margin-top:12px}
-.chart{height:130px;margin-top:30px;display:flex;align-items:end;gap:15px;padding:0 10px}
-.bar{flex:1;border-radius:9px 9px 2px 2px;background:linear-gradient(to top,#1676a8,#52d9ef);box-shadow:0 0 20px rgba(48,190,232,.2)}
-.terminal{position:absolute;left:76px;right:76px;top:900px;height:480px;border:1px solid rgba(92,222,180,.28);border-radius:30px;background:#07111b;box-shadow:0 30px 90px rgba(0,0,0,.4);padding:30px 34px}
-.term-top{display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.09);padding-bottom:23px;color:#a8bacd;font-size:20px}
-.traffic{width:12px;height:12px;border-radius:50%;background:#ff667a}
-.traffic:nth-child(2){background:#ffcb61}.traffic:nth-child(3){background:#4ed99a}
-.term-lines{padding-top:24px;font:22px/1.8 ui-monospace,monospace;color:#b8cadc}
-.term-lines .green{color:#5de0ae}.term-lines .blue{color:#65d9ff}.term-lines .muted{color:#60758b}
-.diagram{position:absolute;left:76px;right:76px;top:920px;height:430px;display:flex;align-items:center;justify-content:space-between}
-.node{width:230px;height:180px;border:1px solid rgba(101,217,255,.35);border-radius:28px;background:rgba(14,34,58,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:17px;text-align:center;box-shadow:0 0 45px rgba(34,166,220,.09)}
-.node b{font-size:25px}.node span{font-size:18px;color:#91a9c3}
-.connector{height:3px;flex:1;background:linear-gradient(90deg,#44d9c0,#62c9ff);box-shadow:0 0 18px #38bfe4}
-.cta{position:absolute;left:76px;right:76px;top:860px;text-align:center}
-.cta h2{font-size:78px;line-height:1.04;margin:30px 0;color:white;letter-spacing:-3px}
-.cta p{font-size:29px;color:#b1c1d4;line-height:1.4}
-.cta-button{display:inline-block;margin-top:30px;padding:22px 38px;border-radius:18px;background:linear-gradient(90deg,#20c997,#3bb9f0);color:#04111d;font-size:26px;font-weight:900;letter-spacing:1px}
-.footer{position:absolute;left:76px;right:76px;bottom:75px;display:flex;justify-content:space-between;color:#71869f;font-size:18px;letter-spacing:3px}
-.caption{position:absolute;left:85px;right:85px;bottom:205px;min-height:110px;padding:22px 28px;border-radius:22px;background:rgba(3,10,22,.88);border:1px solid rgba(106,213,255,.3);font-size:36px;line-height:1.25;font-weight:800;text-align:center;color:#fff;box-shadow:0 12px 45px rgba(0,0,0,.3)}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#071014;font-family:Impact,"Arial Narrow",Arial,sans-serif;color:#f8fbff}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:#071014}
+.scene{position:absolute;inset:0;opacity:0;overflow:hidden}
+.scene.dark{background:radial-gradient(circle at 50% 43%,#16303a 0,#071014 58%)}
+.scene.red{background:radial-gradient(circle at 50% 48%,#ff545b 0,#b91f36 72%)}
+.scene.white{background:radial-gradient(circle at 50% 40%,#fff 0,#e8edf0 100%);color:#101820}
+.scene.green{background:radial-gradient(circle at 50% 40%,#47d2b1 0,#159c86 100%);color:#062a2b}
+.kicker{font:800 25px/1.2 Arial,sans-serif;letter-spacing:5px;text-align:center;text-transform:uppercase}
+.big{font-size:142px;line-height:.88;letter-spacing:-5px;text-align:center;text-transform:uppercase;font-weight:900}
+.big .redword{color:#ff4c58}.big .mint{color:#46dfbd}.big .darkword{color:#071c20}
+.center{position:absolute;left:65px;right:65px;top:440px}
+.glowtext{text-shadow:0 0 30px currentColor}
+.micro{font:700 22px/1.4 Arial,sans-serif;letter-spacing:2px;text-align:center}
+.browser{position:absolute;left:105px;right:105px;top:780px;height:490px;border-radius:34px;background:#101b27;border:2px solid rgba(255,255,255,.18);box-shadow:0 35px 90px #0007;overflow:hidden}
+.browserbar{height:68px;background:#202d3b;display:flex;align-items:center;padding:0 25px;gap:12px}
+.dot{width:13px;height:13px;border-radius:50%;background:#ff6470}.dot:nth-child(2){background:#ffd166}.dot:nth-child(3){background:#55d6a5}
+.url{margin-left:18px;border-radius:12px;background:#101923;color:#9fb4c4;padding:12px 20px;font:17px Arial,sans-serif;flex:1}
+.browserbody{padding:30px 32px;font-family:Arial,sans-serif}
+.webtitle{font-size:32px;font-weight:900;color:white}.websub{font-size:19px;color:#a9bac9;margin-top:10px}
+.loadbar{height:13px;background:#273b4a;border-radius:20px;margin-top:35px;overflow:hidden}.loadbar i{display:block;width:92%;height:100%;background:linear-gradient(90deg,#ff4e60,#ffb05b);border-radius:20px}
+.statrow{display:flex;gap:15px;margin-top:30px}.stat{flex:1;padding:22px;border-radius:18px;background:#1b2b39;color:#dce8f1}.stat b{display:block;font-size:35px;color:#ff6673}.stat small{font-size:16px;color:#9fb3c3}
+.phone{position:absolute;width:400px;height:710px;left:340px;top:590px;border:8px solid #17232b;border-radius:55px;background:#07121a;box-shadow:0 35px 100px #0009;overflow:hidden}
+.notch{height:30px;width:130px;background:#17232b;border-radius:0 0 22px 22px;margin:0 auto}
+.phonehead{font:700 21px Arial,sans-serif;padding:25px;color:white;border-bottom:1px solid #29404b}
+.phonecontent{padding:24px;font:18px/1.5 Arial,sans-serif;color:#c7d7df}
+.phonecard{padding:20px;border:1px solid #36515c;border-radius:18px;margin:16px 0;background:#10232c}
+.phonecard b{display:block;color:#51dfbc;font-size:23px;margin-bottom:8px}
+.check{width:130px;height:130px;border-radius:50%;background:#f7fffc;color:#149d84;font:900 92px/130px Arial,sans-serif;text-align:center;margin:0 auto 38px;box-shadow:0 0 60px #d8fff4aa}
+.ctabtn{display:inline-block;background:#062e2c;color:#fff;border-radius:60px;padding:24px 42px;font:900 29px Arial,sans-serif;letter-spacing:1px;margin-top:38px;box-shadow:0 12px 40px #006b5b55}
+.wordstrip{position:absolute;left:0;right:0;bottom:390px;text-align:center;font:800 24px Arial,sans-serif;letter-spacing:6px;color:#a8bdc8}
+.caption{position:absolute;left:85px;right:85px;bottom:205px;min-height:110px;padding:22px 28px;border-radius:22px;background:rgba(3,10,22,.88);border:1px solid rgba(106,213,255,.3);font:800 36px/1.25 Arial,sans-serif;text-align:center;color:#fff;box-shadow:0 12px 45px rgba(0,0,0,.3)}
 .caption strong{color:#6ce6bd}
-
-/* Motion-design layer */
-.scanline{position:absolute;inset:0;pointer-events:none;opacity:.12;background:repeating-linear-gradient(0deg,transparent 0 5px,rgba(130,210,255,.12) 6px)}
-.orb{position:absolute;border:1px solid rgba(91,214,255,.28);border-radius:50%;pointer-events:none}
-.orb.a{width:620px;height:620px;right:-360px;top:420px;box-shadow:0 0 90px rgba(39,178,255,.12),inset 0 0 80px rgba(39,178,255,.08)}
-.orb.b{width:360px;height:360px;left:-245px;top:1080px;border-color:rgba(57,226,177,.28)}
-.hud{position:absolute;right:76px;top:300px;width:220px;padding:18px 20px;border:1px solid rgba(101,217,255,.25);border-radius:18px;background:rgba(6,19,36,.72);color:#8faac4;font:15px/1.7 ui-monospace,monospace;transform:rotate(4deg)}
-.hud b{display:block;color:#65d9ff;font-size:22px;letter-spacing:2px}
-.float-tag{position:absolute;padding:15px 21px;border:1px solid rgba(94,225,190,.3);border-radius:14px;background:rgba(8,29,39,.88);color:#8ff1d0;font-size:18px;font-weight:800;letter-spacing:1px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
-.tag-one{left:90px;top:790px}.tag-two{right:92px;top:1435px;border-color:rgba(101,217,255,.32);color:#8ce4ff;background:rgba(8,24,42,.9)}
-.signal{position:absolute;left:76px;right:76px;top:1480px;height:2px;background:linear-gradient(90deg,transparent,#43d9bd,#55cfff,transparent);opacity:.55}
-.signal:after{content:"";position:absolute;left:0;top:-5px;width:12px;height:12px;border-radius:50%;background:#7af3d0;box-shadow:0 0 24px #5de0ae}
-
 </style>
 </head>
 <body>
 <div id="root" data-composition-id="root" data-start="0" data-width="1080" data-height="1920">
-  <div class="grid"></div><div class="glow one"></div><div class="glow two"></div>
-  <div class="scanline"></div><div class="orb a"></div><div class="orb b"></div>
-  <div class="hud" id="hud">CLOUD NODE <b>ONLINE</b>CPU LOAD&nbsp;&nbsp; 24%<br>RAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 42%<br>NETWORK&nbsp;&nbsp; SECURE</div>
-  <div class="float-tag tag-one" id="tag-one">⚡ ALTO RENDIMIENTO</div>
-  <div class="float-tag tag-two" id="tag-two">✓ SEGURIDAD ACTIVA</div>
-  <div class="signal" id="signal"></div>
-  <div class="brand">CLOUDSERVICEGM</div>
-  <div class="pill clip" id="pill" data-start="0" data-duration="{{DURATION}}" data-track-index="2"><span class="dot"></span> INFRAESTRUCTURA DIGITAL</div>
-
-  <section class="hero clip" id="hero" data-start="0" data-duration="{{T1}}" data-track-index="3">
-    <div class="eyebrow">TECNOLOGÍA • RENDIMIENTO • SEGURIDAD</div>
-    <h1>{{TITLE}}</h1>
-    <div class="subline">La infraestructura correcta transforma la experiencia de tus usuarios y el crecimiento de tu negocio.</div>
-  </section>
-
-  <section class="visual-card clip" id="dashboard" data-start="{{T1}}" data-duration="{{DASH_DURATION}}" data-track-index="4">
-    <div class="card-head"><b>SERVER OVERVIEW</b><span class="status">● SISTEMA OPERATIVO</span></div>
-    <div class="metrics">
-      <div class="metric"><small>CPU</small><strong>24%</strong><em>↓ Optimizado</em></div>
-      <div class="metric"><small>MEMORIA</small><strong>42%</strong><em>● Estable</em></div>
-      <div class="metric"><small>UPTIME</small><strong>99.9%</strong><em>↑ Disponible</em></div>
+  <section class="scene dark" id="s1">
+    <div class="center">
+      <div class="kicker">{{TITLE}}</div>
+      <div class="big" style="margin-top:55px">¿TU WEB<br><span class="redword glowtext">VA LENTA?</span></div>
+      <div class="micro" style="margin-top:55px;color:#a9c0ca">CADA SEGUNDO CUENTA</div>
     </div>
-    <div class="chart">
-      <div class="bar" style="height:32%"></div><div class="bar" style="height:48%"></div><div class="bar" style="height:41%"></div><div class="bar" style="height:67%"></div><div class="bar" style="height:55%"></div><div class="bar" style="height:82%"></div><div class="bar" style="height:72%"></div><div class="bar" style="height:94%"></div><div class="bar" style="height:63%"></div><div class="bar" style="height:78%"></div>
+    <div class="wordstrip">CLOUDSERVICEGM • VPS • INFRAESTRUCTURA</div>
+  </section>
+  <section class="scene red" id="s2">
+    <div class="center">
+      <div class="kicker" style="color:#ffe4e6">CUANDO TU SERVIDOR NO RESPONDE</div>
+      <div class="big" style="margin-top:45px">TUS<br>CLIENTES<br><span style="color:#ffe66d">SE VAN.</span></div>
+      <div class="micro" style="margin-top:55px;color:#fff">NO PIERDAS OPORTUNIDADES POR UNA WEB LENTA</div>
     </div>
   </section>
-
-  <section class="terminal clip" id="terminal" data-start="{{T2}}" data-duration="{{TERM_DURATION}}" data-track-index="5">
-    <div class="term-top"><i class="traffic"></i><i class="traffic"></i><i class="traffic"></i><span style="margin-left:14px">root@cloudserver:~</span></div>
-    <div class="term-lines">
-      <div><span class="green">root@server</span>:~# ufw status</div>
-      <div class="muted">Status: active</div>
-      <div><span class="green">root@server</span>:~# systemctl status nginx</div>
-      <div><span class="blue">● nginx.service</span> - active (running)</div>
-      <div><span class="green">root@server</span>:~# fail2ban-client status</div>
-      <div class="blue">Jail list: sshd, nginx-http-auth</div>
+  <section class="scene white" id="s3">
+    <div class="center" style="top:285px">
+      <div class="kicker">TU PROYECTO NECESITA</div>
+      <div class="big" style="margin-top:28px">UN VPS<br><span class="redword">BIEN</span><br>CONFIGURADO</div>
+    </div>
+    <div class="browser" id="browser">
+      <div class="browserbar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><div class="url">https://tu-proyecto.com / dashboard</div></div>
+      <div class="browserbody">
+        <div class="webtitle">SERVER PERFORMANCE</div><div class="websub">Estado de tu infraestructura en tiempo real</div>
+        <div class="loadbar"><i></i></div>
+        <div class="statrow"><div class="stat"><small>CPU</small><b>24%</b><small>Uso estable</small></div><div class="stat"><small>RAM</small><b style="color:#55dfb6">42%</b><small>Optimizada</small></div><div class="stat"><small>UPTIME</small><b style="color:#55dfb6">99.9%</b><small>Disponible</small></div></div>
+      </div>
     </div>
   </section>
-
-  <section class="diagram clip" id="diagram" data-start="{{T3}}" data-duration="{{DIAG_DURATION}}" data-track-index="6">
-    <div class="node"><b>WEB</b><span>Aplicación</span></div><div class="connector"></div>
-    <div class="node"><b>VPS</b><span>Servidor seguro</span></div><div class="connector"></div>
-    <div class="node"><b>DATA</b><span>Base de datos</span></div>
+  <section class="scene dark" id="s4">
+    <div class="center" style="top:250px">
+      <div class="kicker">SEGURIDAD Y CONTROL</div>
+      <div class="big" style="font-size:116px;margin-top:28px">TODO<br><span class="mint glowtext">BAJO</span><br>CONTROL.</div>
+    </div>
+    <div class="phone" id="phone">
+      <div class="notch"></div><div class="phonehead">cloudservicegm / server</div>
+      <div class="phonecontent">
+        <div class="phonecard"><b>✓ Firewall activo</b>Reglas de acceso protegidas</div>
+        <div class="phonecard"><b>✓ Fail2Ban activo</b>Protección contra intentos sospechosos</div>
+        <div class="phonecard"><b>✓ SSL instalado</b>Conexión cifrada y segura</div>
+        <div class="phonecard"><b>✓ Backups</b>Copias de seguridad configuradas</div>
+      </div>
+    </div>
   </section>
-
-  <section class="cta clip" id="cta" data-start="{{T4}}" data-duration="{{CTA_DURATION}}" data-track-index="7">
-    <div class="eyebrow">TU PROYECTO MERECE MÁS</div>
-    <h2>Haz que tu infraestructura trabaje a tu favor.</h2>
-    <p>Configuración VPS desde cero. Seguridad. Rendimiento. Control.</p>
-    <div class="cta-button">HABLEMOS DE TU PROYECTO</div>
+  <section class="scene green" id="s5">
+    <div class="center" style="top:330px">
+      <div class="check">✓</div>
+      <div class="big" style="font-size:126px">LISTO<br><span class="darkword">PARA</span><br>CRECER.</div>
+      <div class="micro" style="margin-top:45px">CONFIGURAMOS TU VPS DESDE CERO</div>
+      <div class="ctabtn">HABLEMOS DE TU PROYECTO</div>
+      <div class="micro" style="margin-top:45px">cloudservicegm</div>
+    </div>
   </section>
-
   {{CAPTIONS}}
-
-  <div class="footer"><span>VPS • CLOUD • WEB INFRASTRUCTURE</span><span>cloudservicegm.com</span></div>
   <audio id="narration" data-start="0" data-track-index="0" src="./assets/narration.wav"></audio>
   <script src="./assets/gsap.min.js"></script>
   <script>
-    const D = {{DURATION}};
-    const tl = gsap.timeline({paused:true});
-    tl.fromTo("#pill",{opacity:0,y:-24},{opacity:1,y:0,duration:.55,ease:"power3.out"},0);
-    tl.fromTo("#hud",{opacity:0,x:55,rotate:9},{opacity:1,x:0,rotate:4,duration:.8,ease:"power3.out"},.55);
-    tl.fromTo("#tag-one",{opacity:0,x:-50,rotate:-8},{opacity:1,x:0,rotate:0,duration:.55,ease:"back.out(1.7)"},1.25);
-    tl.fromTo("#tag-two",{opacity:0,x:50,rotate:8},{opacity:1,x:0,rotate:0,duration:.55,ease:"back.out(1.7)"},{{T3}}+.6);
-    tl.fromTo("#signal",{opacity:0,scaleX:0,transformOrigin:"left"},{opacity:.65,scaleX:1,duration:1.1,ease:"power2.inOut"},{{T4}}-.3);
-    gsap.to(".orb.a",{rotation:360,duration:24,repeat:Math.max(0,Math.ceil(D/24)-1),ease:"none"});
-    gsap.to(".orb.b",{rotation:-360,duration:18,repeat:Math.max(0,Math.ceil(D/18)-1),ease:"none"});
-    gsap.to(".glow.one",{x:-65,y:35,duration:5,yoyo:true,repeat:Math.max(0,Math.ceil(D/10)-1),ease:"sine.inOut"});
-    gsap.to(".glow.two",{x:55,y:-35,duration:6,yoyo:true,repeat:Math.max(0,Math.ceil(D/12)-1),ease:"sine.inOut"});
-    tl.fromTo("#hero .eyebrow",{opacity:0,x:-45},{opacity:1,x:0,duration:.5,ease:"power3.out"},.15);
-    tl.fromTo("#hero h1",{opacity:0,y:65,filter:"blur(12px)"},{opacity:1,y:0,filter:"blur(0px)",duration:.85,ease:"power4.out"},.35);
-    tl.fromTo("#hero .subline",{opacity:0,y:25},{opacity:1,y:0,duration:.6,ease:"power2.out"},1.05);
-    tl.fromTo("#dashboard",{opacity:0,y:70,scale:.96},{opacity:1,y:0,scale:1,duration:.7,ease:"power3.out"},{{T1}});
-    tl.fromTo("#dashboard .bar",{scaleY:0,transformOrigin:"bottom"},{scaleY:1,duration:.65,stagger:.055,ease:"power2.out"},{{T1}}+.35);
-    tl.fromTo("#terminal",{opacity:0,y:60,rotateX:5},{opacity:1,y:0,rotateX:0,duration:.7,ease:"power3.out"},{{T2}});
-    tl.fromTo("#terminal .term-lines div",{opacity:0,x:-25},{opacity:1,x:0,duration:.35,stagger:.17,ease:"power2.out"},{{T2}}+.3);
-    tl.fromTo("#diagram .node",{opacity:0,y:35,scale:.9},{opacity:1,y:0,scale:1,duration:.5,stagger:.18,ease:"back.out(1.5)"},{{T3}});
-    tl.fromTo("#diagram .connector",{scaleX:0,transformOrigin:"left"},{scaleX:1,duration:.5,stagger:.2,ease:"power2.out"},{{T3}}+.35);
-    tl.fromTo("#cta",{opacity:0,y:45},{opacity:1,y:0,duration:.8,ease:"power3.out"},{{T4}});
+    const D={{DURATION}}, a=D*.19, b=D*.39, c=D*.61, e=D*.81;
+    const tl=gsap.timeline({paused:true});
+    const scenes=["#s1","#s2","#s3","#s4","#s5"];
+    scenes.forEach((q)=>tl.set(q,{opacity:0,scale:1.035}));
+    tl.set("#s1",{opacity:1,scale:1},0);
+    tl.fromTo("#s1 .kicker",{opacity:0,y:-40,filter:"blur(12px)"},{opacity:1,y:0,filter:"blur(0px)",duration:.55,ease:"power3.out"},.1);
+    tl.fromTo("#s1 .big",{opacity:0,scale:1.3,y:100,filter:"blur(18px)"},{opacity:1,scale:1,y:0,filter:"blur(0px)",duration:.8,ease:"power4.out"},.35);
+    tl.fromTo("#s1 .micro",{opacity:0,y:35},{opacity:1,y:0,duration:.45},1.15);
+    function transition(from,to,t){
+      tl.to(from,{opacity:0,scale:.88,filter:"blur(16px)",duration:.42,ease:"power2.in"},t);
+      tl.fromTo(to,{opacity:0,scale:1.12,filter:"blur(12px)"},{opacity:1,scale:1,filter:"blur(0px)",duration:.55,ease:"power3.out"},t+.25);
+    }
+    transition("#s1","#s2",a);
+    tl.fromTo("#s2 .big",{scale:1.22,y:80,opacity:0},{scale:1,y:0,opacity:1,duration:.65,stagger:.08,ease:"back.out(1.2)"},a+.35);
+    transition("#s2","#s3",b);
+    tl.fromTo("#s3 .big",{y:100,opacity:0,filter:"blur(15px)"},{y:0,opacity:1,filter:"blur(0px)",duration:.65,ease:"power4.out"},b+.35);
+    tl.fromTo("#browser",{y:180,rotationX:12,scale:.82,opacity:0},{y:0,rotationX:0,scale:1,opacity:1,duration:.75,ease:"power3.out"},b+.65);
+    tl.fromTo("#browser .stat",{y:40,opacity:0},{y:0,opacity:1,duration:.35,stagger:.12,ease:"power2.out"},b+1.05);
+    transition("#s3","#s4",c);
+    tl.fromTo("#s4 .big",{scale:1.25,opacity:0},{scale:1,opacity:1,duration:.6,ease:"power3.out"},c+.3);
+    tl.fromTo("#phone",{x:520,rotation:8,opacity:0},{x:0,rotation:0,opacity:1,duration:.7,ease:"power3.out"},c+.6);
+    tl.fromTo("#phone .phonecard",{x:50,opacity:0},{x:0,opacity:1,duration:.32,stagger:.13,ease:"power2.out"},c+1);
+    transition("#s4","#s5",e);
+    tl.fromTo("#s5 .check",{scale:0,rotation:-90,opacity:0},{scale:1,rotation:0,opacity:1,duration:.55,ease:"back.out(1.8)"},e+.3);
+    tl.fromTo("#s5 .big",{y:90,scale:.8,opacity:0},{y:0,scale:1,opacity:1,duration:.65,ease:"power4.out"},e+.7);
+    tl.fromTo("#s5 .ctabtn",{y:45,scale:.8,opacity:0},{y:0,scale:1,opacity:1,duration:.5,ease:"back.out(1.5)"},e+1.35);
     {{CAPTION_ANIMS}}
     tl.set({}, {}, D);
-    window.__timelines = window.__timelines || {};
-    window.__timelines["root"] = tl;
+    window.__timelines=window.__timelines||{};
+    window.__timelines["root"]=tl;
   </script>
 </div>
 </body>
