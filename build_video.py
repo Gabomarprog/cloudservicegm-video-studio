@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse, json, html, shutil, subprocess
+import argparse, json, html, shutil, subprocess, wave, math, random, struct
 from pathlib import Path
 
 def get_duration(audio):
@@ -30,7 +30,7 @@ def load_words(path):
             words.append({"text": text, "start": max(0, start), "end": max(start + 0.12, end)})
     return sorted(words, key=lambda x: x["start"])
 
-def group_words(words, max_words=5):
+def group_words(words, max_words=3):
     groups, current = [], []
     for word in words:
         current.append(word)
@@ -40,6 +40,42 @@ def group_words(words, max_words=5):
     if current:
         groups.append(current)
     return groups
+
+
+def add_kinetic_sfx(audio_path, events):
+    """Mix short original whoosh + impact accents under the narration."""
+    audio = Path(audio_path)
+    with wave.open(str(audio), "rb") as src:
+        rate, frames = src.getframerate(), src.getnframes()
+    samples = [0.0] * frames
+    rng = random.Random(27)
+    for start in events:
+        begin = max(0, int(start * rate))
+        length = int(.24 * rate)
+        for j in range(length):
+            idx = begin + j
+            if idx >= frames:
+                break
+            t = j / rate
+            env = math.sin(math.pi * min(1.0, j / max(1, length))) ** 1.7
+            noise = (rng.random() * 2 - 1) * env * .10
+            thump = math.sin(2 * math.pi * (105 - 55 * min(1, t / .18)) * t) * math.exp(-t * 34) * .19
+            samples[idx] += noise + thump
+    sfx_path = audio.with_name("kinetic-sfx.wav")
+    with wave.open(str(sfx_path), "wb") as out:
+        out.setnchannels(1)
+        out.setsampwidth(2)
+        out.setframerate(rate)
+        pcm = bytearray()
+        for value in samples:
+            pcm.extend(struct.pack("<h", int(max(-1.0, min(1.0, value)) * 32767)))
+        out.writeframes(pcm)
+    mixed = audio.with_name("narration-mixed.wav")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(audio), "-i", str(sfx_path),
+        "-filter_complex", "[1:a]volume=0.75[s];[0:a][s]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[out]",
+        "-map", "[out]", "-c:a", "pcm_s16le", str(mixed)], check=True)
+    mixed.replace(audio)
+    sfx_path.unlink(missing_ok=True)
 
 def main():
     p = argparse.ArgumentParser()
@@ -54,24 +90,27 @@ def main():
     duration = get_duration(a.audio)
     t1, t2, t3, t4 = duration*.23, duration*.43, duration*.64, duration*.80
     words = load_words(a.transcript)
+
     captions, anims = [], []
+    groups = group_words(words, max_words=3)
     if words:
-        for i, group in enumerate(group_words(words)):
+        for i, group in enumerate(groups):
             start = group[0]["start"]
-            end = min(duration, group[-1]["end"] + .18)
+            end = min(duration, group[-1]["end"] + .22)
             if end <= start:
                 continue
-            phrase = html.escape(" ".join(w["text"] for w in group))
+            phrase = " ".join(f'<span class="kinetic-word">{html.escape(w["text"])}</span>' for w in group)
             captions.append(
                 f'<div class="caption clip" id="cap-{i}" data-start="{start:.3f}" '
                 f'data-duration="{end-start:.3f}" data-track-index="10">{phrase}</div>'
             )
             anims.append(
-                f'tl.fromTo("#cap-{i}",{{opacity:0,y:24,scale:.97}},'
-                f'{{opacity:1,y:0,scale:1,duration:.20,ease:"power2.out"}},{start:.3f});'
-                f'tl.to("#cap-{i}",{{opacity:0,y:-12,duration:.14}},'
-                f'{max(start, end-.14):.3f});'
+                f'tl.fromTo("#cap-{i} .kinetic-word",{{opacity:0,y:150,scale:.38,rotationX:-55,filter:"blur(24px)"}},'
+                f'{{opacity:1,y:0,scale:1,rotationX:0,filter:"blur(0px)",duration:.42,stagger:.065,ease:"back.out(1.8)"}},{start:.3f});'
+                f'tl.to("#cap-{i} .kinetic-word",{{opacity:0,y:-95,scale:1.22,filter:"blur(15px)",duration:.20,stagger:.025,ease:"power2.in"}},'
+                f'{max(start, end-.22):.3f});'
             )
+        add_kinetic_sfx(a.audio, [g[0]["start"] for g in groups])
     caption_html = "\n".join(captions)
     caption_anims = "\n".join(anims)
 
