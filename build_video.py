@@ -5,10 +5,6 @@ import html
 import shutil
 import subprocess
 import re
-import wave
-import math
-import random
-import struct
 from pathlib import Path
 
 
