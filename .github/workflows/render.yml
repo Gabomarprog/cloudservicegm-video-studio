@@ -54,7 +54,7 @@ jobs:
           ffmpeg -version
 
       - name: Instalar HyperFrames y GSAP
-        run: npm install --no-save hyperframes@latest gsap
+        run: npm install --no-save hyperframes@latest gsap @fontsource/anton@5.3.0
 
       - name: Instalar motor de voz Kokoro
         run: |
@@ -91,6 +91,7 @@ jobs:
           npx hyperframes init render-project --non-interactive --example blank --skip-skills
           mkdir -p render-project/assets
           cp node_modules/gsap/dist/gsap.min.js render-project/assets/gsap.min.js
+          cp node_modules/@fontsource/anton/files/anton-latin-400-normal.woff2 render-project/assets/anton.woff2
           cp narration.wav render-project/assets/narration.wav
 
       - name: Construir composición animada
