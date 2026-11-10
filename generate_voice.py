@@ -7,21 +7,21 @@ from pathlib import Path
 # Voice identity: fuller, darker, chest-resonant and confidently masculine.
 # Delivery: connected conversational phrasing, not whispery and not artificially slow.
 VOICE_INSTRUCTION = (
-    "Voz masculina adulta de registro barítono grave-medio, con cuerpo vocal lleno, "
-    "resonancia de pecho natural y un timbre redondo, oscuro y cálido. Que se sienta "
-    "claramente masculina, madura y segura, con una textura aterciopelada ligeramente "
-    "áspera, pero limpia y elegante. Español latinoamericano neutro, pronunciación "
-    "natural y clara. La voz debe tener presencia y profundidad, sin sonar demasiado "
-    "grave, ronca, susurrada, aireada, débil ni afeminada. "
-    "Habla de manera fluida y conectada, a un ritmo conversacional medio y natural, "
-    "con energía tranquila y confianza. Une las ideas sin detenerte bruscamente al "
-    "final de cada frase. Respeta la puntuación con pausas breves y orgánicas: una "
-    "pausa algo mayor solo cuando termina una idea completa. No añadas silencios "
-    "dramáticos ni pausas largas entre oraciones. Mantén una entonación cálida, "
-    "elegante y expresiva, con énfasis sutil en palabras importantes. No uses voz de "
-    "locutor publicitario, no sobreactúes y no conviertas el discurso en un susurro. "
-    "El resultado debe sonar como un hombre real hablando cerca del micrófono, con "
-    "naturalidad, buen cuerpo y una cadencia agradable de escuchar."
+    "Voz de hombre adulto, claramente masculina, de barítono grave-medio, con "
+    "resonancia de pecho marcada, cuerpo y densidad vocal. Timbre profundo, redondo, "
+    "cálido y firme, con presencia al frente y una textura suave pero no aireada. "
+    "Español latinoamericano neutro, pronunciación clara y natural. "
+    "Debe sonar maduro, seguro y elegante: una voz con peso y autoridad tranquila, "
+    "no fina, no aguda, no juvenil, no débil, no susurrada y no afeminada. "
+    "Habla en frases conectadas, con ritmo conversacional fluido y ligeramente ágil. "
+    "No hagas pausas artificiales al terminar cada oración: enlaza la siguiente idea "
+    "con naturalidad. Usa solo las pausas breves que pide la puntuación y una pausa "
+    "un poco mayor al cerrar una idea completa. No alargues vocales ni finales de "
+    "frase, no dramatices ni leas palabra por palabra. "
+    "La entonación debe ser cálida, envolvente y expresiva con moderación, como un "
+    "narrador documental moderno hablando con cercanía y confianza, no como un "
+    "locutor de publicidad. Mantén el mismo registro grave y el mismo cuerpo durante "
+    "todo el texto. Una voz humana, estable, fluida y agradable de escuchar."
 )
 
 
@@ -47,7 +47,7 @@ def main() -> int:
     parser.add_argument("--model", default="models/qwen3-tts-voice-design")
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--seed", type=int, default=20261110)
-    parser.add_argument("--rate", type=float, default=1.08)
+    parser.add_argument("--rate", type=float, default=1.12)
     args = parser.parse_args()
 
     input_path, output_path = Path(args.input), Path(args.output)
@@ -58,7 +58,7 @@ def main() -> int:
         raise FileNotFoundError(f"No se encuentra el motor Qwen3-TTS: {engine}")
     if not (model_dir / "config.json").exists():
         raise FileNotFoundError(f"No se encuentra el modelo VoiceDesign: {model_dir}")
-    if not 0.95 <= args.rate <= 1.15:
+    if not 1.0 <= args.rate <= 1.15:
         raise ValueError("--rate debe estar entre 0.95 y 1.15 para conservar naturalidad")
 
     text = prepare_continuous_text(input_path.read_text(encoding="utf-8"))
