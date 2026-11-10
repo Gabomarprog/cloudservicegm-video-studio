@@ -487,21 +487,10 @@ def main():
     assets = Path(args.assets)
     assets.mkdir(parents=True, exist_ok=True)
 
-    # Generate separate original music and scene SFX stems, then mix them under the voice.
-    generate_sound_design(args.audio, duration, words, assets)
+    # Sound-only design: no background music, just scene- and action-synchronised SFX.
+    sfx_path = build_sound_effects(duration, words, groups, assets)
     mixed_audio = assets / "narration.wav"
-    subprocess.run([
-        "ffmpeg", "-y", "-loglevel", "error",
-        "-i", str(args.audio),
-        "-i", str(assets / "music-bed.wav"),
-        "-i", str(assets / "scene-sfx.wav"),
-        "-filter_complex",
-        "[1:a]volume=1.0[music];"
-        "[2:a]volume=1.0[sfx];"
-        "[0:a][music][sfx]amix=inputs=3:duration=first:dropout_transition=1:normalize=0,"
-        "alimiter=limit=0.95[out]",
-        "-map", "[out]", "-c:a", "pcm_s16le", str(mixed_audio)
-    ], check=True)
+    mix_voice_and_effects(args.audio, sfx_path, mixed_audio)
 
     fractions = [0.0, 0.12, 0.25, 0.39, 0.53, 0.68, 0.83, 1.0]
     replacements = {
