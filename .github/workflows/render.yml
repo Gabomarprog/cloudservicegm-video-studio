@@ -97,7 +97,6 @@ jobs:
             --threads 4 \
             --seed 20261110 \
             --speaker ryan \
-            --rate 1.70
           test -s narration.wav
 
       - name: Comprobar duración mínima de 35 segundos
