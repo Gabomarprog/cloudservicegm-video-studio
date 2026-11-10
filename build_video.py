@@ -121,21 +121,21 @@ def make_caption(group, index, start, end, duration):
             f'tl.fromTo({root},{{autoAlpha:0,scale:1.55,y:58,rotationZ:-2.5}},'
             f'{{autoAlpha:1,scale:1,y:0,rotationZ:0,duration:.54,ease:"power3.out"}},{start:.3f});'
             f'tl.fromTo({glyphs},{{y:32,opacity:0,rotationX:-15,scale:.94}},'
-            f'{{y:0,opacity:1,rotationX:0,scale:1,duration:.46,stagger:.018,ease:"power2.out"}},{start + .02:.3f});'
+            f'{{y:0,opacity:1,rotationX:0,scale:1,duration:.46,stagger:.024,ease:"power2.out"}},{start + .02:.3f});'
         )
     elif mode == "letters":
         enter = (
             f'tl.fromTo({root},{{autoAlpha:0,y:38,scale:.97}},'
             f'{{autoAlpha:1,y:0,scale:1,duration:.52,ease:"power3.out"}},{start:.3f});'
             f'tl.fromTo({glyphs},{{y:68,opacity:0,scale:.9,rotationX:-18}},'
-            f'{{y:0,opacity:1,scale:1,rotationX:0,duration:.46,stagger:.016,ease:"power2.out"}},{start + .02:.3f});'
+            f'{{y:0,opacity:1,scale:1,rotationX:0,duration:.46,stagger:.024,ease:"power2.out"}},{start + .02:.3f});'
         )
     elif mode == "wipe":
         enter = (
             f'tl.fromTo({root},{{autoAlpha:0,x:-95,scaleX:.9}},'
             f'{{autoAlpha:1,x:0,scaleX:1,duration:.52,ease:"power3.out"}},{start:.3f});'
             f'tl.fromTo({glyphs},{{x:-18,opacity:0,scaleX:.9}},'
-            f'{{x:0,opacity:1,scaleX:1,duration:.42,stagger:.014,ease:"power2.out"}},{start + .02:.3f});'
+            f'{{x:0,opacity:1,scaleX:1,duration:.42,stagger:.022,ease:"power2.out"}},{start + .02:.3f});'
         )
     elif mode == "side":
         direction = -1 if index % 2 else 1
@@ -143,21 +143,21 @@ def make_caption(group, index, start, end, duration):
             f'tl.fromTo({root},{{autoAlpha:0,x:{direction * 460},rotationZ:{direction * -1.8},scale:.95}},'
             f'{{autoAlpha:1,x:0,rotationZ:0,scale:1,duration:.56,ease:"power3.out"}},{start:.3f});'
             f'tl.fromTo({glyphs},{{y:28,opacity:0,rotationY:12}},'
-            f'{{y:0,opacity:1,rotationY:0,duration:.42,stagger:.014,ease:"power2.out"}},{start + .025:.3f});'
+            f'{{y:0,opacity:1,rotationY:0,duration:.42,stagger:.022,ease:"power2.out"}},{start + .025:.3f});'
         )
     elif mode == "stretch":
         enter = (
             f'tl.fromTo({root},{{autoAlpha:0,scaleX:.78,scaleY:1.08}},'
             f'{{autoAlpha:1,scaleX:1,scaleY:1,duration:.54,ease:"power3.out"}},{start:.3f});'
             f'tl.fromTo({glyphs},{{x:18,y:28,opacity:0,rotationY:12,scaleX:.9}},'
-            f'{{x:0,y:0,opacity:1,rotationY:0,scaleX:1,duration:.42,stagger:.014,ease:"power2.out"}},{start + .02:.3f});'
+            f'{{x:0,y:0,opacity:1,rotationY:0,scaleX:1,duration:.42,stagger:.022,ease:"power2.out"}},{start + .02:.3f});'
         )
     else:
         enter = (
             f'tl.fromTo({root},{{autoAlpha:0,scale:.88,rotationX:18,rotationZ:1.5,y:42}},'
             f'{{autoAlpha:1,scale:1,rotationX:0,rotationZ:0,y:0,duration:.56,ease:"power3.out"}},{start:.3f});'
             f'tl.fromTo({glyphs},{{opacity:0,rotationY:18,z:-24}},'
-            f'{{opacity:1,rotationY:0,z:0,duration:.44,stagger:.014,ease:"power2.out"}},{start + .025:.3f});'
+            f'{{opacity:1,rotationY:0,z:0,duration:.44,stagger:.022,ease:"power2.out"}},{start + .025:.3f});'
         )
 
     # Entry and exit stay separated for smooth, readable transitions.
