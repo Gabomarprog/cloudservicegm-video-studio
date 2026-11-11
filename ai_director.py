@@ -9,7 +9,9 @@ import urllib.request
 MODEL = "gemini-3.6-flash"
 VISUALS = [
     "typography","browser","certificate","network","shield","server","dashboard",
-    "database","terminal","phone","comparison","process","chart","timeline","webpage","cta"
+    "database","terminal","phone","comparison","process","chart","timeline","webpage",
+    "lightbulb","brain","book","globe","leaf","heart","atom","finance","megaphone",
+    "calendar","cloud","gear","cta"
 ]
 SCHEMA = {
     "type":"OBJECT",
