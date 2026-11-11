@@ -97,14 +97,16 @@ def render_scenes(storyboard, duration):
             f'</section>'
         )
         at = starts[i]
-        anims.append(
+        animation = (
             f'tl.fromTo("#scene-{i} .scene-kicker",{{y:28,opacity:0}},{{y:0,opacity:1,duration:.42,ease:"power3.out"}},{at:.3f});'
             f'tl.fromTo("#scene-{i} .scene-heading",{{y:70,rotationX:-16,opacity:0,scale:.92}},{{y:0,rotationX:0,opacity:1,scale:1,duration:.68,ease:"back.out(1.25)"}},{at+.12:.3f});'
             f'tl.fromTo("#scene-{i} .scene-detail",{{y:30,opacity:0}},{{y:0,opacity:1,duration:.5,ease:"power2.out"}},{at+.32:.3f});'
             f'tl.fromTo("#scene-{i} .visual",{{y:100,scale:.78,rotationZ:{-2 if i%2 else 2},opacity:0}},{{y:0,scale:1,rotationZ:0,opacity:1,duration:.8,ease:"expo.out"}},{at+.42:.3f});'
             f'tl.fromTo("#scene-{i} .visual-item",{{scale:.6,opacity:0}},{{scale:1,opacity:1,duration:.55,stagger:.12,ease:"back.out(1.4)"}},{at+.9:.3f});'
-            f'tl.to("#scene-{i}",{{autoAlpha:0,scale:.96,duration:.34,ease:"power2.in"}},{starts[i+1]-.20:.3f});'
-            if i < count-1 else
-            f'tl.fromTo("#scene-{i} .cta-button",{{scaleX:.5,opacity:0}},{{scaleX:1,opacity:1,duration:.55,ease:"expo.out"}},{at+1.1:.3f});'
         )
+        if i < count-1:
+            animation += f'tl.to("#scene-{i}",{{autoAlpha:0,scale:.96,duration:.34,ease:"power2.in"}},{starts[i+1]-.20:.3f});'
+        else:
+            animation += f'tl.fromTo("#scene-{i} .cta-button",{{scaleX:.5,opacity:0}},{{scaleX:1,opacity:1,duration:.55,ease:"expo.out"}},{at+1.1:.3f});'
+        anims.append(animation)
     return "\n".join(html_parts), "\n".join(anims), starts, [s["visual"] for s in scenes]
