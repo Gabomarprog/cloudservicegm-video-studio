@@ -28,6 +28,9 @@ def load_words(path):
         if not isinstance(item, dict):
             continue
         text = str(item.get("text", "")).strip()
+        # Whisper may confuse the Spanish letter name for the acronym VPS and
+        # emit BPS. Keep the canonical product/networking acronym in captions.
+        text = re.sub(r"(?i)(?<!\\w)B[.\\s-]*P[.\\s-]*S(?!\\w)", "VPS", text)
         if not text:
             continue
         try:
