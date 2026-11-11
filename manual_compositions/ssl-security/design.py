@@ -118,7 +118,7 @@ def _visual(index):
 def _animation(index, start, end):
     sid = f"#manual-scene-{index}"
     duration = max(.5, end-start)
-    common = f'tl.set("{sid}",{{autoAlpha:0}});tl.set("{sid} .manual-scene-inner",{{autoAlpha:1}});'
+    common = f'tl.set("{sid} .manual-scene-inner",{{autoAlpha:1}});'
     if index == 0:
         return common + f'tl.fromTo("{sid} #browser-risk",{{y:100,rotationX:18,scale:.82,autoAlpha:0}},{{y:0,rotationX:0,scale:1,autoAlpha:1,duration:1.0,ease:"back.out(1.4)"}},{start:.3f});tl.fromTo("{sid} #risk-alert",{{scale:0,rotation:-35}},{{scale:1,rotation:0,duration:.55,ease:"elastic.out(1,.55)"}},{start+duration*.48:.3f});tl.fromTo("{sid} .ssl-redline",{{scaleX:0}},{{scaleX:1,duration:.6,ease:"power3.out"}},{start+duration*.35:.3f});'
     if index == 1:
