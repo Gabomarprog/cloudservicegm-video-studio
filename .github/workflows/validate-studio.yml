@@ -42,7 +42,7 @@ jobs:
           ]}
           assert transcript_text(source) == "El certificado SSL protege tu sitio y cifra la conexión con HTTPS."
           aligned=align_edited_text("El certificado SSL protege tu página web y cifra la conexión segura con HTTPS.",source,5.4)
-          assert len(aligned)==13, len(aligned)
+          assert len(aligned)==14, len(aligned)
           assert all(x["end"] > x["start"] for x in aligned)
           assert all(aligned[i]["start"] <= aligned[i+1]["start"] for i in range(len(aligned)-1))
           storyboard={"scenes":[
