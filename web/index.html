@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>cloudservicegm · Video Studio</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1018;--panel:#121b28;--line:#2a3a50;--text:#f4f7fb;--muted:#aab8c9;--mint:#87f0cb;--shadow:0 20px 55px rgba(0,0,0,.28)}
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(ellipse at 15% -10%,#1a3843 0,transparent 38%),var(--bg);color:var(--text);font:15px/1.55 Inter,Segoe UI,system-ui,sans-serif;min-height:100vh;padding:34px 18px 54px}
+    .shell{width:min(960px,100%);margin:auto}
+    .top{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+    .mark{width:46px;height:46px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(140deg,#8cf3d0,#2f9680);color:#07231d;font-weight:900;font-size:21px}
+    .brand{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint);font-weight:800}
+    h1{margin:2px 0 0;font-size:clamp(27px,5vw,39px);line-height:1.08;letter-spacing:-.04em}
+    .lead{color:var(--muted);max-width:740px;margin:0 0 22px}
+    .panel{background:linear-gradient(180deg,rgba(23,35,52,.96),rgba(16,25,38,.98));border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow)}
+    .section-title{display:flex;align-items:center;gap:10px;margin:0 0 17px;font-size:17px}
+    .step{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#213747;color:var(--mint);font-size:13px;font-weight:800}
+    .field{margin:0 0 17px}
+    label{display:block;margin:0 0 7px;font-weight:700;color:#eaf1f8}
+    .hint{color:var(--muted);font-size:12px;margin-top:5px}
+    input,textarea{display:block;width:100%;border:1px solid #354860;border-radius:11px;background:#0d1622;padding:13px 14px;color:var(--text);font:inherit;outline:none;transition:border .15s,box-shadow .15s}
+    input:focus,textarea:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(135,240,203,.12)}
+    input::placeholder,textarea::placeholder{color:#6f8297}
+    textarea{min-height:270px;resize:vertical;line-height:1.6}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+    .security{border:1px solid #35584f;background:rgba(16,45,42,.55);padding:13px 15px;border-radius:12px;color:#c7e9df;font-size:13px;margin:0 0 20px}
+    .security strong{color:var(--mint)}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+    button{border:0;border-radius:11px;padding:13px 18px;font:700 14px inherit;cursor:pointer;transition:transform .12s,opacity .12s}
+    button:hover:not(:disabled){transform:translateY(-1px)}
+    button:disabled{opacity:.42;cursor:not-allowed}
+    .primary{background:var(--mint);color:#08251e}
+    .secondary{background:#26374c;color:var(--text);border:1px solid #3a506a}
+    .status{margin-top:17px;background:#0b1520;border:1px solid #293d53;padding:13px 15px;border-radius:11px;color:#c7d5e5;min-height:48px;white-space:pre-wrap}
+    .status.error{border-color:#8e4545;color:#ffb5b5}
+    .status.good{border-color:#397b68;color:#aaf2d7}
+    .preview{margin-top:20px;border:1px solid var(--line);background:#0e1824;padding:17px;border-radius:14px}
+    .preview h3{margin:0 0 9px;font-size:15px}
+    audio{width:100%;margin-top:6px}
+    .subnote{color:var(--muted);font-size:12px;margin:18px 0 0}
+    a{color:var(--mint)}
+    .pill{display:inline-block;border:1px solid #355f53;color:var(--mint);border-radius:999px;padding:3px 9px;font-size:11px;font-weight:800;letter-spacing:.06em}
+    @media(max-width:700px){body{padding:22px 12px 40px}.panel{padding:17px}.grid{grid-template-columns:1fr}textarea{min-height:310px}.actions button{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div class="mark">C</div>
+      <div><div class="brand">cloudservicegm</div><h1>Video Studio</h1></div>
+    </header>
+    <p class="lead">Prepara el título y el guion, genera la narración con ElevenLabs y escúchala antes de renderizar el video vertical en GitHub Actions.</p>
+    <section class="panel">
+      <h2 class="section-title"><span class="step">1</span> Datos de ElevenLabs y del video</h2>
+      <div class="security"><strong>Clave protegida:</strong> esta interfaz se ejecuta solo en tu PC. La API key se envía al servicio local y desde allí a ElevenLabs; no se guarda, no se manda a GitHub y se borra del formulario al terminar la solicitud.</div>
+      <div class="grid">
+        <div class="field">
+          <label for="apiKey">API key de ElevenLabs</label>
+          <input id="apiKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aquí tu API key">
+          <div class="hint">No se almacena en el navegador ni en archivos del proyecto.</div>
+        </div>
+        <div class="field">
+          <label for="voiceId">Voice ID</label>
+          <input id="voiceId" type="text" autocomplete="off" spellcheck="false" placeholder="Pega el ID exacto de la voz">
+          <div class="hint">Lo copias desde tu biblioteca de voces de ElevenLabs.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="videoTitle">Título principal del video</label>
+        <input id="videoTitle" type="text" maxlength="180" value="3 señales de que tu VPS necesita mejorar">
+      </div>
+      <div class="field">
+        <label for="script">Guion completo de la narración</label>
+        <textarea id="script" maxlength="12000">¿Tu web tarda en cargar? Cuando una página se queda pensando, tus visitantes no esperan: se van y buscan otra opción.
+Muchas veces el problema está en un servidor que ya no responde al ritmo de tu proyecto.
+Un VPS bien configurado te ofrece recursos dedicados, más control y una base estable para crecer.
+En cloudservicegm preparamos tu infraestructura desde cero. Optimizamos el servidor, reforzamos la seguridad, configuramos SSL y dejamos listos WordPress, bases de datos y aplicaciones web.
+También cuidamos los accesos y los servicios que mantienen tu proyecto disponible.
+No se trata solo de tener un servidor: se trata de que tu web responda cuando tus clientes la necesitan.
+Síguenos para aprender sobre VPS, rendimiento y seguridad. Y si necesitas ayuda con tu infraestructura, escríbenos.</textarea>
+        <div class="hint" id="charCount">La voz se generará con eleven_multilingual_v2, en una sola solicitud.</div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="generateButton" type="button">Generar y escuchar muestra</button>
+        <button class="secondary" id="renderButton" type="button" disabled>Renderizar video en GitHub</button>
+      </div>
+      <div class="status" id="status" role="status" aria-live="polite">Listo. Completa los campos para generar una muestra.</div>
+      <div class="preview" id="previewPanel" hidden>
+        <h3><span class="pill">MUESTRA DE VOZ</span> Escucha antes de continuar</h3>
+        <audio id="previewAudio" controls preload="none"></audio>
+        <div class="hint">Esta es la narración que se usará en el video si pulsas Renderizar.</div>
+      </div>
+      <p class="subnote">El render, la transcripción, las animaciones y los efectos de sonido siguen en GitHub Actions. La transferencia usa una URL temporal de un solo uso; mantén abierta esta ventana y la consola local hasta que el panel confirme que GitHub recibió el audio.</p>
+    </section>
+  </main>
+  <script>
+    const apiKey = document.getElementById("apiKey");
+    const voiceId = document.getElementById("voiceId");
+    const videoTitle = document.getElementById("videoTitle");
+    const script = document.getElementById("script");
+    const generateButton = document.getElementById("generateButton");
+    const renderButton = document.getElementById("renderButton");
+    const statusBox = document.getElementById("status");
+    const previewPanel = document.getElementById("previewPanel");
+    const previewAudio = document.getElementById("previewAudio");
+    const charCount = document.getElementById("charCount");
+    let previewId = null;
+    let statusTimer = null;
+
+    function setStatus(message, type) {
+      statusBox.textContent = message;
+      statusBox.className = "status" + (type ? " " + type : "");
+    }
+    async function responseJson(response) {
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || "La operación no se pudo completar.");
+      return body;
+    }
+    function invalidatePreview() {
+      previewId = null;
+      renderButton.disabled = true;
+      previewAudio.pause();
+      previewAudio.removeAttribute("src");
+      previewAudio.load();
+      previewPanel.hidden = true;
+    }
+    [voiceId, videoTitle, script].forEach(function (element) {
+      element.addEventListener("input", invalidatePreview);
+    });
+    script.addEventListener("input", function () {
+      charCount.textContent = script.value.length.toLocaleString("es-ES") + " / 12.000 caracteres";
+    });
+    charCount.textContent = script.value.length.toLocaleString("es-ES") + " / 12.000 caracteres";
+
+    generateButton.addEventListener("click", async function () {
+      const key = apiKey.value.trim();
+      if (!key || !voiceId.value.trim() || !videoTitle.value.trim() || !script.value.trim()) {
+        setStatus("Completa la API key, el Voice ID, el título y el guion.", "error");
+        return;
+      }
+      invalidatePreview();
+      generateButton.disabled = true;
+      renderButton.disabled = true;
+      setStatus("Conectando con ElevenLabs y generando la voz. Puede tardar un poco...");
+      try {
+        const response = await fetch("/api/generate", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            api_key: key,
+            voice_id: voiceId.value.trim(),
+            title: videoTitle.value.trim(),
+            script: script.value.trim()
+          })
+        });
+        const result = await responseJson(response);
+        previewId = result.sample_id;
+        previewAudio.src = "/api/audio/" + encodeURIComponent(previewId);
+        previewAudio.load();
+        previewPanel.hidden = false;
+        renderButton.disabled = false;
+        setStatus("Narración generada correctamente. Escúchala; si te convence, renderiza el video.", "good");
+      } catch (error) {
+        setStatus(error.message, "error");
+      } finally {
+        apiKey.value = "";
+        generateButton.disabled = false;
+      }
+    });
+
+    renderButton.addEventListener("click", async function () {
+      if (!previewId) return;
+      generateButton.disabled = true;
+      renderButton.disabled = true;
+      setStatus("Preparando la transferencia temporal y lanzando GitHub Actions...");
+      try {
+        const response = await fetch("/api/render", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({sample_id: previewId})
+        });
+        await responseJson(response);
+        setStatus("Solicitud enviada. Preparando la transferencia del MP3 a GitHub...");
+        if (statusTimer) clearInterval(statusTimer);
+        statusTimer = setInterval(updateStatus, 1800);
+      } catch (error) {
+        setStatus(error.message, "error");
+        generateButton.disabled = false;
+        renderButton.disabled = false;
+      }
+    });
+
+    async function updateStatus() {
+      try {
+        const response = await fetch("/api/status", {cache: "no-store"});
+        const result = await responseJson(response);
+        setStatus(result.render_status, result.render_running ? "" : "good");
+        if (result.actions_url) {
+          const link = document.createElement("a");
+          link.href = result.actions_url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "Abrir GitHub Actions";
+          statusBox.appendChild(document.createTextNode(" "));
+          statusBox.appendChild(link);
+        }
+        if (!result.render_running) {
+          clearInterval(statusTimer);
+          statusTimer = null;
+          generateButton.disabled = false;
+          if (result.render_status.indexOf("GitHub recibió el audio") >= 0) {
+            renderButton.disabled = true;
+            previewId = null;
+          } else {
+            renderButton.disabled = !previewId;
+          }
+        }
+      } catch (error) {
+        setStatus("No se pudo consultar el estado del render: " + error.message, "error");
+      }
+    }
+  </script>
+</body>
+</html>
