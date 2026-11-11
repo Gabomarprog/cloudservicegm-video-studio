@@ -2,6 +2,7 @@
 """Local browser UI for cloudservicegm. ElevenLabs keys stay in this process only."""
 
 import json
+import mimetypes
 import re
 import secrets
 import shutil
@@ -27,7 +28,7 @@ MAX_BODY = 250_000
 
 STATE_LOCK = threading.Lock()
 STATE = {
-    "preview_id": None, "audio": None, "title": None, "script": None,
+    "preview_id": None, "audio": None, "audio_mime": "audio/mpeg", "title": None, "script": None,
     "render_running": False,
     "render_status": "Listo. Introduce los datos para crear tu primera muestra.",
     "actions_url": None,
@@ -129,11 +130,12 @@ class StudioHandler(BaseHTTPRequestHandler):
             sample_id = match.group(1)
             with STATE_LOCK:
                 audio = STATE["audio"] if sample_id == STATE["preview_id"] else None
+                audio_mime = STATE["audio_mime"]
             if not audio:
                 self.send_error(404, "La muestra ya no está disponible.")
                 return
             self.send_response(200)
-            self._headers("audio/mpeg", len(audio))
+            self._headers(audio_mime, len(audio))
             self.end_headers()
             self.wfile.write(audio)
             return
@@ -144,9 +146,12 @@ class StudioHandler(BaseHTTPRequestHandler):
         if not self._origin_is_local():
             self._send_json(403, {"error": "Origen no permitido."})
             return
-        if self.path == "/api/generate":
+        route = urllib.parse.urlsplit(self.path).path
+        if route == "/api/generate":
             self._generate()
-        elif self.path == "/api/render":
+        elif route == "/api/upload":
+            self._upload()
+        elif route == "/api/render":
             self._render()
         else:
             self.send_error(404)
@@ -211,6 +216,7 @@ class StudioHandler(BaseHTTPRequestHandler):
             with STATE_LOCK:
                 STATE["preview_id"] = sample_id
                 STATE["audio"] = audio
+                STATE["audio_mime"] = "audio/mpeg"
                 STATE["title"] = title
                 STATE["script"] = script
                 STATE["render_status"] = "Muestra lista. Escúchala antes de lanzar el render."
@@ -226,6 +232,58 @@ class StudioHandler(BaseHTTPRequestHandler):
         except Exception as exc:
             self._send_json(500, {"error": "Error interno al generar la voz: %s" % exc})
 
+    def _upload(self):
+        try:
+            parsed = urllib.parse.urlsplit(self.path)
+            params = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+            title = str((params.get("title") or [""])[0]).strip()
+            script = str((params.get("script") or [""])[0]).strip()
+            filename = str((params.get("filename") or ["audio"])[0]).strip()
+            if not title or len(title) > 180:
+                raise ValueError("El título es obligatorio y debe tener menos de 180 caracteres.")
+            if len(script) > 12000:
+                raise ValueError("El guion no puede superar 12.000 caracteres.")
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+            except ValueError:
+                raise ValueError("No se pudo determinar el tamaño del archivo.")
+            if length < 1024 or length > 120 * 1024 * 1024:
+                raise ValueError("El audio debe pesar entre 1 KB y 120 MB.")
+
+            audio_mime = self.headers.get("Content-Type", "").split(";", 1)[0].lower().strip()
+            extension_mimes = {
+                ".mp3": "audio/mpeg", ".wav": "audio/wav", ".wave": "audio/wav",
+                ".m4a": "audio/mp4", ".mp4": "audio/mp4", ".aac": "audio/aac",
+                ".ogg": "audio/ogg", ".oga": "audio/ogg", ".opus": "audio/opus",
+                ".flac": "audio/flac", ".webm": "audio/webm", ".3gp": "audio/3gpp",
+            }
+            if not audio_mime.startswith("audio/"):
+                audio_mime = extension_mimes.get(Path(filename).suffix.lower()) or mimetypes.guess_type(filename)[0] or ""
+            if not audio_mime.startswith("audio/"):
+                raise ValueError("Formato no admitido. Usa MP3, WAV, M4A, AAC, OGG, OPUS, FLAC o WEBM.")
+
+            audio = self.rfile.read(length)
+            if len(audio) != length:
+                raise ValueError("La carga del archivo quedó incompleta.")
+            sample_id = secrets.token_urlsafe(24)
+            with STATE_LOCK:
+                STATE["preview_id"] = sample_id
+                STATE["audio"] = audio
+                STATE["audio_mime"] = audio_mime
+                STATE["title"] = title
+                STATE["script"] = script
+                STATE["render_status"] = "Audio importado. Escúchalo antes de lanzar el render."
+                STATE["actions_url"] = None
+            self._send_json(200, {
+                "ok": True, "sample_id": sample_id, "audio_bytes": len(audio),
+                "audio_mime": audio_mime,
+                "message": "Audio importado y preparado para previsualizar.",
+            })
+        except ValueError as exc:
+            self._send_json(400, {"error": str(exc)})
+        except Exception as exc:
+            self._send_json(500, {"error": "No se pudo importar el audio: %s" % exc})
+
     def _render(self):
         try:
             data = self._read_json()
@@ -239,6 +297,7 @@ class StudioHandler(BaseHTTPRequestHandler):
                 title = STATE["title"]
                 script = STATE["script"]
                 audio = STATE["audio"]
+                audio_mime = STATE["audio_mime"]
 
             if not valid:
                 raise ValueError("Genera una muestra nueva antes de renderizar.")
@@ -265,7 +324,7 @@ class StudioHandler(BaseHTTPRequestHandler):
                 STATE["actions_url"] = "https://github.com/%s/actions/workflows/render.yml" % REPOSITORY
 
             worker = threading.Thread(
-                target=render_worker, args=(title, script, audio), daemon=True
+                target=render_worker, args=(title, script, audio, audio_mime), daemon=True
             )
             worker.start()
             self._send_json(200, {"ok": True, "message": "Preparando el render en la nube."})
@@ -281,9 +340,10 @@ class OneShotAudioServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-    def __init__(self, address, token, audio):
+    def __init__(self, address, token, audio, audio_mime):
         self.token = token
         self.audio = audio
+        self.audio_mime = audio_mime
         self.guard = threading.Lock()
         self.downloaded = threading.Event()
         self.download_count = 0
@@ -305,10 +365,10 @@ class OneShotAudioServer(ThreadingHTTPServer):
                 try:
                     body = self.server.audio
                     self.send_response(200)
-                    self.send_header("Content-Type", "audio/mpeg")
+                    self.send_header("Content-Type", self.server.audio_mime)
                     self.send_header("Content-Length", str(len(body)))
                     self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
-                    self.send_header("Content-Disposition", 'attachment; filename="narration.mp3"')
+                    self.send_header("Content-Disposition", 'attachment; filename="narration-audio"')
                     self.end_headers()
                     self.wfile.write(body)
                     self.wfile.flush()
@@ -328,12 +388,12 @@ class OneShotAudioServer(ThreadingHTTPServer):
         super().__init__(address, Handler)
 
 
-def render_worker(title, script, audio):
+def render_worker(title, script, audio, audio_mime):
     audio_server = None
     tunnel = None
     try:
         token = secrets.token_urlsafe(32)
-        audio_server = OneShotAudioServer((HOST, 0), token, audio)
+        audio_server = OneShotAudioServer((HOST, 0), token, audio, audio_mime)
         port = audio_server.server_address[1]
         threading.Thread(target=audio_server.serve_forever, daemon=True).start()
 
