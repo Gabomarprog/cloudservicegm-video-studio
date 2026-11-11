@@ -17,7 +17,7 @@ Estudio local para producir videos verticales **HTML/CSS/SVG/GSAP → MP4** con 
 - Crear una API key en [Google AI Studio](https://aistudio.google.com/app/apikey).
 - Pegarla en el campo correspondiente del panel.
 - El modelo configurado actualmente es `gemini-3.6-flash`.
-- La API key solo se mantiene en la memoria del servidor local durante la solicitud; no se guarda en el repositorio ni se envía a GitHub Actions.
+- La API key se envía desde el servidor local a Google mediante HTTPS en la cabecera de autenticación; no se guarda en el repositorio ni se envía a GitHub Actions.
 - La cuota gratuita de Gemini tiene límites variables. Consulta [precios y cuotas oficiales](https://ai.google.dev/gemini-api/docs/pricing). En el nivel gratuito, Google indica que el contenido puede utilizarse para mejorar sus productos; no envíes información sensible.
 
 La IA devuelve JSON estructurado, no código ejecutable. El renderer solo admite componentes de una lista controlada en `dynamic_scenes.py`: navegador, certificado, red, escudo, servidores, dashboard, base de datos, terminal, teléfono, comparativa, proceso, gráfico, cronología, tipografía y CTA. El motor decide el HTML y las animaciones GSAP con esos componentes.
