@@ -1,0 +1,13 @@
+Cuando visitas una página web, ¿cómo sabe tu navegador que está hablando con el servidor correcto? Para eso sirve el certificado digital que normalmente llamamos SSL.
+
+Un certificado es una credencial electrónica que identifica un dominio y contiene una clave pública, además de información sobre quién lo emitió y durante cuánto tiempo es válido.
+
+Lo firma una autoridad certificadora, una entidad de confianza que ayuda al navegador a comprobar su autenticidad.
+
+Cuando entras mediante HTTPS, el navegador revisa que el nombre del dominio coincida, que el certificado esté vigente y que la cadena de confianza sea válida.
+
+Si todo encaja, el certificado ayuda a autenticar al servidor. Después, el protocolo TLS negocia las claves de sesión y establece el cifrado que protege los datos mientras viajan entre tu navegador y la web.
+
+Por eso, aunque todavía escuchemos el término SSL, las conexiones seguras modernas utilizan TLS.
+
+En cloudservicegm configuramos certificados y HTTPS correctamente para que tu página pueda ofrecer una conexión autenticada y cifrada.
