@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>cloudservicegm · Diseños manuales</title>
+<style>
+:root{color-scheme:dark;--bg:#080e17;--panel:#111c2a;--line:#2b4055;--text:#f2f7fb;--muted:#aab9c9;--mint:#82edc8;--coral:#ff6978}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:32px 16px 56px;background:radial-gradient(ellipse at 12% 0%,#173744 0,transparent 36%),var(--bg);color:var(--text);font:15px/1.55 Inter,Segoe UI,system-ui,sans-serif}.shell{width:min(900px,100%);margin:auto}
+header{display:flex;align-items:center;gap:14px;margin-bottom:12px}.mark{width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,#8df2d0,#278c78);display:grid;place-items:center;color:#08231d;font-size:22px;font-weight:900}.brand{color:var(--mint);font-size:12px;letter-spacing:.16em;font-weight:800;text-transform:uppercase}h1{margin:1px 0 0;font-size:clamp(27px,5vw,40px);letter-spacing:-.045em;line-height:1.08}.lead{color:var(--muted);max-width:800px;margin:0 0 24px}
+.mode{display:inline-flex;border:1px solid #396354;color:var(--mint);padding:4px 10px;border-radius:50px;font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:16px}
+.panel{background:linear-gradient(180deg,rgba(21,34,50,.97),rgba(13,23,36,.98));border:1px solid var(--line);border-radius:18px;padding:22px;margin:0 0 17px;box-shadow:0 20px 55px #0003}
+h2{font-size:17px;margin:0 0 15px;display:flex;align-items:center;gap:10px}.num{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#233b4b;color:var(--mint);font-size:13px}
+label{display:block;font-weight:700;margin:0 0 7px;color:#e6eef5}.field{margin-bottom:16px}input,select,textarea{width:100%;border:1px solid #38506a;border-radius:10px;background:#0a1420;color:#f4f8fc;padding:13px 14px;font:inherit;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--mint);box-shadow:0 0 0 3px #82edc81c}textarea{min-height:210px;resize:vertical;line-height:1.65}.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.info{border:1px solid #46645e;background:#102622;padding:14px 15px;border-radius:12px;color:#cae9df;margin:12px 0}.info strong{color:var(--mint)}.info.pending{border-color:#725f3c;background:#2a2415;color:#eedfb8}.info.pending strong{color:#ffe09a}
+button{border:0;border-radius:10px;padding:13px 18px;font:700 14px inherit;cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}.primary{background:var(--mint);color:#07231c}.secondary{background:#26384d;color:#f3f6fa;border:1px solid #405a75}.actions{display:flex;flex-wrap:wrap;gap:11px;margin-top:17px}
+.preview{border:1px solid #354c61;background:#0b1622;padding:16px;border-radius:12px;margin-top:17px}audio{width:100%;margin-top:8px}.tag{display:inline-block;border:1px solid #386052;color:var(--mint);padding:3px 9px;border-radius:30px;font-size:10px;letter-spacing:.07em;font-weight:800}
+.review{border:1px solid #42685d;background:#0e211e;border-radius:13px;padding:16px}.review textarea{background:#091614;border-color:#3c6258}.review-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:11px}.review-head b{color:var(--mint)}
+.status{border:1px solid #2d4358;border-radius:11px;background:#09131e;color:#c8d8e7;min-height:48px;padding:13px 15px;white-space:pre-wrap}.status.good{border-color:#3c735f;color:#b0f3d8}.status.error{border-color:#8b4148;color:#ffb6ba}
+a{color:var(--mint)}.foot{font-size:12px;color:#90a2b5;margin-top:18px}
+@media(max-width:640px){body{padding:22px 12px 42px}.panel{padding:16px}.actions button{width:100%}.review-head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body><main class="shell">
+<header><div class="mark">C</div><div><div class="brand">cloudservicegm · modalidad 3</div><h1>Diseños manuales</h1></div></header>
+<p class="lead">Cada video de esta modalidad tiene una composición propia, programada específicamente para su tema: objetos protagonistas, animaciones, transiciones y efectos sonoros sincronizados. Tú importas el audio que preparaste en ElevenLabs.</p>
+<div class="mode">DISEÑO ARTÍSTICO PROGRAMADO EN CÓDIGO · SIN GEMINI</div>
+
+<section class="panel">
+<h2><span class="num">1</span> Seleccionar composición</h2>
+<div class="field"><label for="composition">Diseño de video</label><select id="composition" disabled><option value="">Cargando catálogo…</option></select><div id="designDescription" class="hint">Cada elemento del catálogo corresponde a un diseño creado específicamente para un tema.</div></div>
+<div id="emptyCatalog" class="info pending" hidden><strong>El catálogo está vacío por ahora.</strong><br>Primero tenemos que diseñar el tema inicial y programar sus escenas, objetos, movimientos y sonidos. Cuando esté listo aparecerá aquí como una composición independiente.</div>
+<div class="field"><label for="title">Título de la producción</label><input id="title" maxlength="180" placeholder="Título del video"></div>
+</section>
+
+<section class="panel">
+<h2><span class="num">2</span> Importar tu narración</h2>
+<div class="field"><label for="audioFile">Archivo de audio de ElevenLabs</label><input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.opus,.flac,.webm,.3gp" disabled><div class="hint">MP3, WAV, M4A, AAC, OGG, OPUS, FLAC o WEBM · máximo 120 MB.</div></div>
+<div class="actions"><button id="uploadButton" class="primary" disabled>Importar audio y escuchar</button></div>
+<div class="preview" id="preview" hidden><span class="tag">AUDIO IMPORTADO</span><audio id="player" controls preload="none"></audio><div id="audioInfo" class="hint"></div></div>
+<div class="actions"><button id="transcribeButton" class="secondary" disabled>Transcribir y revisar narración</button></div>
+<div class="hint">La transcripción se prepara en GitHub Actions. No se ensamblará el video hasta que apruebes el texto.</div>
+</section>
+
+<section class="panel">
+<h2><span class="num">3</span> Corregir y confirmar</h2>
+<div id="reviewPlaceholder" class="info">Después de transcribir el audio aparecerá aquí el texto reconocido. Podrás corregir palabras, nombres y puntuación.</div>
+<div id="review" class="review" hidden>
+<div class="review-head"><b>TRANSCRIPCIÓN RECONOCIDA</b><span id="wordCount" class="tag">0 palabras</span></div>
+<label for="transcript">Corrige el texto antes de ensamblar:</label>
+<textarea id="transcript" maxlength="12000" spellcheck="true"></textarea>
+<div class="hint">Se conservarán las marcas temporales de las palabras reconocidas y se ajustarán las partes que edites.</div>
+<div class="actions"><button id="renderButton" class="primary" disabled>Confirmar y ensamblar MP4</button></div>
+</div>
+</section>
+
+<div id="status" class="status" role="status" aria-live="polite">Preparado. Esperando que se publique el primer diseño manual.</div>
+<p class="foot">Esta herramienta se ejecuta en el puerto 8766 y mantiene su propio estado. No modifica la página clásica ni el director Gemini (puerto 8765). El audio se transfiere mediante un túnel temporal y el render se hace en GitHub Actions.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const composition=$("composition"),description=$("designDescription"),emptyCatalog=$("emptyCatalog");
+const title=$("title"),file=$("audioFile"),upload=$("uploadButton"),player=$("player");
+const preview=$("preview"),audioInfo=$("audioInfo"),transcribe=$("transcribeButton");
+const review=$("review"),placeholder=$("reviewPlaceholder"),transcript=$("transcript");
+const wordCount=$("wordCount"),render=$("renderButton"),status=$("status");
+let sampleId=null,transcriptReady=false,polling=null,catalogItems=[];
+function message(text,type=""){status.textContent=text;status.className="status"+(type?" "+type:"")}
+async function resultOf(res){let body={};try{body=await res.json()}catch{}if(!res.ok)throw new Error(body.error||"No se pudo completar la operación.");return body}
+function resetAudio(){
+ sampleId=null;transcriptReady=false;player.pause();player.removeAttribute("src");player.load();
+ preview.hidden=true;review.hidden=true;placeholder.hidden=false;transcribe.disabled=true;render.disabled=true;
+ if(polling){clearInterval(polling);polling=null}
+}
+async function loadCatalog(){
+ try{
+  const data=await resultOf(await fetch("/api/catalog",{cache:"no-store"}));
+  catalogItems=data.compositions||[];composition.replaceChildren();
+  if(!catalogItems.length){
+   const option=document.createElement("option");option.value="";option.textContent="Todavía no hay diseños publicados";composition.append(option);
+   emptyCatalog.hidden=false;file.disabled=true;upload.disabled=true;
+   description.textContent="Cada nuevo tema que diseñemos se incorporará aquí como una composición diferente.";
+   message("La tercera modalidad está separada y preparada. Falta crear su primera composición temática.");
+   return;
+  }
+  const placeholderOption=document.createElement("option");placeholderOption.value="";placeholderOption.textContent="Selecciona un diseño";composition.append(placeholderOption);
+  for(const item of catalogItems){const option=document.createElement("option");option.value=item.id;option.textContent=item.title;composition.append(option)}
+  composition.disabled=false;emptyCatalog.hidden=true;
+ }catch(e){message("No se pudo cargar el catálogo: "+e.message,"error")}
+}
+composition.addEventListener("change",()=>{
+ resetAudio();
+ const item=catalogItems.find(x=>x.id===composition.value);
+ description.textContent=item?((item.topic?item.topic+" · ":"")+item.description):"Selecciona un diseño.";
+ const enabled=!!item;file.disabled=!enabled;upload.disabled=!enabled;
+ message(enabled?"Diseño seleccionado. Importa el audio de ElevenLabs.":"Selecciona una composición.");
+});
+upload.addEventListener("click",async()=>{
+ try{
+  const chosen=file.files&&file.files[0];
+  if(!composition.value)throw new Error("Selecciona un diseño.");
+  if(!chosen)throw new Error("Selecciona el audio.");
+  if(chosen.size>120*1024*1024)throw new Error("El audio supera 120 MB.");
+  if(!title.value.trim())throw new Error("Escribe el título del video.");
+  upload.disabled=true;transcribe.disabled=true;resetAudio();message("Importando y preparando la vista previa…");
+  const query=new URLSearchParams({composition_id:composition.value,title:title.value.trim(),filename:chosen.name});
+  const data=await resultOf(await fetch("/api/upload?"+query.toString(),{method:"POST",headers:{"Content-Type":chosen.type||"application/octet-stream"},body:chosen}));
+  sampleId=data.sample_id;player.src="/api/audio/"+encodeURIComponent(sampleId);player.load();preview.hidden=false;
+  audioInfo.textContent=chosen.name+" · "+(data.audio_bytes/1024/1024).toFixed(2)+" MB";
+  transcribe.disabled=false;message("Audio importado. Escúchalo y solicita la transcripción cuando estés listo.","good");
+ }catch(e){message(e.message,"error")}
+ finally{upload.disabled=!composition.value}
+});
+transcribe.addEventListener("click",async()=>{
+ try{
+  if(!sampleId)throw new Error("Primero importa un audio.");
+  transcribe.disabled=true;upload.disabled=true;render.disabled=true;
+  message("Enviando audio a GitHub para transcribir. Todavía no se ensamblará el MP4…");
+  await resultOf(await fetch("/api/transcribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sample_id:sampleId})}));
+  polling=setInterval(checkStatus,1800);
+ }catch(e){message(e.message,"error");transcribe.disabled=false;upload.disabled=false}
+});
+transcript.addEventListener("input",()=>{
+ const n=transcript.value.trim()?transcript.value.trim().split(/\s+/).length:0;
+ wordCount.textContent=n+" palabras";
+});
+render.addEventListener("click",async()=>{
+ try{
+  if(!sampleId||!transcriptReady)throw new Error("Primero revisa la transcripción.");
+  render.disabled=true;transcribe.disabled=true;upload.disabled=true;
+  message("Transcripción confirmada. Enviando audio y diseño manual a GitHub…");
+  await resultOf(await fetch("/api/render",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sample_id:sampleId,transcript_text:transcript.value.trim()})}));
+  polling=setInterval(checkStatus,1800);
+ }catch(e){message(e.message,"error");render.disabled=false;transcribe.disabled=false;upload.disabled=false}
+});
+async function checkStatus(){
+ try{
+  const data=await resultOf(await fetch("/api/status",{cache:"no-store"}));
+  message(data.status,data.running?"":"good");
+  if(data.actions_url){const a=document.createElement("a");a.href=data.actions_url;a.target="_blank";a.rel="noopener noreferrer";a.textContent="Abrir GitHub Actions";status.append(document.createTextNode(" "));status.append(a)}
+  if(data.transcript_ready&&!transcriptReady){
+   const t=await resultOf(await fetch("/api/transcript",{cache:"no-store"}));
+   transcript.value=t.text||"";transcript.dispatchEvent(new Event("input"));
+   transcriptReady=true;review.hidden=false;placeholder.hidden=true;render.disabled=false;
+   message("Transcripción lista. Corrige los errores y confirma el ensamblado.","good");
+  }
+  if(!data.running&&polling){clearInterval(polling);polling=null;upload.disabled=!composition.value||!sampleId;transcribe.disabled=!sampleId||transcriptReady}
+ }catch(e){message("No se pudo consultar el proceso: "+e.message,"error")}
+}
+loadCatalog();
+</script></body></html>
