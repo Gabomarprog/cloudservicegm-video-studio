@@ -47,20 +47,27 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Restaurar modelos y herramientas entre ejecuciones
+      - name: Restaurar caché de npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: cloudservicegm-npm-${{ runner.os }}-v1
+      - name: Restaurar modelo de transcripción
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
             ~/.cache/huggingface
-            ~/.cache/hyperframes
             ~/.cache/whisper
             ~/.cache/torch
+          key: cloudservicegm-asr-${{ runner.os }}-large-v3-v1
+      - name: Restaurar navegador y caché de HyperFrames
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/hyperframes/chrome
             ~/.cache/ms-playwright
             ~/.cache/puppeteer
-          key: cloudservicegm-video-${{ runner.os }}-v3
-          restore-keys: |
-            cloudservicegm-video-${{ runner.os }}-
+          key: cloudservicegm-browser-${{ runner.os }}-hyperframes-v1
       - name: Comprobar FFmpeg (instalar solo si falta)
         shell: bash
         run: |
