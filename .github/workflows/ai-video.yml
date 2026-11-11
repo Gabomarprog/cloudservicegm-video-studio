@@ -1,0 +1,186 @@
+name: AI Video Studio Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "transcribe = revisar texto; render = producir MP4"
+        required: true
+        type: choice
+        options: [transcribe, render]
+      title:
+        description: "Título del video"
+        required: true
+        type: string
+      audio_url:
+        description: "URL temporal del audio"
+        required: true
+        type: string
+      callback_url:
+        description: "Callback temporal para devolver transcripción"
+        required: false
+        type: string
+      transcript_json_b64:
+        description: "Transcripción revisada codificada"
+        required: false
+        type: string
+      storyboard_json_b64:
+        description: "Storyboard creativo codificado"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restaurar modelos y herramientas entre ejecuciones
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/huggingface
+            ~/.cache/hyperframes
+            ~/.cache/whisper
+            ~/.cache/torch
+            ~/.cache/ms-playwright
+            ~/.cache/puppeteer
+          key: cloudservicegm-video-${{ runner.os }}-v3
+          restore-keys: |
+            cloudservicegm-video-${{ runner.os }}-
+      - name: Comprobar FFmpeg (instalar solo si falta)
+        shell: bash
+        run: |
+          if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+            echo "FFmpeg y FFprobe ya están disponibles en la imagen del runner."
+          else
+            echo "FFmpeg no está en la imagen; intentando instalarlo con reintentos y tiempos limitados."
+            timeout 90s sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 update
+            timeout 90s sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 install -y ffmpeg
+          fi
+          ffmpeg -version
+          ffprobe -version
+      - name: Instalar HyperFrames, GSAP y fuente
+        run: npm install --no-save hyperframes@latest gsap @fontsource/anton@5.3.0
+      - name: Validar y descargar audio temporal
+        env:
+          AUDIO_URL: ${{ inputs.audio_url }}
+          CALLBACK_URL: ${{ inputs.callback_url }}
+        shell: bash
+        run: |
+          if [[ ! "$AUDIO_URL" =~ ^https://[a-z0-9-]+\.trycloudflare\.com/[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::La URL temporal del audio no tiene el formato esperado."
+            exit 1
+          fi
+          echo "::add-mask::$AUDIO_URL"
+          if [ -n "$CALLBACK_URL" ]; then echo "::add-mask::$CALLBACK_URL"; fi
+          curl --http1.1 --fail --silent --show-error --location \
+            --retry 5 --retry-all-errors --retry-delay 2 --retry-max-time 90 \
+            --connect-timeout 15 --max-time 300 \
+            "$AUDIO_URL" --output narration.input
+          test -s narration.input
+          ffmpeg -hide_banner -loglevel error -y -i narration.input \
+            -ar 24000 -ac 1 -c:a pcm_s16le narration.wav
+          rm -f narration.input
+          test -s narration.wav
+          curl --http1.1 --fail --silent --show-error --request POST \
+            --retry 3 --retry-all-errors --retry-delay 2 --retry-max-time 30 \
+            --connect-timeout 10 --max-time 45 \
+            "$AUDIO_URL/complete"
+          echo "Audio recibido y normalizado."
+      - name: Transcribir para revisión
+        if: ${{ inputs.stage == 'transcribe' }}
+        run: |
+          npx hyperframes transcribe narration.wav --model large-v3 --language es
+          test -s transcript.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path("transcript.json").read_text(encoding="utf-8"))
+          if isinstance(data,dict):
+              words=data.get("words") or data.get("segments") or data.get("transcription") or []
+          else:
+              words=data
+          if not isinstance(words,list) or not words:
+              raise SystemExit("La transcripción no contiene palabras ni segmentos.")
+          print(f"Transcripción lista: {len(words)} elementos.")
+          PY
+      - name: Devolver transcripción a Video Studio
+        if: ${{ inputs.stage == 'transcribe' }}
+        env:
+          CALLBACK_URL: ${{ inputs.callback_url }}
+        run: |
+          if [ -z "$CALLBACK_URL" ]; then
+            echo "::error::Falta el callback temporal para devolver la transcripción."
+            exit 1
+          fi
+          curl --http1.1 --fail --silent --show-error --request POST \
+            --retry 4 --retry-all-errors --retry-delay 2 --retry-max-time 45 \
+            --connect-timeout 10 --max-time 60 \
+            --header "Content-Type: application/json" \
+            --data-binary @transcript.json \
+            "$CALLBACK_URL/transcript"
+          echo "La transcripción fue devuelta al panel para que el usuario la revise."
+      - name: Preparar transcripción aprobada y storyboard
+        if: ${{ inputs.stage == 'render' }}
+        env:
+          TRANSCRIPT_B64: ${{ inputs.transcript_json_b64 }}
+          STORYBOARD_B64: ${{ inputs.storyboard_json_b64 }}
+        run: |
+          python3 - <<'PY'
+          import base64, os, json
+          from pathlib import Path
+          for env_name, filename in (("TRANSCRIPT_B64","transcript.json"),("STORYBOARD_B64","storyboard.json")):
+              raw=os.environ.get(env_name,"").strip()
+              if not raw: raise SystemExit(f"Falta {filename}.")
+              data=base64.b64decode(raw, validate=True)
+              Path(filename).write_bytes(data)
+              json.loads(data.decode("utf-8"))
+              print(f"{filename}: JSON válido, {len(data)} bytes.")
+          PY
+      - name: Crear proyecto HyperFrames
+        if: ${{ inputs.stage == 'render' }}
+        run: |
+          npx hyperframes init render-project --non-interactive --example blank --skip-skills
+          mkdir -p render-project/assets
+          cp node_modules/gsap/dist/gsap.min.js render-project/assets/gsap.min.js
+          cp node_modules/@fontsource/anton/files/anton-latin-400-normal.woff2 render-project/assets/anton.woff2
+          cp narration.wav render-project/assets/narration.wav
+      - name: Construir escenas dinámicas HTML
+        if: ${{ inputs.stage == 'render' }}
+        env:
+          VIDEO_TITLE: ${{ inputs.title }}
+        run: |
+          python3 build_dynamic_video.py \
+            --transcript transcript.json --audio narration.wav \
+            --template template/dynamic.template.html \
+            --output render-project/index.html --assets render-project/assets \
+            --title "$VIDEO_TITLE" --storyboard storyboard.json
+      - name: Validar composición
+        if: ${{ inputs.stage == 'render' }}
+        run: npx hyperframes lint render-project
+      - name: Renderizar MP4
+        if: ${{ inputs.stage == 'render' }}
+        working-directory: render-project
+        run: npx hyperframes render --output cloudservicegm-video.mp4 --fps 30 --quality standard --workers 2
+      - name: Publicar video
+        if: ${{ inputs.stage == 'render' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudservicegm-video
+          path: render-project/cloudservicegm-video.mp4
+          if-no-files-found: error
+          retention-days: 7
