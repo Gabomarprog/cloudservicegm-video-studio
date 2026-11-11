@@ -102,7 +102,7 @@ def make_caption(group, index, start, end, duration, dynamic=False):
             layout = ["upper", "left", "upper", "right"][index % 4]
         contrast = "contrast-light" if (0.25 <= progress < 0.39 or progress >= 0.83) else "contrast-dark"
     mode = modes[index % len(modes)]
-    accent = accents[index % len(accents)
+    accent = accents[index % len(accents)]
 
     word_markup = []
     for word_index, word in enumerate(group):
