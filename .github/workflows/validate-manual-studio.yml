@@ -1,0 +1,70 @@
+name: Validate manual studio infrastructure
+
+on:
+  push:
+    paths:
+      - "manual_studio_server.py"
+      - "build_manual_video.py"
+      - "manual_compositions/**"
+      - "web/manual.html"
+      - "run_manual_studio.bat"
+      - ".github/workflows/manual-render.yml"
+      - ".github/workflows/validate-manual-studio.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile the isolated manual studio
+        run: |
+          python -m py_compile manual_studio_server.py build_manual_video.py transcript_utils.py build_video.py
+      - name: Validate the manual composition registry
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path("manual_compositions/registry.json").read_text(encoding="utf-8"))
+          assert data.get("schema_version")==1
+          assert isinstance(data.get("compositions"),list)
+          for item in data["compositions"]:
+              assert item.get("status")=="ready"
+              cid=item.get("id","")
+              assert (Path("manual_compositions")/cid/"design.py").is_file()
+          print("MANUAL_CATALOG_OK",len(data["compositions"]),"ready designs")
+          PY
+      - name: Validate isolated HTML template and manual page
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          for filename in ("web/manual.html","manual_compositions/base.template.html"):
+              parser=HTMLParser()
+              parser.feed(Path(filename).read_text(encoding="utf-8"))
+              parser.close()
+              print("HTML_PARSE_OK",filename)
+          template=Path("manual_compositions/base.template.html").read_text(encoding="utf-8")
+          for marker in ("{{DURATION}}","{{DESIGN_CSS}}","{{SCENES}}","{{SCENE_ANIMS}}","{{CAPTIONS}}","{{CAPTION_ANIMS}}","{{CAPTION_CSS}}"):
+              assert marker in template,marker
+          print("MANUAL_TEMPLATE_MARKERS_OK")
+          PY
+      - name: Check builder CLI
+        run: python build_manual_video.py --help
+      - name: Confirm the three render paths remain separate
+        run: |
+          test -f .github/workflows/render.yml
+          test -f .github/workflows/ai-video.yml
+          test -f .github/workflows/manual-render.yml
+          grep -q 'template/index.template.html' .github/workflows/render.yml
+          grep -q 'template/dynamic.template.html' .github/workflows/ai-video.yml
+          grep -q 'build_manual_video.py' .github/workflows/manual-render.yml
+          echo "THREE_WORKFLOWS_SEPARATE_OK"
