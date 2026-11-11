@@ -1,12 +1,6 @@
-
 name: Render video
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/render.yml"
   workflow_dispatch:
     inputs:
       title:
@@ -15,17 +9,13 @@ on:
         type: string
         default: "3 señales de que tu VPS necesita mejorar"
       script:
-        description: "Guion completo en español para la narración"
-        required: true
+        description: "Guion completo en español"
+        required: false
         type: string
-        default: |
-          ¿Tu web tarda en cargar? Cuando una página se queda pensando, tus visitantes no esperan: se van y buscan otra opción.
-          Muchas veces el problema está en un servidor que ya no responde al ritmo de tu proyecto.
-          Un VPS bien configurado te ofrece recursos dedicados, más control y una base estable para crecer.
-          En cloudservicegm preparamos tu infraestructura desde cero. Optimizamos el servidor, reforzamos la seguridad, configuramos SSL y dejamos listos WordPress, bases de datos y aplicaciones web.
-          También cuidamos los accesos y los servicios que mantienen tu proyecto disponible.
-          No se trata solo de tener un servidor: se trata de que tu web responda cuando tus clientes la necesitan.
-          Síguenos para aprender sobre VPS, rendimiento y seguridad. Y si necesitas ayuda con tu infraestructura, escríbenos.
+      audio_url:
+        description: "URL temporal de audio MP3. No introduzcas claves API."
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -34,31 +24,29 @@ jobs:
   render:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-
     steps:
       - name: Descargar proyecto
         uses: actions/checkout@v4
-
       - name: Preparar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-
       - name: Preparar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Instalar herramientas
+      - name: Instalar herramientas de render
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg espeak-ng build-essential libopenblas-dev
+          sudo apt-get install -y ffmpeg espeak-ng
           ffmpeg -version
-
+      - name: Instalar compiladores para Qwen
+        if: ${{ inputs.audio_url == '' }}
+        run: sudo apt-get install -y build-essential libopenblas-dev
       - name: Instalar HyperFrames y GSAP
         run: npm install --no-save hyperframes@latest gsap @fontsource/anton@5.3.0
-
       - name: Preparar Qwen3-TTS 0.6B CustomVoice
+        if: ${{ inputs.audio_url == '' }}
         run: |
           git init tools/qwen3-tts
           git -C tools/qwen3-tts remote add origin https://github.com/gabriele-mastrapasqua/qwen3-tts.git
@@ -69,7 +57,6 @@ jobs:
           test -x tools/qwen3-tts/qwen_tts
           test -s models/qwen3-tts-0.6b-customvoice/config.json
           test -s models/qwen3-tts-0.6b-customvoice/speech_tokenizer/config.json
-
       - name: Guardar guion
         env:
           VIDEO_SCRIPT: ${{ inputs.script }}
@@ -88,8 +75,25 @@ jobs:
           EOF
           fi
           test -s narration.txt
-
-      - name: Generar narración en español con Qwen3-TTS Ryan 0.6B
+      - name: Descargar audio temporal de ElevenLabs
+        if: ${{ inputs.audio_url != '' }}
+        env:
+          AUDIO_URL: ${{ inputs.audio_url }}
+        run: |
+          if [[ ! "$AUDIO_URL" =~ ^https://[a-z0-9-]+\.trycloudflare\.com/[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::La URL de audio no tiene el formato temporal esperado."
+            exit 1
+          fi
+          curl --fail --silent --show-error --location --retry 3 --retry-delay 2 \
+            --connect-timeout 15 --max-time 300 "$AUDIO_URL" --output narration.mp3
+          test -s narration.mp3
+          ffmpeg -hide_banner -loglevel error -y -i narration.mp3 \
+            -ar 24000 -ac 1 -c:a pcm_s16le narration.wav
+          rm -f narration.mp3
+          test -s narration.wav
+          echo "Audio de ElevenLabs recibido y convertido."
+      - name: Generar narración de respaldo con Qwen3-TTS Ryan 0.6B
+        if: ${{ inputs.audio_url == '' }}
         run: |
           python3 generate_voice.py \
             --input narration.txt \
@@ -98,18 +102,15 @@ jobs:
             --model models/qwen3-tts-0.6b-customvoice \
             --threads 4
           test -s narration.wav
-
       - name: Comprobar duración mínima de 35 segundos
         run: |
           DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 narration.wav)
           echo "Duración generada: ${DURATION}s"
           awk -v d="$DURATION" 'BEGIN { if (d < 35) { print "El audio dura menos de 35 segundos. Amplía el guion."; exit 1 } }'
-
       - name: Transcribir narración
         run: |
           npx hyperframes transcribe narration.wav --model large-v3 --language es
           test -s transcript.json
-
       - name: Crear proyecto HyperFrames
         run: |
           npx hyperframes init render-project --non-interactive --example blank --skip-skills
@@ -117,7 +118,6 @@ jobs:
           cp node_modules/gsap/dist/gsap.min.js render-project/assets/gsap.min.js
           cp node_modules/@fontsource/anton/files/anton-latin-400-normal.woff2 render-project/assets/anton.woff2
           cp narration.wav render-project/assets/narration.wav
-
       - name: Construir composición animada
         env:
           VIDEO_TITLE: ${{ inputs.title || '3 señales de que tu VPS necesita mejorar' }}
@@ -129,14 +129,11 @@ jobs:
             --output render-project/index.html \
             --assets render-project/assets \
             --title "$VIDEO_TITLE"
-
       - name: Validar composición
         run: npx hyperframes lint render-project
-
       - name: Renderizar MP4
         working-directory: render-project
         run: npx hyperframes render --output cloudservicegm-video.mp4 --fps 30 --quality standard --workers 2
-
       - name: Publicar video descargable
         uses: actions/upload-artifact@v4
         with:
