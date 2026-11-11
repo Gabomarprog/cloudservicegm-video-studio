@@ -61,12 +61,12 @@ No repitas un mismo objeto principal en escenas consecutivas. No uses teléfono,
 headline muy breve (máximo 7 palabras); detail una línea breve; chips de 2 a 4 etiquetas breves; stat un dato o palabra muy corta, no inventes estadísticas. No incluyas instrucciones HTML, CSS, JavaScript, código, URLs, ni atributos. Devuelve SOLO el JSON solicitado.
 No inventes datos numéricos, normativas ni promesas técnicas no indicadas por el usuario. Si falta certeza, usa explicaciones generales.
 """
-    url="https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent?key="+urllib.parse.quote(key,safe="")
+    url="https://generativelanguage.googleapis.com/v1beta/models/"+MODEL+":generateContent"
     body={
       "contents":[{"role":"user","parts":[{"text":prompt}]}],
       "generationConfig":{"temperature":0.8,"responseMimeType":"application/json","responseJsonSchema":SCHEMA}
     }
-    request=urllib.request.Request(url,data=json.dumps(body,ensure_ascii=False).encode("utf-8"),headers={"Content-Type":"application/json"},method="POST")
+    request=urllib.request.Request(url,data=json.dumps(body,ensure_ascii=False).encode("utf-8"),headers={"Content-Type":"application/json","x-goog-api-key":key},method="POST")
     try:
         with urllib.request.urlopen(request,timeout=150) as response:
             payload=json.loads(response.read().decode("utf-8"))
