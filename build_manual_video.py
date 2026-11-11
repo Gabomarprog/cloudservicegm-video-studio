@@ -186,7 +186,7 @@ def main():
     replacements = {
         "{{DURATION}}": f"{duration:.3f}",
         "{{DESIGN_CSS}}": css,
-        "{{SCENES}}": "\n".join(html_parts for html_parts in [scene_html]),
+        "{{SCENES}}": scene_html,
         "{{SCENE_ANIMS}}": scene_anims,
         "{{CAPTIONS}}": "\n".join(captions),
         "{{CAPTION_ANIMS}}": "\n".join(caption_anims),
