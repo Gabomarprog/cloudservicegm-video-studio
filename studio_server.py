@@ -286,7 +286,8 @@ class OneShotAudioServer(ThreadingHTTPServer):
         self.audio = audio
         self.guard = threading.Lock()
         self.downloaded = threading.Event()
-        self.claimed = False
+        self.download_count = 0
+        self.max_downloads = 8
 
         class Handler(BaseHTTPRequestHandler):
             def log_message(self, fmt, *args):
@@ -297,11 +298,10 @@ class OneShotAudioServer(ThreadingHTTPServer):
                     self.send_error(404)
                     return
                 with self.server.guard:
-                    if self.server.claimed:
+                    if self.server.downloaded.is_set() or self.server.download_count >= self.server.max_downloads:
                         self.send_error(410)
                         return
-                    self.server.claimed = True
-                succeeded = False
+                    self.server.download_count += 1
                 try:
                     body = self.server.audio
                     self.send_response(200)
@@ -312,15 +312,18 @@ class OneShotAudioServer(ThreadingHTTPServer):
                     self.end_headers()
                     self.wfile.write(body)
                     self.wfile.flush()
-                    succeeded = True
                 except (BrokenPipeError, ConnectionResetError):
-                    succeeded = False
-                finally:
-                    with self.server.guard:
-                        if succeeded:
-                            self.server.downloaded.set()
-                        else:
-                            self.server.claimed = False
+                    # Do not consume the token on a broken transfer; GitHub may retry.
+                    return
+
+            def do_POST(self):
+                if self.path != "/" + self.server.token + "/complete":
+                    self.send_error(404)
+                    return
+                self.server.downloaded.set()
+                self.send_response(204)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
 
         super().__init__(address, Handler)
 
