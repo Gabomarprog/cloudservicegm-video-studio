@@ -7,6 +7,13 @@
       "topic": "Importancia de SSL/TLS en páginas web",
       "description": "Navegador con alerta, comparación HTTP/HTTPS, certificado digital, túnel de cifrado, formulario seguro, panel de renovación y escudo final.",
       "status": "ready"
+    },
+    {
+      "id": "ssl-explained",
+      "title": "¿Qué son los certificados SSL?",
+      "topic": "Qué es un certificado SSL y cómo participa en una conexión TLS",
+      "description": "Credencial digital, campos del certificado, autoridad certificadora, cadena de confianza, verificación del dominio, intercambio TLS, claves, cifrado y vigencia.",
+      "status": "ready"
     }
   ]
 }
