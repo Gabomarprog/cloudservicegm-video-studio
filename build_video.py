@@ -16,7 +16,7 @@ def get_duration(audio):
     return max(5.0, float(out))
 
 
-def load_words(path):
+def load_words(path, canonicalize=True):
     try:
         data = json.loads(Path(path).read_text(encoding="utf-8"))
     except Exception:
@@ -30,7 +30,8 @@ def load_words(path):
         text = str(item.get("text", "")).strip()
         # Whisper may confuse the Spanish letter name for the acronym VPS and
         # emit BPS. Keep the canonical product/networking acronym in captions.
-        text = re.sub(r"(?i)\bB[.\s-]*P[.\s-]*S\b", "VPS", text)
+        if canonicalize:
+            text = re.sub(r"(?i)\bB[.\s-]*P[.\s-]*S\b", "VPS", text)
         if not text:
             continue
         try:
@@ -202,7 +203,7 @@ SFX_IDS = [
 ]
 
 
-def download_sfx_assets(assets):
+def download_sfx_assets(assets, required_ids=None):
     """Download only the selected CC0 WAVs plus their source metadata."""
     import urllib.request
     from urllib.error import URLError, HTTPError
@@ -238,7 +239,8 @@ def download_sfx_assets(assets):
 
     sound_map = {item["id"]: item for item in manifest.get("sounds", [])}
     downloaded = {}
-    for sound_id in SFX_IDS:
+    selected_ids = list(dict.fromkeys(required_ids or SFX_IDS))
+    for sound_id in selected_ids:
         item = sound_map.get(sound_id)
         if not item:
             raise RuntimeError(f"Falta el efecto requerido en SFX Kit: {sound_id}")
@@ -351,10 +353,10 @@ def sound_effect_schedule(duration, groups):
     return events
 
 
-def build_sound_effects(duration, words, groups, assets):
+def build_sound_effects(duration, words, groups, assets, events_override=None):
     """Create a synced SFX-only mix. No continuous music bed."""
-    downloaded = download_sfx_assets(assets)
-    events = sound_effect_schedule(duration, groups)
+    events = events_override if events_override is not None else sound_effect_schedule(duration, groups)
+    downloaded = download_sfx_assets(assets, [event["id"] for event in events])
     if not events:
         raise RuntimeError("No se generaron eventos sonoros")
 
