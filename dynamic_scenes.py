@@ -46,7 +46,8 @@ def render_visual(scene, index):
     if v == "certificate":
         return f'''<div class="visual v-certificate"><div class="cert-card"><div class="cert-top"><b>SECURE CERTIFICATE</b><span>✦</span></div><div class="cert-seal">✓</div><div class="cert-lines"><i></i><i></i><i></i></div><div class="cert-domain">HTTPS · SSL/TLS</div><div class="cert-stamp">VERIFIED</div></div><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div></div>'''
     if v == "network":
-        return f'''<div class="visual v-network"><svg viewBox="0 0 700 420"><path d="M110 205 L350 85 L590 205 L350 340 Z M110 205 L590 205 M350 85 L350 340" /></svg><i class="node n1">WEB</i><i class="node n2">API</i><i class="node n3">DATA</i><i class="node n4">SSL</i></div>'''
+        nodes = (scene["chips"] + ["NODO", "ENLACE", "DATOS", "SALIDA"])[:4]
+        return f'''<div class="visual v-network"><svg viewBox="0 0 700 420"><path d="M110 205 L350 85 L590 205 L350 340 Z M110 205 L590 205 M350 85 L350 340" /></svg><i class="node n1">{nodes[0]}</i><i class="node n2">{nodes[1]}</i><i class="node n3">{nodes[2]}</i><i class="node n4">{nodes[3]}</i></div>'''
     if v == "shield":
         return f'''<div class="visual v-shield"><div class="shield-orbit"></div><svg viewBox="0 0 360 410"><path d="M180 18 L320 72 V185 C320 282 260 350 180 392 C100 350 40 282 40 185 V72 Z"/><path class="shield-check" d="M105 203 L158 255 L260 145"/></svg><div class="shield-tags">{chips}</div></div>'''
     if v == "server":
