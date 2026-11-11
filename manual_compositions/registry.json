@@ -1,4 +1,12 @@
 {
   "schema_version": 1,
-  "compositions": []
+  "compositions": [
+    {
+      "id": "ssl-security",
+      "title": "Seguridad de certificados SSL",
+      "topic": "Importancia de SSL/TLS en páginas web",
+      "description": "Navegador con alerta, comparación HTTP/HTTPS, certificado digital, túnel de cifrado, formulario seguro, panel de renovación y escudo final.",
+      "status": "ready"
+    }
+  ]
 }
