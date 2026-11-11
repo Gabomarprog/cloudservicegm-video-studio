@@ -21,13 +21,14 @@
     .field{margin:0 0 17px}
     label{display:block;margin:0 0 7px;font-weight:700;color:#eaf1f8}
     .hint{color:var(--muted);font-size:12px;margin-top:5px}
-    input,textarea{display:block;width:100%;border:1px solid #354860;border-radius:11px;background:#0d1622;padding:13px 14px;color:var(--text);font:inherit;outline:none;transition:border .15s,box-shadow .15s}
-    input:focus,textarea:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(135,240,203,.12)}
+    input,textarea,select{display:block;width:100%;border:1px solid #354860;border-radius:11px;background:#0d1622;padding:13px 14px;color:var(--text);font:inherit;outline:none;transition:border .15s,box-shadow .15s}
+    input:focus,textarea:focus,select:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(135,240,203,.12)}
     input::placeholder,textarea::placeholder{color:#6f8297}
-    textarea{min-height:270px;resize:vertical;line-height:1.6}
+    textarea{min-height:260px;resize:vertical;line-height:1.6}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
     .security{border:1px solid #35584f;background:rgba(16,45,42,.55);padding:13px 15px;border-radius:12px;color:#c7e9df;font-size:13px;margin:0 0 20px}
     .security strong{color:var(--mint)}
+    .mode-panel{border:1px solid #31465d;background:#101d2b;border-radius:14px;padding:15px;margin:0 0 19px}
     .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
     button{border:0;border-radius:11px;padding:13px 18px;font:700 14px inherit;cursor:pointer;transition:transform .12s,opacity .12s}
     button:hover:not(:disabled){transform:translateY(-1px)}
@@ -43,7 +44,8 @@
     .subnote{color:var(--muted);font-size:12px;margin:18px 0 0}
     a{color:var(--mint)}
     .pill{display:inline-block;border:1px solid #355f53;color:var(--mint);border-radius:999px;padding:3px 9px;font-size:11px;font-weight:800;letter-spacing:.06em}
-    @media(max-width:700px){body{padding:22px 12px 40px}.panel{padding:17px}.grid{grid-template-columns:1fr}textarea{min-height:310px}.actions button{width:100%}}
+    [hidden]{display:none!important}
+    @media(max-width:700px){body{padding:22px 12px 40px}.panel{padding:17px}.grid{grid-template-columns:1fr}textarea{min-height:300px}.actions button{width:100%}}
   </style>
 </head>
 <body>
@@ -52,28 +54,39 @@
       <div class="mark">C</div>
       <div><div class="brand">cloudservicegm</div><h1>Video Studio</h1></div>
     </header>
-    <p class="lead">Prepara el título y el guion, genera la narración con ElevenLabs y escúchala antes de renderizar el video vertical en GitHub Actions.</p>
+    <p class="lead">Elige cómo proporcionar la narración: generar con una API de voz o importar un audio creado en cualquier otra herramienta. Escúchalo antes de renderizar el video vertical en GitHub Actions.</p>
     <section class="panel">
-      <h2 class="section-title"><span class="step">1</span> Datos de ElevenLabs y del video</h2>
-      <div class="security"><strong>Clave protegida:</strong> esta interfaz se ejecuta solo en tu PC. La API key se envía al servicio local y desde allí a ElevenLabs; no se guarda, no se manda a GitHub y se borra del formulario al terminar la solicitud.</div>
-      <div class="grid">
-        <div class="field">
-          <label for="apiKey">API key de ElevenLabs</label>
-          <input id="apiKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aquí tu API key">
-          <div class="hint">No se almacena en el navegador ni en archivos del proyecto.</div>
+      <h2 class="section-title"><span class="step">1</span> Fuente de audio y datos del video</h2>
+      <div class="field">
+        <label for="audioMode">¿Cómo quieres proporcionar el audio?</label>
+        <select id="audioMode">
+          <option value="api">Generar con API de ElevenLabs</option>
+          <option value="upload">Importar audio ya generado</option>
+        </select>
+        <div class="hint">En modo importar no necesitas API key ni Voice ID.</div>
+      </div>
+      <div class="mode-panel" id="apiFields">
+        <div class="security"><strong>API key protegida:</strong> se envía desde este panel local a ElevenLabs, no se guarda ni se manda a GitHub.</div>
+        <div class="grid">
+          <div class="field"><label for="apiKey">API key de ElevenLabs</label><input id="apiKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aquí tu API key"></div>
+          <div class="field"><label for="voiceId">Voice ID</label><input id="voiceId" type="text" autocomplete="off" spellcheck="false" placeholder="Pega el ID exacto de la voz"></div>
         </div>
+        <div class="hint">La conexión API integrada actualmente corresponde a ElevenLabs (modelo eleven_multilingual_v2). Otros proveedores requieren adaptadores de API específicos.</div>
+      </div>
+      <div class="mode-panel" id="uploadFields" hidden>
         <div class="field">
-          <label for="voiceId">Voice ID</label>
-          <input id="voiceId" type="text" autocomplete="off" spellcheck="false" placeholder="Pega el ID exacto de la voz">
-          <div class="hint">Lo copias desde tu biblioteca de voces de ElevenLabs.</div>
+          <label for="audioFile">Selecciona el archivo de audio</label>
+          <input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.opus,.flac,.webm,.3gp">
+          <div class="hint">Admite MP3, WAV, M4A, AAC, OGG, OPUS, FLAC y WEBM. Tamaño máximo: 120 MB.</div>
         </div>
+        <div class="security"><strong>Sin API:</strong> puedes crear la narración con una web gratuita o con un programa de código abierto instalado en tu PC y subir aquí el archivo resultante.</div>
       </div>
       <div class="field">
         <label for="videoTitle">Título principal del video</label>
         <input id="videoTitle" type="text" maxlength="180" value="3 señales de que tu VPS necesita mejorar">
       </div>
       <div class="field">
-        <label for="script">Guion completo de la narración</label>
+        <label for="script">Guion del video (opcional al importar audio)</label>
         <textarea id="script" maxlength="12000">¿Tu web tarda en cargar? Cuando una página se queda pensando, tus visitantes no esperan: se van y buscan otra opción.
 Muchas veces el problema está en un servidor que ya no responde al ritmo de tu proyecto.
 Un VPS bien configurado te ofrece recursos dedicados, más control y una base estable para crecer.
@@ -81,147 +94,81 @@ En cloudservicegm preparamos tu infraestructura desde cero. Optimizamos el servi
 También cuidamos los accesos y los servicios que mantienen tu proyecto disponible.
 No se trata solo de tener un servidor: se trata de que tu web responda cuando tus clientes la necesitan.
 Síguenos para aprender sobre VPS, rendimiento y seguridad. Y si necesitas ayuda con tu infraestructura, escríbenos.</textarea>
-        <div class="hint" id="charCount">La voz se generará con eleven_multilingual_v2, en una sola solicitud.</div>
+        <div class="hint" id="charCount">En modo importar, los subtítulos se sincronizan a partir del audio real; el guion es opcional.</div>
       </div>
       <div class="actions">
         <button class="primary" id="generateButton" type="button">Generar y escuchar muestra</button>
         <button class="secondary" id="renderButton" type="button" disabled>Renderizar video en GitHub</button>
       </div>
-      <div class="status" id="status" role="status" aria-live="polite">Listo. Completa los campos para generar una muestra.</div>
+      <div class="status" id="status" role="status" aria-live="polite">Listo. Elige una fuente de audio para comenzar.</div>
       <div class="preview" id="previewPanel" hidden>
-        <h3><span class="pill">MUESTRA DE VOZ</span> Escucha antes de continuar</h3>
+        <h3><span class="pill">VISTA PREVIA</span> Escucha el audio antes de continuar</h3>
         <audio id="previewAudio" controls preload="none"></audio>
-        <div class="hint">Esta es la narración que se usará en el video si pulsas Renderizar.</div>
+        <div class="hint" id="previewDetails">Esta es la pista que se incorporará al video.</div>
       </div>
-      <p class="subnote">El render, la transcripción, las animaciones y los efectos de sonido siguen en GitHub Actions. La transferencia usa una URL temporal de un solo uso; mantén abierta esta ventana y la consola local hasta que el panel confirme que GitHub recibió el audio.</p>
+      <p class="subnote">Las escenas, animaciones, subtítulos, efectos de sonido y render permanecen en GitHub Actions. Al importar audio, la web solo lo recibe y lo previsualiza; luego lo transfiere mediante un enlace temporal de un solo uso.</p>
     </section>
   </main>
   <script>
-    const apiKey = document.getElementById("apiKey");
-    const voiceId = document.getElementById("voiceId");
-    const videoTitle = document.getElementById("videoTitle");
-    const script = document.getElementById("script");
-    const generateButton = document.getElementById("generateButton");
-    const renderButton = document.getElementById("renderButton");
-    const statusBox = document.getElementById("status");
-    const previewPanel = document.getElementById("previewPanel");
-    const previewAudio = document.getElementById("previewAudio");
-    const charCount = document.getElementById("charCount");
-    let previewId = null;
-    let statusTimer = null;
-
-    function setStatus(message, type) {
-      statusBox.textContent = message;
-      statusBox.className = "status" + (type ? " " + type : "");
-    }
-    async function responseJson(response) {
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error || "La operación no se pudo completar.");
-      return body;
-    }
-    function invalidatePreview() {
-      previewId = null;
-      renderButton.disabled = true;
-      previewAudio.pause();
-      previewAudio.removeAttribute("src");
-      previewAudio.load();
-      previewPanel.hidden = true;
-    }
-    [voiceId, videoTitle, script].forEach(function (element) {
-      element.addEventListener("input", invalidatePreview);
-    });
-    script.addEventListener("input", function () {
-      charCount.textContent = script.value.length.toLocaleString("es-ES") + " / 12.000 caracteres";
-    });
-    charCount.textContent = script.value.length.toLocaleString("es-ES") + " / 12.000 caracteres";
-
-    generateButton.addEventListener("click", async function () {
-      const key = apiKey.value.trim();
-      if (!key || !voiceId.value.trim() || !videoTitle.value.trim() || !script.value.trim()) {
-        setStatus("Completa la API key, el Voice ID, el título y el guion.", "error");
-        return;
-      }
-      invalidatePreview();
-      generateButton.disabled = true;
-      renderButton.disabled = true;
-      setStatus("Conectando con ElevenLabs y generando la voz. Puede tardar un poco...");
-      try {
-        const response = await fetch("/api/generate", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({
-            api_key: key,
-            voice_id: voiceId.value.trim(),
-            title: videoTitle.value.trim(),
-            script: script.value.trim()
-          })
-        });
-        const result = await responseJson(response);
-        previewId = result.sample_id;
-        previewAudio.src = "/api/audio/" + encodeURIComponent(previewId);
-        previewAudio.load();
-        previewPanel.hidden = false;
-        renderButton.disabled = false;
-        setStatus("Narración generada correctamente. Escúchala; si te convence, renderiza el video.", "good");
-      } catch (error) {
-        setStatus(error.message, "error");
-      } finally {
-        apiKey.value = "";
-        generateButton.disabled = false;
-      }
-    });
-
-    renderButton.addEventListener("click", async function () {
-      if (!previewId) return;
-      generateButton.disabled = true;
-      renderButton.disabled = true;
-      setStatus("Preparando la transferencia temporal y lanzando GitHub Actions...");
-      try {
-        const response = await fetch("/api/render", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({sample_id: previewId})
-        });
-        await responseJson(response);
-        setStatus("Solicitud enviada. Preparando la transferencia del MP3 a GitHub...");
-        if (statusTimer) clearInterval(statusTimer);
-        statusTimer = setInterval(updateStatus, 1800);
-      } catch (error) {
-        setStatus(error.message, "error");
-        generateButton.disabled = false;
-        renderButton.disabled = false;
-      }
-    });
-
-    async function updateStatus() {
-      try {
-        const response = await fetch("/api/status", {cache: "no-store"});
-        const result = await responseJson(response);
-        setStatus(result.render_status, result.render_running ? "" : "good");
-        if (result.actions_url) {
-          const link = document.createElement("a");
-          link.href = result.actions_url;
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.textContent = "Abrir GitHub Actions";
-          statusBox.appendChild(document.createTextNode(" "));
-          statusBox.appendChild(link);
+    const audioMode=document.getElementById("audioMode"),apiFields=document.getElementById("apiFields"),uploadFields=document.getElementById("uploadFields");
+    const apiKey=document.getElementById("apiKey"),voiceId=document.getElementById("voiceId"),audioFile=document.getElementById("audioFile");
+    const videoTitle=document.getElementById("videoTitle"),script=document.getElementById("script");
+    const generateButton=document.getElementById("generateButton"),renderButton=document.getElementById("renderButton");
+    const statusBox=document.getElementById("status"),previewPanel=document.getElementById("previewPanel"),previewAudio=document.getElementById("previewAudio"),previewDetails=document.getElementById("previewDetails");
+    let previewId=null,statusTimer=null;
+    function setStatus(message,type){statusBox.textContent=message;statusBox.className="status"+(type?" "+type:"")}
+    async function responseJson(response){const body=await response.json();if(!response.ok)throw new Error(body.error||"La operación no se pudo completar.");return body}
+    function invalidatePreview(){previewId=null;renderButton.disabled=true;previewAudio.pause();previewAudio.removeAttribute("src");previewAudio.load();previewPanel.hidden=true}
+    function updateMode(){invalidatePreview();const useApi=audioMode.value==="api";apiFields.hidden=!useApi;uploadFields.hidden=useApi;generateButton.textContent=useApi?"Generar y escuchar muestra":"Importar audio y escuchar muestra";apiKey.value="";setStatus(useApi?"Modo API de ElevenLabs seleccionado.":"Modo importar seleccionado. Elige un archivo de audio.")}
+    audioMode.addEventListener("change",updateMode);
+    [voiceId,videoTitle,script].forEach(el=>el.addEventListener("input",invalidatePreview));
+    audioFile.addEventListener("change",invalidatePreview);
+    generateButton.addEventListener("click",async function(){
+      const title=videoTitle.value.trim(),text=script.value.trim();
+      if(!title){setStatus("Escribe el título del video.","error");return}
+      invalidatePreview();generateButton.disabled=true;renderButton.disabled=true;
+      try{
+        let response,result;
+        if(audioMode.value==="api"){
+          const key=apiKey.value.trim(),voice=voiceId.value.trim();
+          if(!key||!voice||!text)throw new Error("Para generar con ElevenLabs completa la API key, el Voice ID y el guion.");
+          setStatus("Conectando con ElevenLabs y generando la voz...");
+          response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({api_key:key,voice_id:voice,title:title,script:text})});
+          result=await responseJson(response);
+          previewDetails.textContent="Muestra generada mediante ElevenLabs. Esta pista se usará en el render.";
+        }else{
+          const file=audioFile.files&&audioFile.files[0];
+          if(!file)throw new Error("Selecciona primero un archivo de audio.");
+          if(file.size>120*1024*1024)throw new Error("El archivo supera el límite de 120 MB.");
+          const params=new URLSearchParams({title:title,script:text,filename:file.name});
+          setStatus("Importando el audio y preparando la vista previa...");
+          response=await fetch("/api/upload?"+params.toString(),{method:"POST",headers:{"Content-Type":file.type||"application/octet-stream"},body:file});
+          result=await responseJson(response);
+          previewDetails.textContent="Audio importado: "+file.name+". Esta pista se usará en el render.";
         }
-        if (!result.render_running) {
-          clearInterval(statusTimer);
-          statusTimer = null;
-          generateButton.disabled = false;
-          if (result.render_status.indexOf("GitHub recibió el audio") >= 0) {
-            renderButton.disabled = true;
-            previewId = null;
-          } else {
-            renderButton.disabled = !previewId;
-          }
-        }
-      } catch (error) {
-        setStatus("No se pudo consultar el estado del render: " + error.message, "error");
-      }
+        previewId=result.sample_id;previewAudio.src="/api/audio/"+encodeURIComponent(previewId);previewAudio.load();previewPanel.hidden=false;renderButton.disabled=false;
+        setStatus("Audio preparado correctamente. Escúchalo; si te convence, renderiza el video.","good");
+      }catch(error){setStatus(error.message,"error")}
+      finally{apiKey.value="";generateButton.disabled=false}
+    });
+    renderButton.addEventListener("click",async function(){
+      if(!previewId)return;
+      generateButton.disabled=true;renderButton.disabled=true;setStatus("Preparando la transferencia temporal y lanzando GitHub Actions...");
+      try{
+        const response=await fetch("/api/render",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sample_id:previewId})});
+        await responseJson(response);setStatus("Solicitud enviada. Preparando la transferencia del audio a GitHub...");
+        if(statusTimer)clearInterval(statusTimer);statusTimer=setInterval(updateStatus,1800);
+      }catch(error){setStatus(error.message,"error");generateButton.disabled=false;renderButton.disabled=false}
+    });
+    async function updateStatus(){
+      try{
+        const response=await fetch("/api/status",{cache:"no-store"}),result=await responseJson(response);
+        setStatus(result.render_status,result.render_running?"":"good");
+        if(result.actions_url){const link=document.createElement("a");link.href=result.actions_url;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Abrir GitHub Actions";statusBox.appendChild(document.createTextNode(" "));statusBox.appendChild(link)}
+        if(!result.render_running){clearInterval(statusTimer);statusTimer=null;generateButton.disabled=false;if(result.render_status.indexOf("GitHub recibió el audio")>=0){renderButton.disabled=true;previewId=null}else{renderButton.disabled=!previewId}}
+      }catch(error){setStatus("No se pudo consultar el estado del render: "+error.message,"error")}
     }
+    updateMode();
   </script>
 </body>
 </html>
