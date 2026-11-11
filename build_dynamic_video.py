@@ -13,7 +13,11 @@ def sfx_events(duration, visuals, groups):
       "server":"mechanical-switch-light","network":"digital-process-subtle","database":"digital-process-subtle",
       "terminal":"keyboard-typing-steady-medium","dashboard":"data-chart-reveal","chart":"data-bar-grow",
       "comparison":"swish-medium","process":"tone-step-2","timeline":"tone-step-3","cta":"sting-warm-short",
-      "typography":"pop-medium-in"
+      "typography":"pop-medium-in",
+      "lightbulb":"pop-medium-in","brain":"digital-process-subtle","book":"swish-medium",
+      "globe":"whoosh-medium-soft","leaf":"shimmer-short-soft","heart":"notification-success-soft",
+      "atom":"digital-power-up","finance":"data-chart-reveal","megaphone":"sting-warm-short",
+      "calendar":"click-tap-medium","cloud":"digital-process-subtle","gear":"mechanical-switch-light"
     }
     n=len(visuals)
     for i, visual in enumerate(visuals):
