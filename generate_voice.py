@@ -56,7 +56,6 @@ def main() -> int:
         "--language", "Spanish",
         "--text", text,
         "--output", str(output),
-        "--int8",
         "--threads", str(min(args.threads, 4)),
     ]
 
