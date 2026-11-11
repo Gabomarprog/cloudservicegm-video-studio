@@ -37,7 +37,7 @@ def main():
     p.add_argument("--storyboard",required=True)
     a=p.parse_args()
     duration=get_duration(a.audio)
-    words=load_words(a.transcript)
+    words=load_words(a.transcript, canonicalize=False)
     if not words: raise RuntimeError("La transcripción aprobada no contiene palabras.")
     groups=group_words(words)
     captions=[]; caption_anims=[]
