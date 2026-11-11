@@ -1,174 +1,206 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="referrer" content="no-referrer">
-  <title>cloudservicegm · Video Studio</title>
-  <style>
-    :root{color-scheme:dark;--bg:#0b1018;--panel:#121b28;--line:#2a3a50;--text:#f4f7fb;--muted:#aab8c9;--mint:#87f0cb;--shadow:0 20px 55px rgba(0,0,0,.28)}
-    *{box-sizing:border-box}
-    body{margin:0;background:radial-gradient(ellipse at 15% -10%,#1a3843 0,transparent 38%),var(--bg);color:var(--text);font:15px/1.55 Inter,Segoe UI,system-ui,sans-serif;min-height:100vh;padding:34px 18px 54px}
-    .shell{width:min(960px,100%);margin:auto}
-    .top{display:flex;align-items:center;gap:14px;margin-bottom:26px}
-    .mark{width:46px;height:46px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(140deg,#8cf3d0,#2f9680);color:#07231d;font-weight:900;font-size:21px}
-    .brand{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint);font-weight:800}
-    h1{margin:2px 0 0;font-size:clamp(27px,5vw,39px);line-height:1.08;letter-spacing:-.04em}
-    .lead{color:var(--muted);max-width:740px;margin:0 0 22px}
-    .panel{background:linear-gradient(180deg,rgba(23,35,52,.96),rgba(16,25,38,.98));border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow)}
-    .section-title{display:flex;align-items:center;gap:10px;margin:0 0 17px;font-size:17px}
-    .step{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#213747;color:var(--mint);font-size:13px;font-weight:800}
-    .field{margin:0 0 17px}
-    label{display:block;margin:0 0 7px;font-weight:700;color:#eaf1f8}
-    .hint{color:var(--muted);font-size:12px;margin-top:5px}
-    input,textarea,select{display:block;width:100%;border:1px solid #354860;border-radius:11px;background:#0d1622;padding:13px 14px;color:var(--text);font:inherit;outline:none;transition:border .15s,box-shadow .15s}
-    input:focus,textarea:focus,select:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(135,240,203,.12)}
-    input::placeholder,textarea::placeholder{color:#6f8297}
-    textarea{min-height:260px;resize:vertical;line-height:1.6}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-    .security{border:1px solid #35584f;background:rgba(16,45,42,.55);padding:13px 15px;border-radius:12px;color:#c7e9df;font-size:13px;margin:0 0 20px}
-    .security strong{color:var(--mint)}
-    .mode-panel{border:1px solid #31465d;background:#101d2b;border-radius:14px;padding:15px;margin:0 0 19px}
-    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
-    button{border:0;border-radius:11px;padding:13px 18px;font:700 14px inherit;cursor:pointer;transition:transform .12s,opacity .12s}
-    button:hover:not(:disabled){transform:translateY(-1px)}
-    button:disabled{opacity:.42;cursor:not-allowed}
-    .primary{background:var(--mint);color:#08251e}
-    .secondary{background:#26374c;color:var(--text);border:1px solid #3a506a}
-    .status{margin-top:17px;background:#0b1520;border:1px solid #293d53;padding:13px 15px;border-radius:11px;color:#c7d5e5;min-height:48px;white-space:pre-wrap}
-    .status.error{border-color:#8e4545;color:#ffb5b5}
-    .status.good{border-color:#397b68;color:#aaf2d7}
-    .preview{margin-top:20px;border:1px solid var(--line);background:#0e1824;padding:17px;border-radius:14px}
-    .preview h3{margin:0 0 9px;font-size:15px}
-    audio{width:100%;margin-top:6px}
-    .subnote{color:var(--muted);font-size:12px;margin:18px 0 0}
-    a{color:var(--mint)}
-    .pill{display:inline-block;border:1px solid #355f53;color:var(--mint);border-radius:999px;padding:3px 9px;font-size:11px;font-weight:800;letter-spacing:.06em}
-    [hidden]{display:none!important}
-    @media(max-width:700px){body{padding:22px 12px 40px}.panel{padding:17px}.grid{grid-template-columns:1fr}textarea{min-height:300px}.actions button{width:100%}}
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+<title>cloudservicegm · Video Studio</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1018;--panel:#121b28;--line:#2a3a50;--text:#f4f7fb;--muted:#aab8c9;--mint:#87f0cb;--shadow:0 20px 55px rgba(0,0,0,.28)}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% -10%,#1a3843 0,transparent 38%),var(--bg);color:var(--text);font:15px/1.55 Inter,Segoe UI,system-ui,sans-serif;min-height:100vh;padding:34px 18px 54px}.shell{width:min(980px,100%);margin:auto}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:26px}.mark{width:46px;height:46px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(140deg,#8cf3d0,#2f9680);color:#07231d;font-weight:900;font-size:21px}.brand{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint);font-weight:800}h1{margin:2px 0 0;font-size:clamp(27px,5vw,39px);line-height:1.08;letter-spacing:-.04em}.lead{color:var(--muted);max-width:800px;margin:0 0 22px}
+.panel{background:linear-gradient(180deg,rgba(23,35,52,.96),rgba(16,25,38,.98));border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow);margin-bottom:18px}.section-title{display:flex;align-items:center;gap:10px;margin:0 0 17px;font-size:17px}.step{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#213747;color:var(--mint);font-size:13px;font-weight:800}
+.field{margin:0 0 17px}label{display:block;margin:0 0 7px;font-weight:700;color:#eaf1f8}.hint{color:var(--muted);font-size:12px;margin-top:5px}
+input,textarea,select{display:block;width:100%;border:1px solid #354860;border-radius:11px;background:#0d1622;padding:13px 14px;color:var(--text);font:inherit;outline:none;transition:border .15s,box-shadow .15s}input:focus,textarea:focus,select:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(135,240,203,.12)}input::placeholder,textarea::placeholder{color:#6f8297}textarea{min-height:210px;resize:vertical;line-height:1.6}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.security{border:1px solid #35584f;background:rgba(16,45,42,.55);padding:13px 15px;border-radius:12px;color:#c7e9df;font-size:13px;margin:0 0 20px}.security strong{color:var(--mint)}
+.mode-panel{border:1px solid #31465d;background:#101d2b;border-radius:14px;padding:15px;margin:0 0 19px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+button{border:0;border-radius:11px;padding:13px 18px;font:700 14px inherit;cursor:pointer;transition:transform .12s,opacity .12s}button:hover:not(:disabled){transform:translateY(-1px)}button:disabled{opacity:.42;cursor:not-allowed}.primary{background:var(--mint);color:#08251e}.secondary{background:#26374c;color:var(--text);border:1px solid #3a506a}.status{margin-top:17px;background:#0b1520;border:1px solid #293d53;padding:13px 15px;border-radius:11px;color:#c7d5e5;min-height:48px;white-space:pre-wrap}.status.error{border-color:#8e4545;color:#ffb5b5}.status.good{border-color:#397b68;color:#aaf2d7}
+.preview{margin-top:20px;border:1px solid var(--line);background:#0e1824;padding:17px;border-radius:14px}.preview h3{margin:0 0 9px;font-size:15px}audio{width:100%;margin-top:6px}.subnote{color:var(--muted);font-size:12px;margin:18px 0 0}a{color:var(--mint)}.pill{display:inline-block;border:1px solid #355f53;color:var(--mint);border-radius:999px;padding:3px 9px;font-size:11px;font-weight:800;letter-spacing:.06em}[hidden]{display:none!important}
+.director-box{border:1px solid #42675e;background:linear-gradient(140deg,#132b32,#101d2a);padding:16px;border-radius:14px;margin:0 0 18px}.scene-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.scene-card{border:1px solid #344c5e;border-radius:12px;background:#101a26;padding:12px}.scene-card b{display:block;color:var(--mint);font-size:12px;text-transform:uppercase;letter-spacing:1px}.scene-card span{display:block;margin-top:4px;font-size:14px}.review-panel{border:1px solid #4d7166;background:#0f211f;border-radius:14px;padding:17px;margin-top:18px}.review-panel textarea{min-height:230px;background:#0b1718;border-color:#41665b}.review-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}.review-head b{color:var(--mint)}.step-note{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:#0d1925;color:#b9cbd9;font-size:13px;margin:12px 0}.key-link{font-size:12px;margin-left:8px}
+@media(max-width:700px){body{padding:22px 12px 40px}.panel{padding:17px}.grid,.scene-list{grid-template-columns:1fr}textarea{min-height:260px}.actions button{width:100%}.review-head{align-items:flex-start;flex-direction:column}}
+</style>
 </head>
-<body>
-  <main class="shell">
-    <header class="top">
-      <div class="mark">C</div>
-      <div><div class="brand">cloudservicegm</div><h1>Video Studio</h1></div>
-    </header>
-    <p class="lead">Elige cómo proporcionar la narración: generar con una API de voz o importar un audio creado en cualquier otra herramienta. Escúchalo antes de renderizar el video vertical en GitHub Actions.</p>
-    <section class="panel">
-      <h2 class="section-title"><span class="step">1</span> Fuente de audio y datos del video</h2>
-      <div class="field">
-        <label for="audioMode">¿Cómo quieres proporcionar el audio?</label>
-        <select id="audioMode">
-          <option value="api">Generar con API de ElevenLabs</option>
-          <option value="upload">Importar audio ya generado</option>
-        </select>
-        <div class="hint">En modo importar no necesitas API key ni Voice ID.</div>
-      </div>
-      <div class="mode-panel" id="apiFields">
-        <div class="security"><strong>API key protegida:</strong> se envía desde este panel local a ElevenLabs, no se guarda ni se manda a GitHub.</div>
-        <div class="grid">
-          <div class="field"><label for="apiKey">API key de ElevenLabs</label><input id="apiKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aquí tu API key"></div>
-          <div class="field"><label for="voiceId">Voice ID</label><input id="voiceId" type="text" autocomplete="off" spellcheck="false" placeholder="Pega el ID exacto de la voz"></div>
-        </div>
-        <div class="hint">La conexión API integrada actualmente corresponde a ElevenLabs (modelo eleven_multilingual_v2). Otros proveedores requieren adaptadores de API específicos.</div>
-      </div>
-      <div class="mode-panel" id="uploadFields" hidden>
-        <div class="field">
-          <label for="audioFile">Selecciona el archivo de audio</label>
-          <input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.opus,.flac,.webm,.3gp">
-          <div class="hint">Admite MP3, WAV, M4A, AAC, OGG, OPUS, FLAC y WEBM. Tamaño máximo: 120 MB.</div>
-        </div>
-        <div class="security"><strong>Sin API:</strong> puedes crear la narración con una web gratuita o con un programa de código abierto instalado en tu PC y subir aquí el archivo resultante.</div>
-      </div>
-      <div class="field">
-        <label for="videoTitle">Título principal del video</label>
-        <input id="videoTitle" type="text" maxlength="180" value="3 señales de que tu VPS necesita mejorar">
-      </div>
-      <div class="field">
-        <label for="script">Guion del video (opcional al importar audio)</label>
-        <textarea id="script" maxlength="12000">¿Tu web tarda en cargar? Cuando una página se queda pensando, tus visitantes no esperan: se van y buscan otra opción.
-Muchas veces el problema está en un servidor que ya no responde al ritmo de tu proyecto.
-Un VPS bien configurado te ofrece recursos dedicados, más control y una base estable para crecer.
-En cloudservicegm preparamos tu infraestructura desde cero. Optimizamos el servidor, reforzamos la seguridad, configuramos SSL y dejamos listos WordPress, bases de datos y aplicaciones web.
-También cuidamos los accesos y los servicios que mantienen tu proyecto disponible.
-No se trata solo de tener un servidor: se trata de que tu web responda cuando tus clientes la necesitan.
-Síguenos para aprender sobre VPS, rendimiento y seguridad. Y si necesitas ayuda con tu infraestructura, escríbenos.</textarea>
-        <div class="hint" id="charCount">En modo importar, los subtítulos se sincronizan a partir del audio real; el guion es opcional.</div>
-      </div>
-      <div class="actions">
-        <button class="primary" id="generateButton" type="button">Generar y escuchar muestra</button>
-        <button class="secondary" id="renderButton" type="button" disabled>Renderizar video en GitHub</button>
-      </div>
-      <div class="status" id="status" role="status" aria-live="polite">Listo. Elige una fuente de audio para comenzar.</div>
-      <div class="preview" id="previewPanel" hidden>
-        <h3><span class="pill">VISTA PREVIA</span> Escucha el audio antes de continuar</h3>
-        <audio id="previewAudio" controls preload="none"></audio>
-        <div class="hint" id="previewDetails">Esta es la pista que se incorporará al video.</div>
-      </div>
-      <p class="subnote">Las escenas, animaciones, subtítulos, efectos de sonido y render permanecen en GitHub Actions. Al importar audio, la web solo lo recibe y lo previsualiza; luego lo transfiere mediante un enlace temporal de un solo uso.</p>
-    </section>
-  </main>
-  <script>
-    const audioMode=document.getElementById("audioMode"),apiFields=document.getElementById("apiFields"),uploadFields=document.getElementById("uploadFields");
-    const apiKey=document.getElementById("apiKey"),voiceId=document.getElementById("voiceId"),audioFile=document.getElementById("audioFile");
-    const videoTitle=document.getElementById("videoTitle"),script=document.getElementById("script");
-    const generateButton=document.getElementById("generateButton"),renderButton=document.getElementById("renderButton");
-    const statusBox=document.getElementById("status"),previewPanel=document.getElementById("previewPanel"),previewAudio=document.getElementById("previewAudio"),previewDetails=document.getElementById("previewDetails");
-    let previewId=null,statusTimer=null;
-    function setStatus(message,type){statusBox.textContent=message;statusBox.className="status"+(type?" "+type:"")}
-    async function responseJson(response){const body=await response.json();if(!response.ok)throw new Error(body.error||"La operación no se pudo completar.");return body}
-    function invalidatePreview(){previewId=null;renderButton.disabled=true;previewAudio.pause();previewAudio.removeAttribute("src");previewAudio.load();previewPanel.hidden=true}
-    function updateMode(){invalidatePreview();const useApi=audioMode.value==="api";apiFields.hidden=!useApi;uploadFields.hidden=useApi;generateButton.textContent=useApi?"Generar y escuchar muestra":"Importar audio y escuchar muestra";apiKey.value="";setStatus(useApi?"Modo API de ElevenLabs seleccionado.":"Modo importar seleccionado. Elige un archivo de audio.")}
-    audioMode.addEventListener("change",updateMode);
-    [voiceId,videoTitle,script].forEach(el=>el.addEventListener("input",invalidatePreview));
-    audioFile.addEventListener("change",invalidatePreview);
-    generateButton.addEventListener("click",async function(){
-      const title=videoTitle.value.trim(),text=script.value.trim();
-      if(!title){setStatus("Escribe el título del video.","error");return}
-      invalidatePreview();generateButton.disabled=true;renderButton.disabled=true;
-      try{
-        let response,result;
-        if(audioMode.value==="api"){
-          const key=apiKey.value.trim(),voice=voiceId.value.trim();
-          if(!key||!voice||!text)throw new Error("Para generar con ElevenLabs completa la API key, el Voice ID y el guion.");
-          setStatus("Conectando con ElevenLabs y generando la voz...");
-          response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({api_key:key,voice_id:voice,title:title,script:text})});
-          result=await responseJson(response);
-          previewDetails.textContent="Muestra generada mediante ElevenLabs. Esta pista se usará en el render.";
-        }else{
-          const file=audioFile.files&&audioFile.files[0];
-          if(!file)throw new Error("Selecciona primero un archivo de audio.");
-          if(file.size>120*1024*1024)throw new Error("El archivo supera el límite de 120 MB.");
-          const params=new URLSearchParams({title:title,script:text,filename:file.name});
-          setStatus("Importando el audio y preparando la vista previa...");
-          response=await fetch("/api/upload?"+params.toString(),{method:"POST",headers:{"Content-Type":file.type||"application/octet-stream"},body:file});
-          result=await responseJson(response);
-          previewDetails.textContent="Audio importado: "+file.name+". Esta pista se usará en el render.";
-        }
-        previewId=result.sample_id;previewAudio.src="/api/audio/"+encodeURIComponent(previewId);previewAudio.load();previewPanel.hidden=false;renderButton.disabled=false;
-        setStatus("Audio preparado correctamente. Escúchalo; si te convence, renderiza el video.","good");
-      }catch(error){setStatus(error.message,"error")}
-      finally{apiKey.value="";generateButton.disabled=false}
-    });
-    renderButton.addEventListener("click",async function(){
-      if(!previewId)return;
-      generateButton.disabled=true;renderButton.disabled=true;setStatus("Preparando la transferencia temporal y lanzando GitHub Actions...");
-      try{
-        const response=await fetch("/api/render",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sample_id:previewId})});
-        await responseJson(response);setStatus("Solicitud enviada. Preparando la transferencia del audio a GitHub...");
-        if(statusTimer)clearInterval(statusTimer);statusTimer=setInterval(updateStatus,1800);
-      }catch(error){setStatus(error.message,"error");generateButton.disabled=false;renderButton.disabled=false}
-    });
-    async function updateStatus(){
-      try{
-        const response=await fetch("/api/status",{cache:"no-store"}),result=await responseJson(response);
-        setStatus(result.render_status,result.render_running?"":"good");
-        if(result.actions_url){const link=document.createElement("a");link.href=result.actions_url;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Abrir GitHub Actions";statusBox.appendChild(document.createTextNode(" "));statusBox.appendChild(link)}
-        if(!result.render_running){clearInterval(statusTimer);statusTimer=null;generateButton.disabled=false;if(result.render_status.indexOf("GitHub recibió el audio")>=0){renderButton.disabled=true;previewId=null}else{renderButton.disabled=!previewId}}
-      }catch(error){setStatus("No se pudo consultar el estado del render: "+error.message,"error")}
+<body><main class="shell">
+<header class="top"><div class="mark">C</div><div><div class="brand">cloudservicegm</div><h1>Video Studio</h1></div></header>
+<p class="lead">Crea videos verticales de distintos temas con motion graphics HTML, CSS, SVG y GSAP. La IA escribe el guion y dirige las escenas; antes de renderizar puedes revisar y corregir la transcripción del audio.</p>
+
+<section class="panel">
+<h2 class="section-title"><span class="step">1</span> Tema y dirección creativa</h2>
+<div class="field"><label for="topic">¿De qué tratará el video?</label><input id="topic" maxlength="500" placeholder="Ej.: Qué es un certificado SSL y por qué lo necesita una web"></div>
+<div class="field">
+<label for="geminiKey">API key de Google AI Studio <a class="key-link" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Obtener clave</a></label>
+<input id="geminiKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega tu API key de Gemini">
+<div class="hint">El director creativo usa Gemini 3.6 Flash. Tiene una cuota gratuita limitada; la clave solo se usa desde el servidor local y no se guarda en el repositorio.</div>
+</div>
+<div class="director-box">
+<b>Director creativo IA</b>
+<p class="hint">Al generar una propuesta, la IA crea un guion original y elige escenas y objetos animados según el tema. No genera clips de video: dirige nuestra biblioteca de componentes HTML.</p>
+<div class="actions"><button class="secondary" id="directorButton" type="button">Crear guion e idea visual con IA</button></div>
+<div id="planPanel" hidden><div class="hint">Propuesta de escenas:</div><div class="scene-list" id="sceneList"></div></div>
+</div>
+<div class="field"><label for="videoTitle">Título principal</label><input id="videoTitle" type="text" maxlength="180" placeholder="Se propondrá uno a partir del tema"></div>
+<div class="field"><label for="script">Guion (se completa con IA o puedes escribirlo manualmente)</label><textarea id="script" maxlength="12000" placeholder="Escribe un guion o utiliza el director creativo para generarlo."></textarea></div>
+</section>
+
+<section class="panel">
+<h2 class="section-title"><span class="step">2</span> Fuente de narración</h2>
+<div class="field"><label for="audioMode">¿Cómo proporcionarás el audio?</label><select id="audioMode"><option value="api">Generar voz con ElevenLabs</option><option value="upload">Importar audio ya generado</option></select></div>
+<div class="mode-panel" id="apiFields">
+<div class="security"><strong>API key protegida:</strong> se utiliza para generar la voz y no se guarda en el repositorio.</div>
+<div class="grid">
+<div class="field"><label for="apiKey">API key de ElevenLabs</label><input id="apiKey" type="password" autocomplete="off" placeholder="Pega aquí tu API key"></div>
+<div class="field"><label for="voiceId">Voice ID</label><input id="voiceId" type="text" autocomplete="off" placeholder="ID exacto de la voz"></div>
+</div>
+<div class="hint">Modelo eleven_multilingual_v2. Primero genera el guion con el director o escribe uno manualmente.</div>
+</div>
+<div class="mode-panel" id="uploadFields" hidden>
+<div class="field"><label for="audioFile">Selecciona el archivo de audio</label><input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.opus,.flac,.webm,.3gp"></div>
+<div class="hint">MP3, WAV, M4A, AAC, OGG, OPUS, FLAC o WEBM. Máximo 120 MB.</div>
+<div class="security"><strong>Sin API de voz:</strong> importa una narración generada en cualquier otra herramienta.</div>
+</div>
+<div class="actions">
+<button class="primary" id="generateButton" type="button">Generar y escuchar muestra</button>
+</div>
+<div class="preview" id="previewPanel" hidden><h3><span class="pill">VISTA PREVIA</span> Escucha la narración</h3><audio id="previewAudio" controls preload="none"></audio><div class="hint" id="previewDetails"></div></div>
+<div class="actions"><button class="secondary" id="transcribeButton" type="button" disabled>Transcribir audio y revisar texto</button></div>
+<div class="step-note">El audio se envía a GitHub Actions para la transcripción. Todavía no se ensambla ningún video en esta fase.</div>
+</section>
+
+<section class="panel">
+<h2 class="section-title"><span class="step">3</span> Revisar, corregir y confirmar</h2>
+<div class="review-panel" id="reviewPanel" hidden>
+<div class="review-head"><b>TRANSCRIPCIÓN RECONOCIDA</b><span class="pill" id="wordCount">0 palabras</span></div>
+<label for="transcriptEditor">Puedes corregir directamente el texto que reconoció el sistema:</label>
+<textarea id="transcriptEditor" maxlength="12000" spellcheck="true"></textarea>
+<div class="hint">Las marcas temporales se conservan en las palabras reconocidas. Si agregas o eliminas texto, el sistema ajusta los tiempos de los fragmentos modificados para mantener los subtítulos sincronizados.</div>
+<div class="actions"><button class="primary" id="renderButton" type="button" disabled>Confirmar transcripción y generar video</button></div>
+</div>
+<div id="reviewPlaceholder" class="step-note">Después de preparar el audio, pulsa «Transcribir audio y revisar texto». Aquí aparecerá la transcripción para que puedas corregirla antes de confirmar.</div>
+</section>
+<div class="status" id="status" role="status" aria-live="polite">Listo. Escribe el tema y prepara tu narración para comenzar.</div>
+<p class="subnote">La IA creativa se conecta de forma remota a Gemini. El audio, transcripción, componentes HTML y renderizado se procesan mediante GitHub Actions. Tu ordenador solo aloja el panel local y transfiere el audio.</p>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const audioMode=$("audioMode"),apiFields=$("apiFields"),uploadFields=$("uploadFields");
+const apiKey=$("apiKey"),voiceId=$("voiceId"),audioFile=$("audioFile");
+const geminiKey=$("geminiKey"),topic=$("topic"),videoTitle=$("videoTitle"),script=$("script");
+const directorButton=$("directorButton"),generateButton=$("generateButton"),transcribeButton=$("transcribeButton"),renderButton=$("renderButton");
+const statusBox=$("status"),previewPanel=$("previewPanel"),previewAudio=$("previewAudio"),previewDetails=$("previewDetails");
+const reviewPanel=$("reviewPanel"),reviewPlaceholder=$("reviewPlaceholder"),transcriptEditor=$("transcriptEditor"),wordCount=$("wordCount");
+const planPanel=$("planPanel"),sceneList=$("sceneList");
+let previewId=null,statusTimer=null,transcriptReady=false,planGenerated=false;
+
+function setStatus(message,type){statusBox.textContent=message;statusBox.className="status"+(type?" "+type:"")}
+async function responseJson(response){let body={};try{body=await response.json()}catch{}if(!response.ok)throw new Error(body.error||"La operación no se pudo completar.");return body}
+function showPlan(scenes){
+  sceneList.replaceChildren();
+  (scenes||[]).forEach((scene,index)=>{
+    const card=document.createElement("div");card.className="scene-card";
+    const b=document.createElement("b");b.textContent=String(index+1).padStart(2,"0")+" · "+(scene.visual||"escena");
+    const span=document.createElement("span");span.textContent=scene.headline||"Escena visual";
+    card.append(b,span);sceneList.append(card);
+  });
+  planPanel.hidden=false;
+}
+function updateCount(){const count=transcriptEditor.value.trim()?transcriptEditor.value.trim().split(/\s+/).length:0;wordCount.textContent=count+" palabras"}
+function resetPreview(){
+  previewId=null;transcriptReady=false;planGenerated=false;
+  previewAudio.pause();previewAudio.removeAttribute("src");previewAudio.load();
+  previewPanel.hidden=true;reviewPanel.hidden=true;reviewPlaceholder.hidden=false;transcribeButton.disabled=true;renderButton.disabled=true;planPanel.hidden=true;
+}
+function updateMode(){
+  resetPreview();const useApi=audioMode.value==="api";apiFields.hidden=!useApi;uploadFields.hidden=useApi;
+  generateButton.textContent=useApi?"Generar y escuchar muestra":"Importar audio y escuchar muestra";
+  setStatus(useApi?"Modo ElevenLabs seleccionado.":"Modo importar audio seleccionado.");
+}
+audioMode.addEventListener("change",updateMode);
+topic.addEventListener("input",()=>{planGenerated=false});
+directorButton.addEventListener("click",async()=>{
+  directorButton.disabled=true;generateButton.disabled=true;
+  try{
+    if(!topic.value.trim())throw new Error("Escribe primero el tema del video.");
+    if(!geminiKey.value.trim())throw new Error("Introduce la API key gratuita de Google AI Studio.");
+    setStatus("El director creativo está preparando el guion y las escenas...");
+    const response=await fetch("/api/direct",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gemini_api_key:geminiKey.value.trim(),topic:topic.value.trim(),title:videoTitle.value.trim()})});
+    const result=await responseJson(response);
+    if(result.title)videoTitle.value=result.title;if(result.script)script.value=result.script;
+    showPlan(result.scenes);planGenerated=true;setStatus("Guion y propuesta visual preparados. Revisa el guion antes de generar la voz.","good");
+  }catch(error){setStatus(error.message,"error")}
+  finally{directorButton.disabled=false;generateButton.disabled=false}
+});
+generateButton.addEventListener("click",async()=>{
+  const title=videoTitle.value.trim(),text=script.value.trim();
+  if(!title) {if(!topic.value.trim()){setStatus("Escribe el tema o el título del video.","error");return}videoTitle.value=topic.value.trim()}
+  resetPreview();generateButton.disabled=true;transcribeButton.disabled=true;
+  try{
+    let response,result;
+    if(audioMode.value==="api"){
+      const key=apiKey.value.trim(),voice=voiceId.value.trim();
+      if(!key||!voice||!text)throw new Error("Completa la API key, Voice ID y guion. Puedes generar el guion con el director IA.");
+      setStatus("Conectando con ElevenLabs y generando la narración...");
+      response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({api_key:key,voice_id:voice,title:videoTitle.value.trim(),script:text})});
+      result=await responseJson(response);previewDetails.textContent="Muestra de ElevenLabs lista.";
+    }else{
+      const file=audioFile.files&&audioFile.files[0];if(!file)throw new Error("Selecciona primero un archivo de audio.");
+      if(file.size>120*1024*1024)throw new Error("El archivo supera 120 MB.");
+      const params=new URLSearchParams({title:videoTitle.value.trim(),script:text,filename:file.name});
+      setStatus("Importando el archivo y preparando la vista previa...");
+      response=await fetch("/api/upload?"+params.toString(),{method:"POST",headers:{"Content-Type":file.type||"application/octet-stream"},body:file});
+      result=await responseJson(response);previewDetails.textContent="Audio importado: "+file.name;
     }
-    updateMode();
-  </script>
-</body>
-</html>
+    previewId=result.sample_id;previewAudio.src="/api/audio/"+encodeURIComponent(previewId);previewAudio.load();previewPanel.hidden=false;transcribeButton.disabled=false;
+    setStatus("Audio preparado. Escúchalo y después solicita la transcripción para revisarla.","good");
+  }catch(error){setStatus(error.message,"error")}
+  finally{apiKey.value="";generateButton.disabled=false}
+});
+transcribeButton.addEventListener("click",async()=>{
+  if(!previewId)return;
+  transcribeButton.disabled=true;generateButton.disabled=true;renderButton.disabled=true;
+  setStatus("Enviando el audio a GitHub Actions para transcribirlo. El MP4 todavía no se está generando...");
+  try{
+    const response=await fetch("/api/transcribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sample_id:previewId})});
+    await responseJson(response);
+    if(statusTimer)clearInterval(statusTimer);statusTimer=setInterval(updateStatus,1800);
+  }catch(error){setStatus(error.message,"error");transcribeButton.disabled=false;generateButton.disabled=false}
+});
+async function prepareDirectorForTranscript(){
+  if(!topic.value.trim())throw new Error("Escribe el tema del video para que el director seleccione las escenas correctas.");
+  if(!geminiKey.value.trim())throw new Error("Introduce tu API key de Google AI Studio para generar las escenas adaptadas al tema.");
+  setStatus("El director está diseñando escenas a partir del tema y de la transcripción corregida...");
+  const response=await fetch("/api/direct",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    gemini_api_key:geminiKey.value.trim(),topic:topic.value.trim(),title:videoTitle.value.trim(),transcript:transcriptEditor.value.trim()
+  })});
+  const plan=await responseJson(response);showPlan(plan.scenes);planGenerated=true;
+}
+renderButton.addEventListener("click",async()=>{
+  if(!previewId||!transcriptReady)return;
+  renderButton.disabled=true;transcribeButton.disabled=true;generateButton.disabled=true;
+  try{
+    await prepareDirectorForTranscript();
+    setStatus("Transcripción confirmada. Enviando audio, texto corregido y storyboard a GitHub...");
+    const response=await fetch("/api/render",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sample_id:previewId,transcript_text:transcriptEditor.value.trim()})});
+    await responseJson(response);
+    if(statusTimer)clearInterval(statusTimer);statusTimer=setInterval(updateStatus,1800);
+  }catch(error){setStatus(error.message,"error");renderButton.disabled=false;generateButton.disabled=false;transcribeButton.disabled=false}
+});
+async function updateStatus(){
+  try{
+    const response=await fetch("/api/status",{cache:"no-store"}),result=await responseJson(response);
+    setStatus(result.render_status,result.render_running?"":"good");
+    if(result.actions_url){const link=document.createElement("a");link.href=result.actions_url;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Abrir GitHub Actions";statusBox.append(document.createTextNode(" "));statusBox.append(link)}
+    if(result.transcript_ready&&!transcriptReady){
+      const res=await fetch("/api/transcript",{cache:"no-store"}),transcript=await responseJson(res);
+      transcriptEditor.value=transcript.text||"";updateCount();transcriptReady=true;
+      reviewPanel.hidden=false;reviewPlaceholder.hidden=true;renderButton.disabled=false;transcribeButton.disabled=true;generateButton.disabled=false;
+      setStatus("Transcripción lista. Corrige el texto si hace falta y confirma para diseñar las escenas y generar el MP4.","good");
+    }
+    if(!result.render_running){
+      if(statusTimer){clearInterval(statusTimer);statusTimer=null}
+      if(!result.transcript_ready){generateButton.disabled=false;if(!transcriptReady)transcribeButton.disabled=!previewId}
+      if(result.render_status.indexOf("GitHub recibió el audio")>=0){renderButton.disabled=true;transcribeButton.disabled=true;generateButton.disabled=false;previewId=null}
+    }
+  }catch(error){setStatus("No se pudo consultar el proceso: "+error.message,"error")}
+}
+transcriptEditor.addEventListener("input",updateCount);
+updateMode();
+</script></body></html>
