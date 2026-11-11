@@ -58,12 +58,17 @@ jobs:
       - name: Instalar HyperFrames y GSAP
         run: npm install --no-save hyperframes@latest gsap @fontsource/anton@5.3.0
 
-      - name: Preparar Kokoro para español
+      - name: Preparar Qwen3-TTS 0.6B CustomVoice
         run: |
-          python -m venv .venv
-          .venv/bin/python -m pip install --upgrade pip
-          .venv/bin/python -m pip install kokoro-onnx==0.6.1 soundfile
-          echo "HYPERFRAMES_PYTHON=$GITHUB_WORKSPACE/.venv/bin/python" >> "$GITHUB_ENV"
+          git init tools/qwen3-tts
+          git -C tools/qwen3-tts remote add origin https://github.com/gabriele-mastrapasqua/qwen3-tts.git
+          git -C tools/qwen3-tts fetch --depth 1 origin ef339be58a778b062e1c14382347964552eae007
+          git -C tools/qwen3-tts checkout --detach FETCH_HEAD
+          make -C tools/qwen3-tts -j2 blas
+          bash tools/qwen3-tts/download_model.sh --model small --dir "$GITHUB_WORKSPACE/models/qwen3-tts-0.6b-customvoice"
+          test -x tools/qwen3-tts/qwen_tts
+          test -s models/qwen3-tts-0.6b-customvoice/config.json
+          test -s models/qwen3-tts-0.6b-customvoice/speech_tokenizer/config.json
 
       - name: Guardar guion
         env:
@@ -84,9 +89,14 @@ jobs:
           fi
           test -s narration.txt
 
-      - name: Generar narración en español con Kokoro em_alex
+      - name: Generar narración en español con Qwen3-TTS Ryan 0.6B
         run: |
-          npx hyperframes tts narration.txt --voice em_alex --lang es --speed 1.0 --output narration.wav
+          python3 generate_voice.py \
+            --input narration.txt \
+            --output narration.wav \
+            --engine tools/qwen3-tts/qwen_tts \
+            --model models/qwen3-tts-0.6b-customvoice \
+            --threads 4
           test -s narration.wav
 
       - name: Comprobar duración mínima de 35 segundos
