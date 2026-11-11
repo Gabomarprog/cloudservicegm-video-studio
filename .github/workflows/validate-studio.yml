@@ -1,0 +1,73 @@
+name: Validate Video Studio code
+
+on:
+  push:
+    paths:
+      - "studio_server.py"
+      - "ai_director.py"
+      - "transcript_utils.py"
+      - "dynamic_scenes.py"
+      - "build_dynamic_video.py"
+      - "build_video.py"
+      - "web/index.html"
+      - "template/dynamic.template.html"
+      - ".github/workflows/ai-video.yml"
+      - ".github/workflows/validate-studio.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Comprobar sintaxis Python
+        run: python -m py_compile studio_server.py ai_director.py transcript_utils.py dynamic_scenes.py build_dynamic_video.py build_video.py
+      - name: Probar storyboard y edición de transcripción
+        run: |
+          python - <<'PY'
+          import json
+          from dynamic_scenes import render_scenes
+          from transcript_utils import align_edited_text, transcript_text
+          source={"segments":[
+            {"text":"El certificado SSL protege tu sitio","start":0.0,"end":3.0},
+            {"text":"y cifra la conexión con HTTPS.","start":3.1,"end":5.2}
+          ]}
+          assert transcript_text(source) == "El certificado SSL protege tu sitio y cifra la conexión con HTTPS."
+          aligned=align_edited_text("El certificado SSL protege tu página web y cifra la conexión segura con HTTPS.",source,5.4)
+          assert len(aligned)==13, len(aligned)
+          assert all(x["end"] > x["start"] for x in aligned)
+          assert all(aligned[i]["start"] <= aligned[i+1]["start"] for i in range(len(aligned)-1))
+          storyboard={"scenes":[
+            {"visual":"certificate","label":"EL CERTIFICADO","headline":"Identidad digital verificada","detail":"El certificado vincula tu dominio con una conexión segura.","chips":["Dominio","Validez"],"stat":"SSL"},
+            {"visual":"network","label":"LA CONEXIÓN","headline":"Navegador y servidor","detail":"Se establece una comunicación protegida.","chips":["HTTPS","TLS"],"stat":"TLS"},
+            {"visual":"comparison","label":"EL RESULTADO","headline":"De HTTP a HTTPS","detail":"Una conexión protegida para los visitantes.","chips":["Cifrado","Confianza"],"stat":"HTTPS"}
+          ]}
+          markup, animations, starts, visuals=render_scenes(storyboard,55)
+          assert len(visuals)==4 and visuals[-1]=="cta", visuals
+          assert "scene-0" in markup and "scene-3" in animations
+          print("STORYBOARD_SMOKE_OK", visuals)
+          print("TRANSCRIPT_ALIGNMENT_OK", len(aligned), "words")
+          PY
+      - name: Comprobar interfaz y plantilla HTML
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          class Checker(HTMLParser):
+              pass
+          for name in ("web/index.html","template/dynamic.template.html"):
+              parser=Checker()
+              parser.feed(Path(name).read_text(encoding="utf-8"))
+              parser.close()
+              print("HTML_PARSE_OK",name)
+          PY
+      - name: Comprobar argumentos del constructor
+        run: python build_dynamic_video.py --help
