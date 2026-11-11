@@ -99,7 +99,7 @@ def render_scenes(storyboard, duration):
         at = starts[i]
         anims.append(
             f'tl.fromTo("#scene-{i} .scene-kicker",{{y:28,opacity:0}},{{y:0,opacity:1,duration:.42,ease:"power3.out"}},{at:.3f});'
-            f'tl.fromTo("#scene-{i} .scene-heading",{{y:70,rotationX:-16,opacity:0,scale:.92}},{{y:0,rotationX:0,opacity:1,scale:1,duration:.68,ease:"back.out(1.25)}},{at+.12:.3f});'
+            f'tl.fromTo("#scene-{i} .scene-heading",{{y:70,rotationX:-16,opacity:0,scale:.92}},{{y:0,rotationX:0,opacity:1,scale:1,duration:.68,ease:"back.out(1.25)"}},{at+.12:.3f});'
             f'tl.fromTo("#scene-{i} .scene-detail",{{y:30,opacity:0}},{{y:0,opacity:1,duration:.5,ease:"power2.out"}},{at+.32:.3f});'
             f'tl.fromTo("#scene-{i} .visual",{{y:100,scale:.78,rotationZ:{-2 if i%2 else 2},opacity:0}},{{y:0,scale:1,rotationZ:0,opacity:1,duration:.8,ease:"expo.out"}},{at+.42:.3f});'
             f'tl.fromTo("#scene-{i} .visual-item",{{scale:.6,opacity:0}},{{scale:1,opacity:1,duration:.55,stagger:.12,ease:"back.out(1.4)"}},{at+.9:.3f});'
