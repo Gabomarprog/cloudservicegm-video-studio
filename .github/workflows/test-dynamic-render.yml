@@ -1,0 +1,100 @@
+name: Dynamic MP4 renderer smoke test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "dynamic_scenes.py"
+      - "build_dynamic_video.py"
+      - "build_video.py"
+      - "template/dynamic.template.html"
+      - ".github/workflows/test-dynamic-render.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  render-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Ensure FFmpeg
+        shell: bash
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            timeout 90s sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 update
+            timeout 90s sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 install -y ffmpeg
+          fi
+          ffmpeg -version
+      - name: Install HyperFrames and motion dependencies
+        run: npm install --no-save hyperframes@latest gsap @fontsource/anton@5.3.0
+      - name: Create synthetic audio and test storyboard
+        run: |
+          python3 - <<'PY'
+          import json, math, struct, wave
+          from pathlib import Path
+          rate=24000
+          duration=15
+          with wave.open("narration.wav","wb") as out:
+              out.setnchannels(1)
+              out.setsampwidth(2)
+              out.setframerate(rate)
+              samples=(int(900*math.sin(2*math.pi*440*i/rate)) for i in range(rate*duration))
+              out.writeframes(b"".join(struct.pack("<h",v) for v in samples))
+          transcript=[
+            {"text":"Hoy vamos a entender","start":0.0,"end":2.8},
+            {"text":"una idea paso a paso","start":2.9,"end":5.5},
+            {"text":"con ejemplos visuales","start":5.6,"end":8.4},
+            {"text":"y una explicación clara","start":8.5,"end":11.7}
+          ]
+          Path("transcript.json").write_text(json.dumps(transcript,ensure_ascii=False),encoding="utf-8")
+          storyboard={"scenes":[
+            {"visual":"lightbulb","label":"LA IDEA","headline":"Todo empieza con una pregunta","detail":"Una escena visual que representa el descubrimiento.","chips":["Idea","Curiosidad"],"stat":"IDEA"},
+            {"visual":"brain","label":"COMPRENDER","headline":"Conecta las piezas","detail":"El concepto se transforma en una explicación fácil de seguir.","chips":["Pensar","Aprender"],"stat":"CONEXIÓN"},
+            {"visual":"book","label":"APLICAR","headline":"Llévalo a la práctica","detail":"Una secuencia visual para entender los pasos principales.","chips":["Ejemplo","Práctica"],"stat":"PASO A PASO"},
+            {"visual":"cta","label":"CIERRE","headline":"Sigue aprendiendo","detail":"Cloudservicegm · contenido y tecnología.","chips":[],"stat":"C"}
+          ]}
+          Path("storyboard.json").write_text(json.dumps(storyboard,ensure_ascii=False),encoding="utf-8")
+          PY
+      - name: Initialize HyperFrames project
+        run: |
+          npx hyperframes init render-project --non-interactive --example blank --skip-skills
+          mkdir -p render-project/assets
+          cp node_modules/gsap/dist/gsap.min.js render-project/assets/gsap.min.js
+          cp node_modules/@fontsource/anton/files/anton-latin-400-normal.woff2 render-project/assets/anton.woff2
+          cp narration.wav render-project/assets/narration.wav
+      - name: Build the data-driven HTML composition
+        run: |
+          python3 build_dynamic_video.py \
+            --transcript transcript.json \
+            --audio narration.wav \
+            --template template/dynamic.template.html \
+            --output render-project/index.html \
+            --assets render-project/assets \
+            --title "Dynamic renderer smoke test" \
+            --storyboard storyboard.json
+      - name: Validate HyperFrames composition
+        run: npx hyperframes lint render-project
+      - name: Render a real MP4
+        working-directory: render-project
+        run: npx hyperframes render --output dynamic-smoke-test.mp4 --fps 30 --quality standard --workers 2
+      - name: Verify MP4
+        run: |
+          test -s render-project/dynamic-smoke-test.mp4
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 render-project/dynamic-smoke-test.mp4
+      - name: Upload smoke-test video
+        uses: actions/upload-artifact@v4
+        with:
+          name: dynamic-render-smoke-test
+          path: render-project/dynamic-smoke-test.mp4
+          retention-days: 1
