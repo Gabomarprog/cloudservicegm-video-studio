@@ -15,13 +15,31 @@ from build_video import (
 ROOT = Path(__file__).resolve().parent
 BASE_TEMPLATE = ROOT / "manual_compositions" / "base.template.html"
 
+# Captions are deliberately restrained lower-thirds. The visual composition
+# owns the centre of the frame; subtitles must never compete with its objects.
 CAPTION_CSS = r"""
-.kinetic-clip.manual-caption{position:absolute;z-index:80;inset:0;display:flex;align-items:center;justify-content:flex-end;padding:0 66px 135px;pointer-events:none;perspective:1200px}
-.kinetic-clip.manual-caption .type-wrap{width:92%;max-width:940px;padding:18px 25px;border-radius:18px;background:rgba(5,12,20,.84);border:1px solid rgba(114,235,208,.4);box-shadow:0 18px 50px #0009}
-.kinetic-clip.manual-caption .headline{width:100%;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:.2em;font:900 var(--type-size,130px)/.92 Arial,sans-serif;text-transform:uppercase;text-align:center;color:#fff}
+.kinetic-clip.manual-caption{
+  position:absolute;z-index:80;left:0;right:0;top:auto;bottom:158px;height:178px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 82px;pointer-events:none;perspective:1200px;
+}
+.kinetic-clip.manual-caption .type-wrap{
+  width:100%;max-width:920px;min-height:82px;padding:12px 22px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:17px;background:linear-gradient(110deg,rgba(4,12,21,.88),rgba(7,19,29,.78));
+  border:1px solid rgba(114,235,208,.24);
+  box-shadow:0 12px 36px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.055);
+  backdrop-filter:blur(8px);
+}
+.kinetic-clip.manual-caption .headline{
+  width:100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:.12em .28em;text-align:center;max-height:150px;overflow:hidden;
+  font:800 clamp(42px,5.1vw,58px)/1.06 Arial,sans-serif !important;
+  letter-spacing:-1.2px;text-transform:uppercase;color:#f7fbff;
+}
 .kinetic-clip.manual-caption .word{display:inline-flex;white-space:nowrap}
 .kinetic-clip.manual-caption .char{display:inline-block;will-change:transform,opacity}
-.kinetic-clip.manual-caption .accent-word{color:#69e7c8}
+.kinetic-clip.manual-caption .accent-word{color:#72efcf;text-shadow:0 0 18px rgba(76,225,190,.20)}
 """
 
 def load_design(package_dir: Path):
@@ -168,7 +186,7 @@ def main():
     replacements = {
         "{{DURATION}}": f"{duration:.3f}",
         "{{DESIGN_CSS}}": css,
-        "{{SCENES}}": scene_html,
+        "{{SCENES}}": "\n".join(html_parts for html_parts in [scene_html]),
         "{{SCENE_ANIMS}}": scene_anims,
         "{{CAPTIONS}}": "\n".join(captions),
         "{{CAPTION_ANIMS}}": "\n".join(caption_anims),
