@@ -48,7 +48,7 @@ def main():
     for i,g in enumerate(groups):
         start=g[0]["start"]; next_start=groups[i+1][0]["start"] if i+1<len(groups) else duration
         end=min(duration,g[-1]["end"]+.10,max(start+.2,next_start-.02))
-        markup,anim=make_caption(g,i,start,end,duration)
+        markup,anim=make_caption(g,i,start,end,duration,dynamic=True)
         captions.append(markup);caption_anims.append(anim)
     storyboard=json.loads(Path(a.storyboard).read_text(encoding="utf-8"))
     scene_html,scene_anims,starts,visuals=render_scenes(storyboard,duration)
