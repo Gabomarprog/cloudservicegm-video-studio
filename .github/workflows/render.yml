@@ -77,21 +77,31 @@ jobs:
           test -s narration.txt
       - name: Descargar audio temporal de ElevenLabs
         if: ${{ inputs.audio_url != '' }}
-        env:
-          AUDIO_URL: ${{ inputs.audio_url }}
         run: |
+          # Read the temporary URL from the event file so it is not echoed as a step environment value.
+          AUDIO_URL="$(python3 -c 'import json, os; print(json.load(open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8")).get("inputs", {}).get("audio_url", ""))')"
           if [[ ! "$AUDIO_URL" =~ ^https://[a-z0-9-]+\.trycloudflare\.com/[A-Za-z0-9_-]+$ ]]; then
             echo "::error::La URL de audio no tiene el formato temporal esperado."
             exit 1
           fi
-          curl --fail --silent --show-error --location --retry 3 --retry-delay 2 \
-            --connect-timeout 15 --max-time 300 "$AUDIO_URL" --output narration.mp3
+          # Mask the bearer URL before any command uses it.
+          echo "::add-mask::$AUDIO_URL"
+          # Use HTTP/1.1: the previous run failed with curl 92 during HTTP/2 stream shutdown.
+          curl --http1.1 --fail --silent --show-error --location \
+            --retry 6 --retry-all-errors --retry-delay 3 --retry-max-time 180 \
+            --connect-timeout 30 --max-time 600 \
+            "$AUDIO_URL" --output narration.mp3
           test -s narration.mp3
           ffmpeg -hide_banner -loglevel error -y -i narration.mp3 \
             -ar 24000 -ac 1 -c:a pcm_s16le narration.wav
           rm -f narration.mp3
           test -s narration.wav
-          echo "Audio de ElevenLabs recibido y convertido."
+          # Confirm receipt only after the MP3 has been fully downloaded and converted.
+          curl --http1.1 --fail --silent --show-error --request POST \
+            --retry 4 --retry-all-errors --retry-delay 2 --retry-max-time 60 \
+            --connect-timeout 20 --max-time 90 \
+            "${AUDIO_URL}/complete"
+          echo "Audio de ElevenLabs recibido, convertido y confirmado."
       - name: Generar narración de respaldo con Qwen3-TTS Ryan 0.6B
         if: ${{ inputs.audio_url == '' }}
         run: |
