@@ -2,6 +2,7 @@
 """Local browser UI for cloudservicegm. ElevenLabs keys stay in this process only."""
 
 import json
+import base64
 import mimetypes
 import re
 import secrets
@@ -16,11 +17,13 @@ import queue
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from ai_director import create_director_plan
+from transcript_utils import flatten_transcript, align_edited_text
 
 ROOT = Path(__file__).resolve().parent
 HTML_FILE = ROOT / "web" / "index.html"
 REPOSITORY = "Gabomarprog/cloudservicegm-video-studio"
-WORKFLOW = ".github/workflows/render.yml"
+WORKFLOW = ".github/workflows/ai-video.yml"
 MODEL_ID = "eleven_multilingual_v2"
 HOST = "127.0.0.1"
 PORT = 8765
@@ -32,6 +35,9 @@ STATE = {
     "render_running": False,
     "render_status": "Listo. Introduce los datos para crear tu primera muestra.",
     "actions_url": None,
+    "transcript_data": None,
+    "storyboard": None,
+    "topic": None,
 }
 
 
@@ -121,8 +127,19 @@ class StudioHandler(BaseHTTPRequestHandler):
                     "render_running": STATE["render_running"],
                     "render_status": STATE["render_status"],
                     "actions_url": STATE["actions_url"],
+                    "transcript_ready": STATE["transcript_data"] is not None,
                 }
             self._send_json(200, data)
+            return
+
+        if self.path == "/api/transcript":
+            with STATE_LOCK:
+                payload = STATE["transcript_data"]
+            if payload is None:
+                self._send_json(404, {"error": "Todavía no hay transcripción disponible."})
+                return
+            from transcript_utils import transcript_text
+            self._send_json(200, {"ok": True, "text": transcript_text(payload)})
             return
 
         match = re.fullmatch(r"/api/audio/([A-Za-z0-9_-]{16,80})", self.path)
@@ -151,6 +168,10 @@ class StudioHandler(BaseHTTPRequestHandler):
             self._generate()
         elif route == "/api/upload":
             self._upload()
+        elif route == "/api/direct":
+            self._direct()
+        elif route == "/api/transcribe":
+            self._transcribe()
         elif route == "/api/render":
             self._render()
         else:
@@ -219,7 +240,9 @@ class StudioHandler(BaseHTTPRequestHandler):
                 STATE["audio_mime"] = "audio/mpeg"
                 STATE["title"] = title
                 STATE["script"] = script
-                STATE["render_status"] = "Muestra lista. Escúchala antes de lanzar el render."
+                STATE["transcript_data"] = None
+                STATE["storyboard"] = None
+                STATE["render_status"] = "Muestra lista. Escúchala antes de preparar la transcripción."
                 STATE["actions_url"] = None
 
             self._send_json(200, {
@@ -272,7 +295,9 @@ class StudioHandler(BaseHTTPRequestHandler):
                 STATE["audio_mime"] = audio_mime
                 STATE["title"] = title
                 STATE["script"] = script
-                STATE["render_status"] = "Audio importado. Escúchalo antes de lanzar el render."
+                STATE["transcript_data"] = None
+                STATE["storyboard"] = None
+                STATE["render_status"] = "Audio importado. Escúchalo antes de preparar la transcripción."
                 STATE["actions_url"] = None
             self._send_json(200, {
                 "ok": True, "sample_id": sample_id, "audio_bytes": len(audio),
@@ -284,50 +309,117 @@ class StudioHandler(BaseHTTPRequestHandler):
         except Exception as exc:
             self._send_json(500, {"error": "No se pudo importar el audio: %s" % exc})
 
-    def _render(self):
+    def _direct(self):
+        try:
+            data = self._read_json()
+            api_key = str(data.get("gemini_api_key", "")).strip()
+            topic = str(data.get("topic", "")).strip()
+            transcript = str(data.get("transcript", "")).strip()
+            title = str(data.get("title", "")).strip()
+            if len(transcript) > 12000:
+                raise ValueError("La transcripción supera los 12.000 caracteres.")
+            plan = create_director_plan(
+                api_key=api_key, topic=topic, transcript=transcript or None,
+                desired_title=title or topic, duration=55
+            )
+            with STATE_LOCK:
+                STATE["topic"] = topic
+                STATE["title"] = plan.get("title") or title or topic
+                STATE["storyboard"] = {"scenes": plan["scenes"]}
+                if plan.get("script"):
+                    STATE["script"] = plan["script"]
+            self._send_json(200, {
+                "ok": True, "title": plan.get("title") or title or topic,
+                "script": plan.get("script", ""), "scenes": plan["scenes"],
+                "message": "El director creativo preparó el guion y el storyboard."
+            })
+        except ValueError as exc:
+            self._send_json(400, {"error": str(exc)})
+        except Exception as exc:
+            self._send_json(502, {"error": "No se pudo generar la propuesta creativa: %s" % exc})
+
+    def _transcribe(self):
         try:
             data = self._read_json()
             sample_id = str(data.get("sample_id", ""))
             with STATE_LOCK:
-                valid = (
-                    sample_id and sample_id == STATE["preview_id"]
-                    and STATE["audio"] is not None
-                )
+                valid = bool(sample_id and sample_id == STATE["preview_id"] and STATE["audio"] is not None)
                 already_running = STATE["render_running"]
-                title = STATE["title"]
-                script = STATE["script"]
-                audio = STATE["audio"]
-                audio_mime = STATE["audio_mime"]
-
+                title, script = STATE["title"], STATE["script"]
+                audio, audio_mime = STATE["audio"], STATE["audio_mime"]
             if not valid:
-                raise ValueError("Genera una muestra nueva antes de renderizar.")
+                raise ValueError("Prepara o importa un audio antes de transcribirlo.")
             if already_running:
-                raise ValueError("Ya hay una transferencia en curso.")
+                raise ValueError("Ya hay un proceso en curso.")
             missing = [name for name in ("gh", "cloudflared") if not shutil.which(name)]
             if missing:
-                raise ValueError(
-                    "Faltan herramientas: %s. Instálalas según el README del proyecto."
-                    % ", ".join(missing)
-                )
-            auth = subprocess.run(
-                ["gh", "auth", "status"],
-                capture_output=True, text=True, timeout=20
-            )
+                raise ValueError("Faltan herramientas: %s." % ", ".join(missing))
+            auth = subprocess.run(["gh", "auth", "status"], capture_output=True, text=True, timeout=20)
             if auth.returncode != 0:
-                raise ValueError("GitHub CLI no está autenticado. Ejecuta gh auth login en PowerShell.")
-
+                raise ValueError("GitHub CLI no está autenticado. Ejecuta gh auth login.")
             with STATE_LOCK:
-                if STATE["render_running"]:
-                    raise ValueError("Ya hay una transferencia en curso.")
                 STATE["render_running"] = True
-                STATE["render_status"] = "Preparando transferencia temporal del audio a GitHub Actions..."
-                STATE["actions_url"] = "https://github.com/%s/actions/workflows/render.yml" % REPOSITORY
+                STATE["transcript_data"] = None
+                STATE["render_status"] = "Enviando el audio a GitHub para transcribirlo. El render todavía no comenzará."
+                STATE["actions_url"] = "https://github.com/%s/actions/workflows/ai-video.yml" % REPOSITORY
+            threading.Thread(
+                target=render_worker,
+                args=("transcribe", title, script, audio, audio_mime, None, None),
+                daemon=True
+            ).start()
+            self._send_json(200, {"ok": True, "message": "Transcripción remota iniciada."})
+        except ValueError as exc:
+            self._send_json(400, {"error": str(exc)})
+        except subprocess.TimeoutExpired:
+            self._send_json(502, {"error": "La comprobación de GitHub tardó demasiado."})
+        except Exception as exc:
+            self._send_json(500, {"error": "No se pudo iniciar la transcripción: %s" % exc})
 
-            worker = threading.Thread(
-                target=render_worker, args=(title, script, audio, audio_mime), daemon=True
-            )
-            worker.start()
-            self._send_json(200, {"ok": True, "message": "Preparando el render en la nube."})
+    def _render(self):
+        try:
+            data = self._read_json()
+            sample_id = str(data.get("sample_id", ""))
+            edited_text = str(data.get("transcript_text", "")).strip()
+            with STATE_LOCK:
+                valid = bool(sample_id and sample_id == STATE["preview_id"] and STATE["audio"] is not None)
+                already_running = STATE["render_running"]
+                original_transcript = STATE["transcript_data"]
+                storyboard = STATE["storyboard"]
+                title, script = STATE["title"], STATE["script"]
+                audio, audio_mime = STATE["audio"], STATE["audio_mime"]
+            if not valid:
+                raise ValueError("La muestra de audio ya no está disponible. Vuelve a prepararla.")
+            if already_running:
+                raise ValueError("Ya hay un proceso en curso.")
+            if original_transcript is None:
+                raise ValueError("Primero debes transcribir y revisar el audio.")
+            if not storyboard:
+                raise ValueError("Primero genera la propuesta visual con el director IA.")
+            if not edited_text or len(edited_text) > 12000:
+                raise ValueError("La transcripción corregida está vacía o supera 12.000 caracteres.")
+            old_words = flatten_transcript(original_transcript)
+            duration = max((x["end"] for x in old_words), default=55.0) + 0.2
+            aligned = align_edited_text(edited_text, original_transcript, duration)
+            transcript_json = json.dumps(aligned, ensure_ascii=False).encode("utf-8")
+            storyboard_json = json.dumps(storyboard, ensure_ascii=False).encode("utf-8")
+            if len(transcript_json) > 50000 or len(storyboard_json) > 20000:
+                raise ValueError("El guion o storyboard es demasiado grande para enviarlo a GitHub.")
+            missing = [name for name in ("gh", "cloudflared") if not shutil.which(name)]
+            if missing:
+                raise ValueError("Faltan herramientas: %s." % ", ".join(missing))
+            auth = subprocess.run(["gh", "auth", "status"], capture_output=True, text=True, timeout=20)
+            if auth.returncode != 0:
+                raise ValueError("GitHub CLI no está autenticado. Ejecuta gh auth login.")
+            with STATE_LOCK:
+                STATE["render_running"] = True
+                STATE["render_status"] = "Transcripción confirmada. Preparando el render del MP4 en GitHub..."
+                STATE["actions_url"] = "https://github.com/%s/actions/workflows/ai-video.yml" % REPOSITORY
+            threading.Thread(
+                target=render_worker,
+                args=("render", title, script, audio, audio_mime, transcript_json, storyboard_json),
+                daemon=True
+            ).start()
+            self._send_json(200, {"ok": True, "message": "Transcripción aprobada. Render iniciado."})
         except ValueError as exc:
             self._send_json(400, {"error": str(exc)})
         except subprocess.TimeoutExpired:
@@ -346,6 +438,8 @@ class OneShotAudioServer(ThreadingHTTPServer):
         self.audio_mime = audio_mime
         self.guard = threading.Lock()
         self.downloaded = threading.Event()
+        self.transcript_received = threading.Event()
+        self.transcript_payload = None
         self.download_count = 0
         self.max_downloads = 8
 
@@ -373,22 +467,40 @@ class OneShotAudioServer(ThreadingHTTPServer):
                     self.wfile.write(body)
                     self.wfile.flush()
                 except (BrokenPipeError, ConnectionResetError):
-                    # Do not consume the token on a broken transfer; GitHub may retry.
                     return
 
             def do_POST(self):
-                if self.path != "/" + self.server.token + "/complete":
-                    self.send_error(404)
+                route = urllib.parse.urlsplit(self.path).path
+                if route == "/" + self.server.token + "/complete":
+                    self.server.downloaded.set()
+                    self.send_response(204)
+                    self.send_header("Content-Length", "0")
+                    self.end_headers()
                     return
-                self.server.downloaded.set()
-                self.send_response(204)
-                self.send_header("Content-Length", "0")
-                self.end_headers()
+                if route == "/" + self.server.token + "/transcript":
+                    try:
+                        length = int(self.headers.get("Content-Length", "0"))
+                        if length <= 0 or length > 2_000_000:
+                            self.send_error(413)
+                            return
+                        payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                        if not flatten_transcript(payload):
+                            self.send_error(422, "Transcript JSON contains no timed words.")
+                            return
+                        self.server.transcript_payload = payload
+                        self.server.transcript_received.set()
+                        self.send_response(204)
+                        self.send_header("Content-Length", "0")
+                        self.end_headers()
+                    except Exception:
+                        self.send_error(400, "Invalid transcript JSON.")
+                    return
+                self.send_error(404)
 
         super().__init__(address, Handler)
 
 
-def render_worker(title, script, audio, audio_mime):
+def render_worker(stage, title, script, audio, audio_mime, transcript_json=None, storyboard_json=None):
     audio_server = None
     tunnel = None
     try:
@@ -396,32 +508,22 @@ def render_worker(title, script, audio, audio_mime):
         audio_server = OneShotAudioServer((HOST, 0), token, audio, audio_mime)
         port = audio_server.server_address[1]
         threading.Thread(target=audio_server.serve_forever, daemon=True).start()
-
         tunnel = subprocess.Popen(
-            [
-                "cloudflared", "tunnel", "--url",
-                "http://%s:%d" % (HOST, port),
-                "--no-autoupdate",
-            ],
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            text=True, bufsize=1,
+            ["cloudflared", "tunnel", "--url", "http://%s:%d" % (HOST, port), "--no-autoupdate"],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
         url_queue = queue.Queue(maxsize=1)
-
         def read_tunnel():
             try:
                 for line in tunnel.stdout:
                     match = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", line)
                     if match:
-                        try:
-                            url_queue.put_nowait(match.group(0))
-                        except queue.Full:
-                            pass
+                        try: url_queue.put_nowait(match.group(0))
+                        except queue.Full: pass
                         return
             except Exception:
                 return
-
         threading.Thread(target=read_tunnel, daemon=True).start()
         try:
             tunnel_url = url_queue.get(timeout=90)
@@ -429,65 +531,66 @@ def render_worker(title, script, audio, audio_mime):
             raise RuntimeError("Cloudflare no generó una URL temporal. Comprueba la conexión y cloudflared.")
 
         action_inputs = {
-            "title": title,
-            "script": script,
+            "stage": stage,
+            "title": title or "Video cloudservicegm",
             "audio_url": tunnel_url + "/" + token,
+            "callback_url": tunnel_url + "/" + token,
         }
+        if stage == "render":
+            action_inputs["transcript_json_b64"] = base64.b64encode(transcript_json).decode("ascii")
+            action_inputs["storyboard_json_b64"] = base64.b64encode(storyboard_json).decode("ascii")
+
         result = subprocess.run(
-            [
-                "gh", "workflow", "run", WORKFLOW,
-                "--repo", REPOSITORY, "--ref", "main", "--json",
-            ],
+            ["gh", "workflow", "run", WORKFLOW, "--repo", REPOSITORY, "--ref", "main", "--json"],
             input=json.dumps(action_inputs, ensure_ascii=False),
             capture_output=True, text=True, timeout=90,
         )
         if result.returncode != 0:
-            raise RuntimeError(
-                (result.stderr or result.stdout or "GitHub no aceptó el workflow.").strip()[:900]
-            )
+            raise RuntimeError((result.stderr or result.stdout or "GitHub no aceptó el workflow.").strip()[:900])
 
-        actions_url = "https://github.com/%s/actions/workflows/render.yml" % REPOSITORY
+        actions_url = "https://github.com/%s/actions/workflows/ai-video.yml" % REPOSITORY
         set_status(
-            "GitHub Actions inició el trabajo. Esperando la descarga del audio temporal...",
-            running=True, actions_url=actions_url,
+            "GitHub está preparando la transcripción..." if stage == "transcribe" else "GitHub está recibiendo los datos para renderizar...",
+            running=True, actions_url=actions_url
         )
-        try:
-            webbrowser.open(actions_url)
-        except Exception:
-            pass
+        try: webbrowser.open(actions_url)
+        except Exception: pass
 
-        deadline = time.monotonic() + 900
+        deadline = time.monotonic() + (1200 if stage == "transcribe" else 900)
+        if stage == "transcribe":
+            while time.monotonic() < deadline:
+                if audio_server.downloaded.is_set() and audio_server.transcript_received.is_set():
+                    with STATE_LOCK:
+                        STATE["transcript_data"] = audio_server.transcript_payload
+                    set_status("Transcripción recibida. Revísala y corrige cualquier error antes de confirmar el video.", running=False, actions_url=actions_url)
+                    return
+                time.sleep(.4)
+            raise RuntimeError("GitHub no devolvió la transcripción dentro del límite. Revisa la ejecución de Actions.")
         while time.monotonic() < deadline:
-            if audio_server.downloaded.wait(timeout=0.5):
-                set_status(
-                    "GitHub recibió el audio. La URL temporal se consumió y el túnel se cerrará. "
-                    "El render del MP4 continúa en GitHub Actions.",
-                    running=False, actions_url=actions_url,
-                )
+            if audio_server.downloaded.wait(timeout=.5):
+                set_status("GitHub recibió el audio y los datos aprobados. El render MP4 continúa en GitHub Actions.", running=False, actions_url=actions_url)
                 return
-
         raise RuntimeError("GitHub no descargó el audio dentro de 15 minutos. Vuelve a iniciar la transferencia.")
     except Exception as exc:
-        set_status("No se completó la transferencia: %s" % exc, running=False)
+        set_status("No se completó el proceso: %s" % exc, running=False)
     finally:
         if tunnel is not None:
             try:
                 tunnel.terminate()
                 tunnel.wait(timeout=5)
             except Exception:
-                try:
-                    tunnel.kill()
-                except Exception:
-                    pass
+                try: tunnel.kill()
+                except Exception: pass
         if audio_server is not None:
             try:
                 audio_server.shutdown()
                 audio_server.server_close()
             except Exception:
                 pass
-        with STATE_LOCK:
-            STATE["audio"] = None
-            STATE["preview_id"] = None
+        if stage == "render":
+            with STATE_LOCK:
+                STATE["audio"] = None
+                STATE["preview_id"] = None
 
 
 def main():
