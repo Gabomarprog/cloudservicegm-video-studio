@@ -1,0 +1,75 @@
+name: Check Ubuntu repository connectivity
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/check-ubuntu-repos.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  connectivity:
+    name: DNS and HTTPS checks (no installation)
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Identify runner Ubuntu release
+        id: os
+        shell: bash
+        run: |
+          . /etc/os-release
+          echo "Ubuntu version: ${PRETTY_NAME}"
+          echo "Codename: ${VERSION_CODENAME}"
+          echo "codename=${VERSION_CODENAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Check DNS resolution
+        shell: bash
+        run: |
+          set -u
+          failed=0
+          for host in azure.archive.ubuntu.com archive.ubuntu.com security.ubuntu.com; do
+            echo "::group::DNS $host"
+            if getent ahosts "$host"; then
+              echo "DNS OK: $host"
+            else
+              echo "::error::DNS FAILED: $host"
+              failed=1
+            fi
+            echo "::endgroup::"
+          done
+          exit "$failed"
+
+      - name: Check HTTPS access to Ubuntu package indexes
+        env:
+          CODENAME: ${{ steps.os.outputs.codename }}
+        shell: bash
+        run: |
+          set -u
+          failed=0
+          check_url() {
+            name="$1"
+            url="$2"
+            echo "::group::$name"
+            if curl --fail --silent --show-error --location \
+              --connect-timeout 8 --max-time 15 \
+              --output /dev/null \
+              --write-out "HTTP %{http_code} | remote %{remote_ip} | %{url_effective}\n" \
+              "$url"; then
+              echo "HTTPS OK: $name"
+            else
+              echo "::error::HTTPS FAILED: $name"
+              failed=1
+            fi
+            echo "::endgroup::"
+          }
+
+          check_url "Azure Ubuntu archive" "https://azure.archive.ubuntu.com/ubuntu/dists/$CODENAME/InRelease"
+          check_url "Ubuntu archive" "https://archive.ubuntu.com/ubuntu/dists/$CODENAME/InRelease"
+          check_url "Ubuntu security archive" "https://security.ubuntu.com/ubuntu/dists/$CODENAME-security/InRelease"
+          exit "$failed"
+
+      - name: Result
+        if: success()
+        run: echo "All Ubuntu repository DNS and HTTPS checks passed. This runner can reach the repositories; no packages were installed."
