@@ -75,7 +75,7 @@ def group_words(words, max_words=4, max_span=2.15, pause=0.42):
     return groups
 
 
-def make_caption(group, index, start, end, duration):
+def make_caption(group, index, start, end, duration, dynamic=False):
     phrase = " ".join(word["text"] for word in group)
     plain = re.sub(r"\s+", " ", phrase).strip()
     chars = len(plain)
@@ -88,15 +88,21 @@ def make_caption(group, index, start, end, duration):
     modes = ["slam", "letters", "wipe", "side", "stretch", "flip"]
     accents = ["red", "mint", "yellow", "white"]
     progress = start / max(1.0, duration)
-    if 0.12 <= progress < 0.25:
-        layout = "upper"  # keep the phone's screen visible below the headline
-    elif progress < 0.25:
-        layout = layouts[index % len(layouts)]
+    if dynamic:
+        # Topic-adaptive scenes use a stable lower-third caption zone so they do
+        # not cover the central object or diagram selected for each scene.
+        layout = "lower"
+        contrast = "contrast-dark"
     else:
-        layout = ["upper", "left", "upper", "right"][index % 4]
+        if 0.12 <= progress < 0.25:
+            layout = "upper"  # keep the legacy phone scene visible below the headline
+        elif progress < 0.25:
+            layout = layouts[index % len(layouts)]
+        else:
+            layout = ["upper", "left", "upper", "right"][index % 4]
+        contrast = "contrast-light" if (0.25 <= progress < 0.39 or progress >= 0.83) else "contrast-dark"
     mode = modes[index % len(modes)]
-    accent = accents[index % len(accents)]
-    contrast = "contrast-light" if (0.25 <= progress < 0.39 or progress >= 0.83) else "contrast-dark"
+    accent = accents[index % len(accents)
 
     word_markup = []
     for word_index, word in enumerate(group):
@@ -108,8 +114,9 @@ def make_caption(group, index, start, end, duration):
         word_markup.append(f'<span class="{word_class}">{glyphs}</span>')
     markup = " ".join(word_markup)
 
+    dynamic_class = " dynamic-caption" if dynamic else ""
     clip = (
-        f'<div class="kinetic-clip layout-{layout} mode-{mode} accent-{accent} {contrast}" '
+        f'<div class="kinetic-clip layout-{layout} mode-{mode} accent-{accent} {contrast}{dynamic_class}" '
         f'id="beat-{index}" style="--type-size:{font_size}px">'
         f'<div class="type-wrap"><div class="headline">{markup}</div></div></div>'
     )
