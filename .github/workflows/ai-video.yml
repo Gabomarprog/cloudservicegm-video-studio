@@ -76,11 +76,10 @@ jobs:
       - name: Instalar HyperFrames, GSAP y fuente
         run: npm install --no-save hyperframes@latest gsap @fontsource/anton@5.3.0
       - name: Validar y descargar audio temporal
-        env:
-          AUDIO_URL: ${{ inputs.audio_url }}
-          CALLBACK_URL: ${{ inputs.callback_url }}
         shell: bash
         run: |
+          AUDIO_URL="$(python3 -c 'import json, os; print(json.load(open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8")).get("inputs", {}).get("audio_url", ""))')"
+          CALLBACK_URL="$(python3 -c 'import json, os; print(json.load(open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8")).get("inputs", {}).get("callback_url", ""))')"
           if [[ ! "$AUDIO_URL" =~ ^https://[a-z0-9-]+\.trycloudflare\.com/[A-Za-z0-9_-]+$ ]]; then
             echo "::error::La URL temporal del audio no tiene el formato esperado."
             exit 1
@@ -120,9 +119,8 @@ jobs:
           PY
       - name: Devolver transcripción a Video Studio
         if: ${{ inputs.stage == 'transcribe' }}
-        env:
-          CALLBACK_URL: ${{ inputs.callback_url }}
         run: |
+          CALLBACK_URL="$(python3 -c 'import json, os; print(json.load(open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8")).get("inputs", {}).get("callback_url", ""))')"
           if [ -z "$CALLBACK_URL" ]; then
             echo "::error::Falta el callback temporal para devolver la transcripción."
             exit 1
