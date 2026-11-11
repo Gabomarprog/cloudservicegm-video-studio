@@ -1,0 +1,131 @@
+name: Manual composition render
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Título del video"
+        required: true
+        type: string
+      composition_id:
+        description: "ID del diseño programado manualmente"
+        required: true
+        type: string
+      audio_url:
+        description: "URL temporal del audio importado"
+        required: true
+        type: string
+      transcript_json_b64:
+        description: "Transcripción corregida con marcas de tiempo"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore npm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: cloudservicegm-manual-npm-${{ runner.os }}-v1
+      - name: Restore HyperFrames browser cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/hyperframes/chrome
+            ~/.cache/ms-playwright
+            ~/.cache/puppeteer
+          key: cloudservicegm-manual-browser-${{ runner.os }}-v1
+      - name: Ensure FFmpeg
+        shell: bash
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            timeout 90s sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 update
+            timeout 90s sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 install -y ffmpeg
+          fi
+          ffmpeg -version
+      - name: Install HyperFrames and GSAP
+        run: npm install --no-save hyperframes@latest gsap @fontsource/anton@5.3.0
+      - name: Read and mask temporary audio URL
+        id: audio
+        shell: bash
+        run: |
+          AUDIO_URL="$(python3 -c 'import json, os; print(json.load(open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8")).get("inputs", {}).get("audio_url", ""))')"
+          if [[ ! "$AUDIO_URL" =~ ^https://[a-z0-9-]+\.trycloudflare\.com/[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::URL temporal de audio no válida."
+            exit 1
+          fi
+          echo "::add-mask::$AUDIO_URL"
+          echo "url=$AUDIO_URL" >> "$GITHUB_OUTPUT"
+      - name: Download and normalize imported narration
+        env:
+          AUDIO_URL: ${{ steps.audio.outputs.url }}
+        run: |
+          curl --http1.1 --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 2 --retry-max-time 90 --connect-timeout 15 --max-time 300 "$AUDIO_URL" --output narration.input
+          test -s narration.input
+          ffmpeg -hide_banner -loglevel error -y -i narration.input -ar 24000 -ac 1 -c:a pcm_s16le narration.wav
+          rm -f narration.input
+          test -s narration.wav
+          curl --http1.1 --fail --silent --show-error --request POST --retry 3 --retry-all-errors --retry-delay 2 --retry-max-time 30 --connect-timeout 10 --max-time 45 "$AUDIO_URL/complete"
+      - name: Decode approved transcript and validate composition ID
+        env:
+          TRANSCRIPT_B64: ${{ inputs.transcript_json_b64 }}
+          COMPOSITION_ID: ${{ inputs.composition_id }}
+        run: |
+          python3 - <<'PY'
+          import base64, json, os, re
+          from pathlib import Path
+          cid=os.environ["COMPOSITION_ID"]
+          if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{1,48}", cid):
+              raise SystemExit("Composition ID inválido.")
+          raw=os.environ.get("TRANSCRIPT_B64","")
+          if not raw:
+              raise SystemExit("Falta la transcripción aprobada.")
+          data=base64.b64decode(raw, validate=True)
+          parsed=json.loads(data.decode("utf-8"))
+          if not isinstance(parsed,list) or not parsed:
+              raise SystemExit("La transcripción aprobada no es una lista de palabras.")
+          Path("transcript.json").write_bytes(data)
+          print(f"Transcripción validada: {len(parsed)} palabras.")
+          PY
+          test -f "manual_compositions/$COMPOSITION_ID/design.py"
+      - name: Initialize HyperFrames
+        run: |
+          npx hyperframes init render-project --non-interactive --example blank --skip-skills
+          mkdir -p render-project/assets
+          cp node_modules/gsap/dist/gsap.min.js render-project/assets/gsap.min.js
+          cp node_modules/@fontsource/anton/files/anton-latin-400-normal.woff2 render-project/assets/anton.woff2
+          cp narration.wav render-project/assets/narration.wav
+      - name: Build hand-authored composition
+        env:
+          TITLE: ${{ inputs.title }}
+          COMPOSITION_ID: ${{ inputs.composition_id }}
+        run: |
+          python3 build_manual_video.py --composition "$COMPOSITION_ID" --transcript transcript.json --audio narration.wav --output render-project/index.html --assets render-project/assets --title "$TITLE"
+      - name: Validate composition
+        run: npx hyperframes lint render-project
+      - name: Render MP4
+        working-directory: render-project
+        run: npx hyperframes render --output cloudservicegm-video.mp4 --fps 30 --quality standard --workers 2
+      - name: Publish MP4
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudservicegm-manual-video
+          path: render-project/cloudservicegm-video.mp4
+          if-no-files-found: error
+          retention-days: 7
