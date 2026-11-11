@@ -25,22 +25,42 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile the isolated manual studio
+      - name: Compile the isolated manual studio and every design
         run: |
           python -m py_compile manual_studio_server.py build_manual_video.py transcript_utils.py build_video.py
-      - name: Validate the manual composition registry
+          find manual_compositions -name design.py -print0 | xargs -0 -r python -m py_compile
+      - name: Validate registry and execute each composition design
         run: |
           python - <<'PY'
-          import json
+          import importlib.util, json
           from pathlib import Path
+          from build_video import SFX_IDS
           data=json.loads(Path("manual_compositions/registry.json").read_text(encoding="utf-8"))
           assert data.get("schema_version")==1
-          assert isinstance(data.get("compositions"),list)
-          for item in data["compositions"]:
+          items=data.get("compositions")
+          assert isinstance(items,list) and items
+          for item in items:
               assert item.get("status")=="ready"
               cid=item.get("id","")
-              assert (Path("manual_compositions")/cid/"design.py").is_file()
-          print("MANUAL_CATALOG_OK",len(data["compositions"]),"ready designs")
+              source=Path("manual_compositions")/cid/"design.py"
+              assert source.is_file(), source
+              spec=importlib.util.spec_from_file_location("manual_design_"+cid,source)
+              module=importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              design=module.build_design(55.733,[],[],"Prueba de validación")
+              scenes=design.get("scenes",[])
+              events=design.get("sfx_events",[])
+              assert 3 <= len(scenes) <= 10, (cid,len(scenes))
+              assert len(events) >= len(scenes), (cid,len(events))
+              assert all(event["id"] in SFX_IDS for event in events), cid
+              assert abs(scenes[0]["start"]) <= .05, cid
+              assert abs(scenes[-1]["end"]-55.733) <= .1, cid
+              for a,b in zip(scenes,scenes[1:]):
+                  assert abs(a["end"]-b["start"]) <= .03, (cid,a,b)
+                  assert isinstance(a.get("markup"),str) and a["markup"]
+                  assert isinstance(a.get("animation"),str) and a["animation"]
+              print("COMPOSITION_SMOKE_OK",cid,len(scenes),"scenes",len(events),"SFX")
+          print("MANUAL_CATALOG_OK",len(items),"ready designs")
           PY
       - name: Validate isolated HTML template and manual page
         run: |
