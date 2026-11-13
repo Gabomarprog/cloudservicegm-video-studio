@@ -71,21 +71,32 @@ function resetAudio(){
  preview.hidden=true;review.hidden=true;placeholder.hidden=false;transcribe.disabled=true;render.disabled=true;
  if(polling){clearInterval(polling);polling=null}
 }
-async function loadCatalog(){
+async function loadCatalog(silent=false){
  try{
+  const previousId=composition.value;
+  const previousIds=new Set(catalogItems.map(item=>item.id));
   const data=await resultOf(await fetch("/api/catalog",{cache:"no-store"}));
   catalogItems=data.compositions||[];composition.replaceChildren();
   if(!catalogItems.length){
    const option=document.createElement("option");option.value="";option.textContent="Todavía no hay diseños publicados";composition.append(option);
    emptyCatalog.hidden=false;file.disabled=true;upload.disabled=true;
    description.textContent="Cada nuevo tema que diseñemos se incorporará aquí como una composición diferente.";
-   message("La tercera modalidad está separada y preparada. Falta crear su primera composición temática.");
+   if(!silent)message("No hay diseños publicados en el catálogo remoto.");
    return;
   }
   const placeholderOption=document.createElement("option");placeholderOption.value="";placeholderOption.textContent="Selecciona un diseño";composition.append(placeholderOption);
   for(const item of catalogItems){const option=document.createElement("option");option.value=item.id;option.textContent=item.title;composition.append(option)}
   composition.disabled=false;emptyCatalog.hidden=true;
- }catch(e){message("No se pudo cargar el catálogo: "+e.message,"error")}
+  if(previousId && catalogItems.some(item=>item.id===previousId)){
+   composition.value=previousId;
+  }
+  const added=catalogItems.filter(item=>!previousIds.has(item.id));
+  if(added.length && silent){
+   message("¡Nuevo diseño disponible! "+added.map(item=>item.title).join(", "),"good");
+  } else if(!silent && !previousIds.size){
+   message("Catálogo actualizado: "+catalogItems.length+" diseños disponibles.","good");
+  }
+ }catch(e){if(!silent)message("No se pudo cargar el catálogo: "+e.message,"error")}
 }
 composition.addEventListener("change",()=>{
  resetAudio();
@@ -147,4 +158,5 @@ async function checkStatus(){
  }catch(e){message("No se pudo consultar el proceso: "+e.message,"error")}
 }
 loadCatalog();
+setInterval(()=>loadCatalog(true),90000);
 </script></body></html>
