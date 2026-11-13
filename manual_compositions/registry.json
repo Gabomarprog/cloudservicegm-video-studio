@@ -14,6 +14,13 @@
       "topic": "Qué es un certificado SSL y cómo participa en una conexión TLS",
       "description": "Credencial digital, campos del certificado, autoridad certificadora, cadena de confianza, verificación del dominio, intercambio TLS, claves, cifrado y vigencia.",
       "status": "ready"
+    },
+    {
+      "id": "ssl-free",
+      "title": "Cómo instalar un SSL gratis",
+      "topic": "Let's Encrypt, validación ACME, Certbot e instalación y renovación automática de HTTPS",
+      "description": "Factura de hosting, Let's Encrypt, validación del dominio por HTTP-01 o DNS-01, Certbot, Nginx y Apache, vigencia y renovación automática, cierre hacia VPS.",
+      "status": "ready"
     }
   ]
 }
