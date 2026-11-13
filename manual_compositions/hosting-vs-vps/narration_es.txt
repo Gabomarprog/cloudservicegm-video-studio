@@ -1,0 +1,17 @@
+¿Sabías que tu página web puede estar compartiendo servidor con cientos de páginas más?
+
+Eso es lo que ocurre con el hosting compartido: varios sitios utilizan los recursos de un mismo servidor.
+
+Y mientras tu proyecto es pequeño, puede funcionar perfectamente.
+
+Pero imagina que tu página empieza a recibir muchas visitas, necesitas instalar aplicaciones propias o quieres tener más control sobre la configuración del servidor.
+
+Ahí es donde entra el VPS.
+
+Un VPS te proporciona un entorno virtual con recursos asignados y mayor libertad para configurar tu propio servidor.
+
+Pero ojo: tener un VPS no significa que tu página será automáticamente más rápida. También importa cómo está configurado y administrado.
+
+Ahora te pregunto: ¿tu página web está en un hosting compartido o ya utilizas un VPS?
+
+En el próximo video vamos a descubrir qué ocurre realmente detrás de una página web cuando alguien escribe su dirección en el navegador.
