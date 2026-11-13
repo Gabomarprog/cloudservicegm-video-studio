@@ -21,6 +21,13 @@
       "topic": "Let's Encrypt, certificados gratuitos, diferencia entre certificado y gestión, renovación automática y hosting",
       "description": "Factura ilustrativa con alternativa de $0, certificado Let's Encrypt, validación del dominio, Certbot, calendario de vencimiento, renovación automática, comparación entre certificado y servicios de instalación/gestión/soporte, pregunta a la comunidad y puente hacia VPS.",
       "status": "ready"
+    },
+    {
+      "id": "hosting-vs-vps",
+      "title": "¿Tu página web necesita un VPS o te basta con un hosting?",
+      "topic": "Diferencias entre hosting compartido y VPS, recursos, crecimiento y control",
+      "description": "Páginas compartiendo un servidor, hosting compartido explicado, proyecto pequeño, crecimiento de visitas y necesidades, servidor físico dividido en entornos virtuales, recursos y control, advertencia sobre rendimiento y pregunta a la comunidad.",
+      "status": "ready"
     }
   ]
 }
