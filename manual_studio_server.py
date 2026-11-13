@@ -17,6 +17,7 @@ import subprocess
 import threading
 import time
 import urllib.parse
+import urllib.request
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -33,6 +34,103 @@ HOST = "127.0.0.1"
 PORT = 8766
 MAX_AUDIO = 120 * 1024 * 1024
 MAX_JSON = 250_000
+
+
+# Remote catalog sync: fetch only the manual renderer and published compositions.
+# The existing local studio stays in place; no full-project download is required.
+SYNC_INTERVAL = 120
+SYNC_LOCK = threading.Lock()
+SYNC_LAST_ATTEMPT = 0.0
+SYNC_MESSAGE = "Todavía no se ha comprobado el catálogo remoto."
+
+def _fetch_repo_text(path, max_bytes=750_000, optional=False):
+    url = f"https://raw.githubusercontent.com/{REPOSITORY}/main/{path}"
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "cloudservicegm-manual-studio/1.0",
+            "Cache-Control": "no-cache",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=15) as response:
+            raw = response.read(max_bytes + 1)
+    except urllib.error.HTTPError as exc:
+        if optional and exc.code == 404:
+            return None
+        raise RuntimeError(f"No se pudo descargar {path} (HTTP {exc.code}).") from exc
+    if len(raw) > max_bytes:
+        raise RuntimeError(f"El archivo remoto {path} supera el tamaño permitido.")
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise RuntimeError(f"El archivo remoto {path} no es UTF-8 válido.") from exc
+
+def _atomic_write(path, content):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".download")
+    try:
+        temporary.write_text(content, encoding="utf-8", newline="\n")
+        os.replace(temporary, path)
+    finally:
+        try:
+            temporary.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+def sync_manual_catalog(force=False):
+    """Update manual-only files from the trusted GitHub repository."""
+    global SYNC_LAST_ATTEMPT, SYNC_MESSAGE
+    now = time.monotonic()
+    if not force and now - SYNC_LAST_ATTEMPT < SYNC_INTERVAL:
+        return SYNC_MESSAGE
+    with SYNC_LOCK:
+        now = time.monotonic()
+        if not force and now - SYNC_LAST_ATTEMPT < SYNC_INTERVAL:
+            return SYNC_MESSAGE
+        SYNC_LAST_ATTEMPT = now
+        try:
+            registry_text = _fetch_repo_text("manual_compositions/registry.json", 100_000)
+            registry = json.loads(registry_text)
+            if registry.get("schema_version") != 1:
+                raise RuntimeError("La versión del catálogo remoto no es compatible.")
+            compositions = registry.get("compositions")
+            if not isinstance(compositions, list) or len(compositions) > 50:
+                raise RuntimeError("El catálogo remoto tiene una estructura no válida.")
+
+            pending = []
+            # Keep the local catalogue untouched if any published design cannot
+            # be fetched and validated completely.
+            builder_text = _fetch_repo_text("build_manual_video.py", 300_000)
+            compile(builder_text, "build_manual_video.py", "exec")
+            pending.append((ROOT / "build_manual_video.py", builder_text))
+
+            ready_count = 0
+            for item in compositions:
+                if not isinstance(item, dict) or item.get("status") != "ready":
+                    continue
+                cid = str(item.get("id", ""))
+                if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{1,48}", cid):
+                    raise RuntimeError("El catálogo contiene un ID de composición no válido.")
+                base = f"manual_compositions/{cid}"
+                design_text = _fetch_repo_text(base + "/design.py", 500_000)
+                compile(design_text, base + "/design.py", "exec")
+                pending.append((ROOT / base / "design.py", design_text))
+
+                narration_text = _fetch_repo_text(base + "/narration_es.txt", 30_000, optional=True)
+                if narration_text is not None:
+                    pending.append((ROOT / base / "narration_es.txt", narration_text))
+                ready_count += 1
+
+            # Write code/package files first and publish the registry last.
+            for path, text_content in pending:
+                _atomic_write(path, text_content)
+            _atomic_write(REGISTRY_FILE, json.dumps(registry, ensure_ascii=False, indent=2) + "\n")
+            SYNC_MESSAGE = f"Catálogo actualizado desde GitHub: {ready_count} diseños disponibles."
+        except Exception as exc:
+            SYNC_MESSAGE = f"No se pudo actualizar desde GitHub; se conserva el catálogo local. {str(exc)[:240]}"
+        return SYNC_MESSAGE
 
 LOCK = threading.Lock()
 STATE = {
@@ -51,6 +149,7 @@ def json_bytes(value):
     return json.dumps(value, ensure_ascii=False).encode("utf-8")
 
 def catalog():
+    sync_manual_catalog()
     try:
         data = json.loads(REGISTRY_FILE.read_text(encoding="utf-8"))
     except Exception:
@@ -467,6 +566,8 @@ class ManualHandler(BaseHTTPRequestHandler):
 def main():
     if not HTML_FILE.is_file():
         raise SystemExit("No se encontró web/manual.html.")
+    sync_result = sync_manual_catalog(force=True)
+    print("Sincronización: " + sync_result)
     server = ThreadingHTTPServer((HOST, PORT), ManualHandler)
     url = f"http://{HOST}:{server.server_address[1]}"
     print("cloudservicegm · Diseños manuales en " + url)
