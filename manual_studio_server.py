@@ -100,6 +100,11 @@ def sync_manual_catalog(force=False):
                 raise RuntimeError("El catálogo remoto tiene una estructura no válida.")
 
             pending = []
+            # Refresh the independent manual page too; the page checks the
+            # catalog periodically while it remains open.
+            manual_html = _fetch_repo_text("web/manual.html", 100_000)
+            pending.append((HTML_FILE, manual_html))
+
             # Keep the local catalogue untouched if any published design cannot
             # be fetched and validated completely.
             builder_text = _fetch_repo_text("build_manual_video.py", 300_000)
