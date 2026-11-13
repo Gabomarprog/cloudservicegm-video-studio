@@ -1,0 +1,15 @@
+¿Tu proveedor de hosting te cobra por el candadito de tu web? Ojo: podrías estar pagando por un certificado que puedes conseguir gratis.
+
+Se llama Let's Encrypt. Es una autoridad certificadora sin fines de lucro que emite certificados SSL/TLS sin cobrar por ellos.
+
+¿Y cómo funciona? Tu servidor demuestra que controlas el dominio. Puede hacerlo respondiendo a una validación web o publicando un registro DNS.
+
+Después, un cliente ACME, como Certbot, solicita el certificado y puede instalarlo en servidores como Nginx o Apache.
+
+Así tu página puede funcionar con HTTPS sin pagar por el certificado.
+
+Pero atención: gratis no significa para siempre sin mantenimiento. Los certificados tienen una vigencia limitada. El estándar actual de 90 días comenzará a reducirse: desde el 10 de febrero de 2027, los nuevos certificados de Let's Encrypt pasarán a 64 días por defecto.
+
+Por eso debes configurar la renovación automática y comprobar que realmente funciona.
+
+Y si quieres saber dónde instalarlo, tener más control y evitar pagar de más por tu infraestructura, mira mi próximo video sobre VPS.
