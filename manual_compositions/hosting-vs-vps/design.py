@@ -221,7 +221,7 @@ def _animation(i,start,end):
        ("#small-stars","scale:0,rotation:-35,autoAlpha:0","scale:1,rotation:0,autoAlpha:1,duration:.6,stagger:.2,ease:'elastic.out(1,.5)'",1.15)],
       [("#growth-chart","y:120,scale:.85,autoAlpha:0","y:0,scale:1,autoAlpha:1,duration:.8,ease:'power3.out'",0),
        ("#growth-bars rect","scaleY:.08,transformOrigin:'center bottom'","scaleY:1,duration:.65,stagger:.16,ease:'power2.out'",.65),
-       ("#growth-chart path","drawSVG:'0%'","drawSVG:'100%',duration:.9,ease:'power2.out'",1.1),
+       ("#growth-chart path","scaleX:.05,transformOrigin:'left center'","scaleX:1,duration:.9,ease:'power2.out'",1.1),
        ("#growth-tags rect","y:70,autoAlpha:0","y:0,autoAlpha:1,duration:.55,stagger:.13,ease:'back.out(1.6)'",1.4)],
       [("#vps-orbits","scale:.6,rotation:20,autoAlpha:0","scale:1,rotation:0,autoAlpha:1,duration:.8,ease:'power3.out'",0),
        ("#vps-physical","scale:.82,y:150,autoAlpha:0","scale:1,y:0,autoAlpha:1,duration:.8,ease:'back.out(1.4)'",.2),
