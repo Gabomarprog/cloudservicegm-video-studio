@@ -1,0 +1,13 @@
+En el video anterior te contamos que un certificado SSL puede costarte cero dólares. Pero ¿qué haces si tu hosting no te lo incluye?
+
+Una alternativa es utilizar un VPS: un servidor virtual que puedes administrar y configurar a tu manera.
+
+Para hacerlo más fácil, puedes instalar un panel de control web. Algunos conocidos son cPanel, aaPanel, ISPConfig y HestiaCP.
+
+Desde esa interfaz puedes administrar tus sitios y dominios y, según el panel y su configuración, solicitar certificados gratuitos de Let's Encrypt y facilitar su instalación y renovación.
+
+Eso sí, no necesitas un VPS obligatoriamente. Si tu hosting actual ya ofrece SSL gratuito, puedes activarlo directamente desde allí.
+
+Y recuerda: el certificado puede ser gratis, pero el VPS y algunas licencias de panel pueden tener un costo. Lo importante es saber qué estás pagando.
+
+¿Ya utilizas alguno de estos paneles? ¿Cuál te gustaría que mostremos en un tutorial?
