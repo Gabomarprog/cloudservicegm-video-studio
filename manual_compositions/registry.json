@@ -23,10 +23,10 @@
       "status": "ready"
     },
     {
-      "id": "hosting-vs-vps",
-      "title": "¿Tu página web necesita un VPS o te basta con un hosting?",
-      "topic": "Diferencias entre hosting compartido y VPS, recursos, crecimiento y control",
-      "description": "Páginas compartiendo un servidor, hosting compartido explicado, proyecto pequeño, crecimiento de visitas y necesidades, servidor físico dividido en entornos virtuales, recursos y control, advertencia sobre rendimiento y pregunta a la comunidad.",
+      "id": "vps-ssl-panels",
+      "title": "¿Cómo conseguir un SSL gratis usando un VPS?",
+      "topic": "Administrar certificados SSL gratuitos de Let's Encrypt desde un VPS con paneles web",
+      "description": "Continuación del video sobre SSL a cero dólares: control del VPS, administración desde un panel web, referencias visuales a cPanel, aaPanel, ISPConfig y HestiaCP, gestión de certificados Let's Encrypt, renovación y aclaración de que el VPS no es obligatorio si el hosting ya incluye SSL.",
       "status": "ready"
     }
   ]
